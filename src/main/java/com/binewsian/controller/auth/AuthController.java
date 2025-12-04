@@ -1,0 +1,164 @@
+package com.binewsian.controller.auth;
+
+import com.binewsian.exception.BiNewsianException;
+import com.binewsian.model.User;
+import com.binewsian.service.AuthService;
+import com.binewsian.service.RememberMeSvc;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+@Slf4j
+@Controller
+@AllArgsConstructor
+public class AuthController {
+
+    private final AuthService authService;
+    private final RememberMeSvc rememberMeSvc;
+
+    @GetMapping("/login")
+    public String loginPage(@RequestParam(required = false) String error, @RequestParam(required = false) String logout,
+                            HttpServletRequest request, HttpSession session, Model model) {
+
+        // Check if already logged in via session
+        if (session.getAttribute("user") != null) {
+            return "redirect:/dashboard";
+        }
+
+        // Check remember me token
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("remember_token".equals(cookie.getName())) {
+                    User user = rememberMeSvc.validateTokenAndGetUser(cookie.getValue());
+                    if (user != null) {
+                        // Auto login
+                        session.setAttribute("user", user);
+                        return "redirect:/dashboard";
+                    }
+                }
+            }
+        }
+
+        if (error != null) {
+            if ("unauthorized".equals(error)) {
+                model.addAttribute("error", "Silakan login terlebih dahulu!");
+            } else {
+                model.addAttribute("error", "Username atau password salah!");
+            }
+        }
+        if (logout != null) {
+            model.addAttribute("message", "Anda berhasil logout");
+        }
+
+        return "login";
+    }
+
+    @PostMapping("/login")
+    public String login(@RequestParam String username, @RequestParam String password,
+                        @RequestParam(required = false) String rememberMe, HttpSession session,
+                        HttpServletResponse response, Model model) {
+
+        User user = authService.authenticate(username, password);
+
+        if (user == null) {
+            model.addAttribute("error", "Username atau password salah!");
+            model.addAttribute("username", username);
+            return "login";
+        }
+
+        // Set session
+        session.setAttribute("user", user);
+        session.setMaxInactiveInterval(30 * 60); // 30 minutes
+
+        // Handle Remember Me
+        if ("on".equals(rememberMe)) {
+            String token = rememberMeSvc.createToken(username);
+            Cookie cookie = new Cookie("remember_token", token);
+            cookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
+            cookie.setPath("/");
+            cookie.setHttpOnly(true);
+            response.addCookie(cookie);
+        } else {
+            // Remove remember me cookie if not checked
+            Cookie cookie = new Cookie("remember_token", "");
+            cookie.setMaxAge(0);
+            cookie.setPath("/");
+            response.addCookie(cookie);
+        }
+
+        if ("Contributor".equals(user.getRole().getDisplayName())) {
+            return "redirect:/contributor/content";
+        } else if ("Admin".equals(user.getRole().getDisplayName())) {
+            return "redirect:/admin/panel";
+        } else {
+            return "redirect:/dashboard";
+        }
+    }
+
+    @GetMapping("/register")
+    public String registerPage() {
+        return "register";
+    }
+
+    @PostMapping("/register")
+    public String register(@RequestParam String username, @RequestParam String password,
+                           @RequestParam String confirmPassword, @RequestParam String email, Model model) {
+
+        if (!password.equals(confirmPassword)) {
+            model.addAttribute("error", "Password tidak cocok!");
+            model.addAttribute("username", username);
+            model.addAttribute("email", email);
+            return "register";
+        }
+
+        try {
+            authService.register(username, password, email);
+            model.addAttribute("success", "Registrasi berhasil! Silakan login.");
+            return "login";
+        } catch (BiNewsianException e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("username", username);
+            model.addAttribute("email", email);
+            return "register";
+        } catch (Exception e) {
+            log.error("Error register", e);
+            return "register";
+        }
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
+        // Get user before invalidating session
+        User user = (User) session.getAttribute("user");
+
+        // Delete remember me token
+        if (user != null) {
+            rememberMeSvc.deleteTokenByUsername(user.getUsername());
+        }
+
+        // Delete cookie
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("remember_token".equals(cookie.getName())) {
+                    cookie.setMaxAge(0);
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
+                }
+            }
+        }
+
+        session.invalidate();
+        return "redirect:/login?logout";
+    }
+
+}

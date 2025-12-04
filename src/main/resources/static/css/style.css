@@ -1,0 +1,644 @@
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --primary-color: #667eea;
+    --secondary-color: #764ba2;
+}
+
+main {
+    position: relative;
+}
+
+body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.navbar-custom {
+    background: var(--primary-gradient);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar-nav.mx-auto {
+    gap: 1rem; /* Gap between menu items */
+}
+
+.navbar-nav.mx-auto .nav-link {
+    font-weight: 500;
+    transition: all 0.3s;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar-nav.mx-auto .nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}
+
+.navbar-nav.mx-auto .nav-link.active {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+}
+
+.btn-gradient {
+    background: var(--primary-gradient);
+    border: none;
+    color: white;
+    transition: all 0.3s;
+}
+
+.btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+.card-custom {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+}
+
+.card-custom:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.badge-custom {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.role-badge-user {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.role-badge-contributor {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.role-badge-admin {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.footer {
+    margin-top: auto;
+    padding: 1.5rem 0;
+    background: white;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+}
+
+.stat-card {
+    border:none;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 6px 20px rgba(18, 38, 63, .12);
+}
+
+.stat-icon {
+    width:42px; height:42px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:12px;
+    color:#fff;
+}
+
+.icon-news { background:var(--secondary-color) }
+.icon-activity { background:var(--primary-color) }
+.icon-published { background:#13C19E; }
+.icon-draft { background:#FF0048; }
+
+.content-card {
+    border:none;
+    border-radius: 14px;
+    background:#ffffff;
+    box-shadow:0 6px 20px rgba(18, 38, 63, .12);
+    overflow:hidden;
+}
+
+.nav-tabs .nav-link {
+    border:none;
+    color:#374151;
+    border-radius:999px;
+}
+
+.nav-tabs .nav-link.active {
+    background:#eef2ff;
+    color:#4f46e5;
+    border:none;
+}
+
+.search-wrap {
+    background:#f3f4f6;
+    border-radius:10px;
+    padding:8px 12px;
+    border:1px solid #e5e7eb;
+}
+.search-wrap .form-control {
+    background:transparent;
+    border:none;
+    box-shadow:none;
+}
+
+.news-item {
+    border:1px solid #e5e7eb;
+    border-radius:12px;
+    padding:12px;
+    margin-bottom:12px;
+    background:#fff;
+}
+
+.news-item:hover {
+    background: #f3f4f6;
+}
+
+.thumb {
+    width:58px; height:58px; border-radius:8px;
+    background:#e5e7eb;
+}
+
+.news-title:hover, .thumb:hover {
+    cursor: pointer;
+}
+
+.badge-soft {
+    background:var(--badge-bg);
+    color:#334155;
+    border:1px solid #e2e8f0;
+    border-radius:999px;
+    font-weight:500;
+}
+
+.status-pill {
+    border-radius:8px;
+    font-weight:400;
+    padding:4px 10px;
+}
+
+.status-published {
+    background:#13C19E;
+    color:#ffffff;
+}
+
+.ellipsis-btn{
+    color:#6b7280;
+}
+
+.footer-note{
+    color:#6b7280;
+    font-size:.9rem;
+}
+
+.fixed-button {
+    position: fixed;
+    bottom: 20px; /* Distance from bottom */
+    right: 20px; /* Distance from right */
+    padding: 10px 15px;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.fixed-button.absolute-position {
+    position: absolute;
+    bottom: auto;
+}
+
+.contributor-panel-btn { background: var(--secondary-color) }
+.admin-panel-btn { background: var(--primary-color) }
+
+.fixed-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 999; /* Keeps it above other elements */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Optional for nice effect */
+}
+
+@media (max-width: 576px){
+    .thumb{ width:44px; height:44px; }
+    .news-title{ font-size:0.95rem; }
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+/* SELECT */
+.select2 {
+    width: 100% !important;
+}
+
+.select2-hidden-accessible {
+    position: fixed !important;
+}
+
+.select2-container--default .select2-selection--single,
+.select2-selection .select2-selection--single {
+    padding: 10px;
+    max-height: max-content;
+    border: 1px solid #C4C4C4 !important;
+    height: auto !important
+}
+
+.select2-container--default .select2-results__option--highlighted.select2-results__option--selectable{
+    background-color: var(--primary-color) !important;
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field{
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.select2-container--open .select2-search__field:focus {
+    outline: none !important; /* Removes the default outline */
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    top:15px !important;
+    right: 15px !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+    border: none !important;
+    height: 20px !important;
+    width: 20px !important;
+    margin: auto !important;
+    top: auto !important;
+    left: auto !important;
+}
+
+.select2-container.select2-container--default.select2-container--open{
+    /* Adjustment for select inside bootstrap modal */
+    z-index: 2000 !important;
+}
+
+/* ========================================
+   DASHBOARD
+   ======================================== */
+
+/* User Icon */
+.user-icon {
+    width: 40px;
+    height: 40px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.user-icon:hover {
+    transform: scale(1.1);
+}
+
+/* Main Container */
+.main-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+}
+
+/* Hero Section */
+.hero-section {
+    padding: 4rem 3rem;
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.hero-section h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 1rem;
+}
+
+.hero-section p {
+    color: #6b7280;
+    font-size: 1.125rem;
+    max-width: 700px;
+    margin: 0 auto 2rem;
+    line-height: 1.6;
+}
+
+/* Feature Cards Grid */
+.feature-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.feature-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    border: none;
+    position: relative;
+    padding-bottom: 3.5rem;
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    text-decoration: none;
+}
+
+.feature-icon {
+    width: 56px;
+    height: 56px;
+    background: var(--primary-gradient);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.feature-card h5 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #1f2937;
+}
+
+.feature-card p {
+    color: #6b7280;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+
+.feature-link {
+    color: var(--primary-color);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: gap 0.3s ease;
+    position: absolute;
+    bottom: 1.5rem;
+    left: 2rem;
+}
+
+.feature-card:hover .feature-link {
+    gap: 0.75rem;
+}
+
+/* News Section */
+.news-header {
+    margin-bottom: 2rem;
+}
+
+.news-header h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.news-header p {
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+/* News Carousel */
+.news-carousel {
+    position: relative;
+    overflow: hidden;
+}
+
+.news-card-wrapper {
+    display: flex;
+    transition: transform 0.5s ease;
+}
+
+.news-card {
+    min-width: 100%;
+    display: flex;
+    gap: 2rem;
+    background: #f8f9fc;
+    border-radius: 16px;
+    overflow: hidden;
+    padding: 0;
+}
+
+.news-image {
+    flex: 0 0 45%;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-align: center;
+    padding: 2rem;
+}
+
+.news-content {
+    flex: 1;
+    padding: 2rem 4rem 4rem 0rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    position: relative;
+    padding-bottom: 5rem;
+}
+
+.news-meta {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.news-content h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
+
+.news-content .description {
+    color: #4b5563;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.news-tags {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.tag {
+    background: white;
+    color: #4b5563;
+    padding: 0.375rem 0.875rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.btn-read-more {
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    align-self: flex-start;
+    position: absolute;
+    bottom: 2rem;
+    left: 0rem;
+}
+
+.btn-read-more:hover {
+    transform: translateX(4px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Carousel Controls */
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: var(--primary-color);
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.carousel-btn:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.carousel-btn.prev {
+    left: 1rem;
+}
+
+.carousel-btn.next {
+    right: 1rem;
+}
+
+.carousel-indicators {
+    position: relative;
+    z-index: 2;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.indicator {
+    width: 8px;
+    height: 8px;
+    background: #bbbdbf;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.3s ease;
+}
+
+.indicator.active {
+    width: 40px;
+    border-radius: 4px;
+    background: var(--primary-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-container {
+        padding: 2rem 1rem;
+    }
+
+    .hero-section {
+        padding: 3rem 2rem;
+    }
+
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+
+    .news-section {
+        padding: 1.5rem;
+    }
+
+    .news-card {
+        flex-direction: column;
+    }
+
+    .news-image {
+        flex: 0 0 auto;
+        min-height: 250px;
+    }
+
+    .carousel-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .carousel-btn.prev {
+        left: 0.5rem;
+    }
+
+    .carousel-btn.next {
+        right: 0.5rem;
+    }
+}

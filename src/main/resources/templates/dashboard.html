@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/base}">
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <!-- Main Container -->
+        <div class="main-container">
+            <!-- Hero Section -->
+            <div class="hero-section animate-fade-in">
+                <h1>Bina Nusantara News</h1>
+                <p>A centralized platform for managing your SAT scores and Community Service hours. Achieve your academic goals easily and in an organized manner.</p>
+                <a th:href="@{/activity}" class="btn btn-gradient btn-lg">
+                    Explore Activities
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- Feature Cards -->
+            <div class="feature-cards">
+                <a th:href="@{/news}" class="feature-card animate-fade-in" style="animation-delay: 0.1s;">
+                    <div class="feature-icon">
+                        <i class="bi bi-newspaper"></i>
+                    </div>
+                    <h5>News</h5>
+                    <p>The latest information about campus and student activities</p>
+                    <span class="feature-link">
+                        Open
+                        <i class="bi bi-arrow-right"></i>
+                    </span>
+                </a>
+
+                <a th:href="@{/forum}" class="feature-card animate-fade-in" style="animation-delay: 0.2s;">
+                    <div class="feature-icon">
+                        <i class="bi bi-chat-square-text"></i>
+                    </div>
+                    <h5>Forum</h5>
+                    <p>Discuss and share experiences with other students</p>
+                    <span class="feature-link">
+                        Open
+                        <i class="bi bi-arrow-right"></i>
+                    </span>
+                </a>
+
+                <a th:href="@{/activity}" class="feature-card animate-fade-in" style="animation-delay: 0.3s;">
+                    <div class="feature-icon">
+                        <i class="bi bi-activity"></i>
+                    </div>
+                    <h5>Activity</h5>
+                    <p>Find activities to earn SAT points & Community Service hours</p>
+                    <span class="feature-link">
+                        Open
+                        <i class="bi bi-arrow-right"></i>
+                    </span>
+                </a>
+            </div>
+
+            <!-- Latest News Section -->
+            <div class="news-section animate-fade-in" style="animation-delay: 0.4s;">
+                <div class="news-header">
+                    <h2>Latest News</h2>
+                    <p>The latest information about campus and student activities</p>
+                </div>
+
+                <div class="news-carousel">
+                    <button class="carousel-btn prev" onclick="previousSlide()">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <button class="carousel-btn next" onclick="nextSlide()">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+
+                    <div class="news-card-wrapper" id="newsCarousel">
+                        <!-- News Card 1 -->
+                        <div class="news-card">
+                            <div class="news-image">
+                                <div>Binus University Campus</div>
+                            </div>
+                            <div class="news-content">
+                                <div class="news-meta">
+                                    <i class="bi bi-calendar3"></i>
+                                    <span class="ms-1">14 November 2025 • Tim IT Binus</span>
+                                </div>
+                                <h3>Binus University Ranked 1st in Indonesia's Best Campus 2025</h3>
+                                <p class="description">Binus University has once again achieved a brilliant achievement by achieving first place as the best campus in Indonesia according to the QS World University Rankings 2025.</p>
+                                <div class="news-tags">
+                                    <span class="tag">Achievement</span>
+                                    <span class="tag">Academic</span>
+                                </div>
+                                <a th:href="@{/news/1}" class="btn-read-more">
+                                    Read More
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- News Card 2 -->
+                        <div class="news-card">
+                            <div class="news-image">
+                                <div>Campus Event 2025</div>
+                            </div>
+                            <div class="news-content">
+                                <div class="news-meta">
+                                    <i class="bi bi-calendar3"></i>
+                                    <span class="ms-1">10 November 2025 • Student Affairs</span>
+                                </div>
+                                <h3>Annual Tech Festival: Innovation Showcase 2025</h3>
+                                <p class="description">Join us for the biggest tech festival of the year featuring innovative projects, workshops, and networking opportunities with industry leaders.</p>
+                                <div class="news-tags">
+                                    <span class="tag">Event</span>
+                                    <span class="tag">Technology</span>
+                                </div>
+                                <a th:href="@{/news/2}" class="btn-read-more">
+                                    Read More
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- News Card 3 -->
+                        <div class="news-card">
+                            <div class="news-image">
+                                <div>Research Excellence</div>
+                            </div>
+                            <div class="news-content">
+                                <div class="news-meta">
+                                    <i class="bi bi-calendar3"></i>
+                                    <span class="ms-1">5 November 2025 • Research Center</span>
+                                </div>
+                                <h3>Breakthrough in AI Research by Binus Students</h3>
+                                <p class="description">Our students have published groundbreaking research in artificial intelligence that has been recognized internationally.</p>
+                                <div class="news-tags">
+                                    <span class="tag">Research</span>
+                                    <span class="tag">Innovation</span>
+                                </div>
+                                <a th:href="@{/news/3}" class="btn-read-more">
+                                    Read More
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- News Card 4 -->
+                        <div class="news-card">
+                            <div class="news-image">
+                                <div>Community Service</div>
+                            </div>
+                            <div class="news-content">
+                                <div class="news-meta">
+                                    <i class="bi bi-calendar3"></i>
+                                    <span class="ms-1">1 November 2025 • Community Outreach</span>
+                                </div>
+                                <h3>Students Lead Community Development Program</h3>
+                                <p class="description">Binus students are making a difference through community service initiatives that benefit local neighborhoods.</p>
+                                <div class="news-tags">
+                                    <span class="tag">Community</span>
+                                    <span class="tag">Service</span>
+                                </div>
+                                <a th:href="@{/news/4}" class="btn-read-more">
+                                    Read More
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="carousel-indicators">
+                        <button class="indicator active" onclick="goToSlide(0)"></button>
+                        <button class="indicator" onclick="goToSlide(1)"></button>
+                        <button class="indicator" onclick="goToSlide(2)"></button>
+                        <button class="indicator" onclick="goToSlide(3)"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page specific scripts -->
+    <th:block layout:fragment="scripts">
+        <script>
+            let currentSlide = 0;
+
+            function nextSlide() {
+                const indicators = document.querySelectorAll('.indicator');
+                currentSlide = (currentSlide + 1) % indicators.length;
+                updateCarousel();
+            }
+
+            function previousSlide() {
+                const indicators = document.querySelectorAll('.indicator');
+                currentSlide = (currentSlide - 1 + indicators.length) % indicators.length;
+                updateCarousel();
+            }
+
+            function goToSlide(index) {
+                currentSlide = index;
+                updateCarousel();
+            }
+
+            function updateCarousel() {
+                const carousel = document.getElementById('newsCarousel');
+                const indicators = document.querySelectorAll('.indicator');
+
+                carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
+
+                indicators.forEach((indicator, index) => {
+                    indicator.classList.toggle('active', index === currentSlide);
+                });
+            }
+
+            // Auto-play carousel
+            setInterval(nextSlide, 5000);
+        </script>
+    </th:block>
+</body>
+</html>

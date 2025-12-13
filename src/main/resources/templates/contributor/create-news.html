@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/panel}">
+<head>
+    <title>Create News</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container mb-4">
+            <div class="d-flex flex-wrap gap-2">
+                <a th:href="@{/contributor/content}" class="btn btn-light" style="border:1px solid #c3c4c7;">
+                    <i class="bi bi-grid-1x2"></i> Dashboard
+                </a>
+                <a th:href="@{/contributor/create-news}" class="btn btn-gradient" style="border:1px solid #c3c4c7;">
+                    <i class="bi bi-plus-lg"></i> Create News
+                </a>
+                <a th:href="@{/contributor/create-activity}" class="btn btn-light" style="border:1px solid #c3c4c7;">
+                    <i class="bi bi-plus-lg"></i> Create Activity
+                </a>
+            </div>
+        </div>
+
+        <div class="container mb-4">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card content-card mb-4">
+                        <div class="card-body">
+                            <form>
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Article Title<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="title">
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="category" class="form-label">Category<span class="text-danger">*</span></label>
+                                        <select class="form-select" data-placeholder="Choose" id="category">
+                                            <option selected>Select a category</option>
+                                            <option value="technology">Technology</option>
+                                            <option value="business">Business</option>
+                                            <option value="sports">Sports</option>
+                                            <option value="entertainment">Entertainment</option>
+                                            <option value="health">Health</option>
+                                            <option value="science">Science</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-8 mb-3">
+                                        <label for="featured-image" class="form-label">Featured Image (5MB)</label>
+                                        <input class="form-control" type="file" id="featured-image">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="summary" class="form-label">Summary<span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="summary" rows="3" placeholder="Write a brief summary of your article (max 200 characters)"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Article Content<span class="text-danger">*</span></label>
+                                    <div id="article-editor" style="height: 400px;"></div>
+                                    <input type="hidden" id="article-content">
+                                </div>
+
+                                <div class="d-flex justify-content-end gap-2 mt-4">
+                                    <button type="button" class="btn btn-outline-secondary">
+                                        <i class="bi bi-save me-2"></i> Save as Draft
+                                    </button>
+
+                                    <button type="submit" class="btn btn-purple">
+                                        <i class="bi bi-check-circle me-2"></i> Publish
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script>
+            const articleEditor = new Quill("#article-editor", quillConfig);
+            const articleEditorContent = articleEditor.root.innerHTML;
+        </script>
+    </th:block>
+</body>
+</html>

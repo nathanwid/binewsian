@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/panel}">
+<head>
+    <title>Create Activity</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container mb-4">
+            <div class="d-flex flex-wrap gap-2">
+                <a th:href="@{/contributor/content}" class="btn btn-light" style="border:1px solid #c3c4c7;">
+                    <i class="bi bi-grid-1x2"></i> Dashboard
+                </a>
+                <a th:href="@{/contributor/create-news}" class="btn btn-light" style="border:1px solid #c3c4c7;">
+                    <i class="bi bi-plus-lg"></i> Create News
+                </a>
+                <a th:href="@{/contributor/create-activity}" class="btn btn-gradient" style="border:1px solid #c3c4c7;">
+                    <i class="bi bi-plus-lg"></i> Create Activity
+                </a>
+            </div>
+        </div>
+
+        <div class="container mb-4">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card content-card mb-4">
+                        <div class="card-body">
+                            <form>
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Activity Title<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="title">
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <label for="type" class="form-label">Type<span class="text-danger">*</span></label>
+                                        <select class="form-select" id="type">
+                                            <option selected>Select a type</option>
+                                            <option value="SAT">Student Activity Point</option>
+                                            <option value="ComServ">Community Service</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-3 mb-3">
+                                        <label for="quota" class="form-label">Quota<span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="quota" placeholder="Enter quota for this activity">
+                                    </div>
+
+                                    <div class="col-md-3 mb-3">
+                                        <label for="amount" class="form-label">Point/Hour amount<span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="amount" placeholder="Enter reward amount for this activity">
+                                    </div>
+
+                                    <div class="col-md-3 mb-3">
+                                        <label for="date" class="form-label">Activity Date<span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="date">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Activity Details<span class="text-danger">*</span></label>
+                                    <div id="activity-editor" style="height: 400px;"></div>
+                                    <input type="hidden" id="activity-details">
+                                </div>
+
+                                <div class="d-flex justify-content-end gap-2 mt-4">
+                                    <button type="button" class="btn btn-outline-secondary">
+                                        <i class="bi bi-save me-2"></i> Save as Draft
+                                    </button>
+
+                                    <button type="submit" class="btn btn-purple">
+                                        <i class="bi bi-check-circle me-2"></i> Publish
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script>
+            const activityEditor = new Quill("#activity-editor", quillConfig);
+            const activityEditorContent = activityEditor.root.innerHTML;
+        </script>
+    </th:block>
+</body>
+</html>

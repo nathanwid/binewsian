@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/panel}">
+<head>
+    <title>Content Management</title>
+
+    <th:block layout:fragment="styles">
+        <style>
+            body {
+                min-height:100vh;
+                padding-top: 73px;
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container mb-4">
+            <div class="d-flex flex-wrap gap-2">
+                <a th:href="@{/contributor/content}" class="btn btn-gradient" style="border:1px solid #c3c4c7;">
+                    <i class="bi bi-grid-1x2"></i> Dashboard
+                </a>
+                <a th:href="@{/contributor/create-news}" class="btn btn-light" style="border:1px solid #c3c4c7;">
+                    <i class="bi bi-plus-lg"></i> Create News
+                </a>
+                <a th:href="@{/contributor/create-activity}" class="btn btn-light" style="border:1px solid #c3c4c7;">
+                    <i class="bi bi-plus-lg"></i> Create Activity
+                </a>
+            </div>
+        </div>
+
+        <!-- Stat Cards -->
+        <div class="container mb-4">
+            <div class="row g-3">
+                <div th:replace="fragments/stat-card :: statCard('bi-newspaper', 'Total News', 24, 'icon-news')"></div>
+                <div th:replace="fragments/stat-card :: statCard('bi-activity', 'Total Activity', 12, 'icon-activity')"></div>
+                <div th:replace="fragments/stat-card :: statCard('bi-check2-circle', 'Published', 15, 'icon-published')"></div>
+                <div th:replace="fragments/stat-card :: statCard('bi-file-earmark', 'Draft', 6, 'icon-draft')"></div>
+            </div>
+        </div>
+
+        <!-- Content Card -->
+        <div class="container mb-4">
+            <div class="card content-card">
+                <div class="card-body">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs mb-3" id="newsTabs">
+                        <div class="d-flex mb-3">
+                            <li class="nav-item">
+                                <button class="nav-link active" id="tab-news" data-bs-toggle="tab" data-bs-target="#panel-news" type="button" role="tab">
+                                    <i class="bi bi-newspaper me-1"></i> My News
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link" id="tab-activity" data-bs-toggle="tab" data-bs-target="#panel-activity" type="button" role="tab">
+                                    <i class="bi bi-activity me-1"></i> My Activity
+                                </button>
+                            </li>
+                        </div>
+                    </ul>
+
+                    <!-- Tab Panels -->
+                    <div class="tab-content">
+                        <!-- My News -->
+                        <div class="tab-pane fade show active" id="panel-news" role="tabpanel" aria-labelledby="tab-news">
+                            <div class="search-wrap mb-3 d-flex align-items-center gap-2">
+                                <i class="bi bi-search text-muted"></i>
+                                <input type="text" class="form-control" placeholder="Search News" aria-label="Search News">
+                            </div>
+<!--                            <div th:each="item: ${news}">-->
+                                <div class="news-item">
+                                    <div class="d-flex align-items-start">
+                                        <div class="thumb me-3"></div>
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex align-items-start justify-content-between">
+                                                <h6 class="news-title mb-1">Binus University Ranked 1st in Indonesia’s Best Campus 2025</h6>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <span class="status-pill status-published">Published</span>
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-link p-1 ellipsis-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <i class="bi bi-three-dots-vertical"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end">
+                                                            <li>
+                                                                <button class="dropdown-item" type="button" id="action-edit">
+                                                                    <i class="bi bi-pencil me-2"></i> Edit
+                                                                </button>
+                                                            </li>
+                                                            <li>
+                                                                <button class="dropdown-item text-danger" type="button" id="action-delete" data-item-id="123">
+                                                                    <i class="bi bi-trash me-2"></i> Delete
+                                                                </button>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="d-flex flex-wrap gap-2 mb-1">
+                                            <span class="badge badge-soft">
+                                                <i class="bi bi-tag"></i> Achievement
+                                            </span>
+                                                <span class="badge badge-soft">
+                                                <i class="bi bi-tag"></i> Academic
+                                            </span>
+                                                <span class="text-muted small">•<span style="margin-left: 6.5px;">2 days ago</span></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+<!--                            </div>-->
+
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                <p class="footer-note mb-0">Showing 3 of 24 results</p>
+                                <div>
+                                    <nav aria-label="Page navigation example">
+                                        <ul class="pagination mb-0">
+                                            <li class="page-item">
+                                                <a class="page-link" href="#" aria-label="Previous">
+                                                    <span aria-hidden="true">&laquo;</span>
+                                                </a>
+                                            </li>
+                                            <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                            <li class="page-item">
+                                                <a class="page-link" href="#" aria-label="Next">
+                                                    <span aria-hidden="true">&raquo;</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- My Activity  -->
+                        <div class="tab-pane fade" id="panel-activity" role="tabpanel" aria-labelledby="tab-activity">
+                            <div class="search-wrap mb-3 d-flex align-items-center gap-2">
+                                <i class="bi bi-search text-muted"></i>
+                                <input type="text" class="form-control" placeholder="Search Activity" aria-label="Search Activity">
+                            </div>
+                            <div class="d-flex justify-content-center align-items-center text-muted">No activities yet.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script>
+            $(document).ready(function() {
+                $('#action-delete').click(function() {
+                    const itemId = $(this).data('item-id');
+
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: 'This action cannot be undone!',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, delete it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Swal.fire(
+                                'Deleted!',
+                                'Your item has been deleted.',
+                                'success'
+                            );
+                            console.log('Deleting item:', itemId);
+                            // Here you can call your delete function or AJAX request
+                        }
+                    })
+                })
+            })
+        </script>
+    </th:block>
+</body>
+</html>

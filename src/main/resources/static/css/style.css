@@ -4,6 +4,16 @@
     --secondary-color: #764ba2;
 }
 
+.btn-purple {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-purple:hover {
+    background: #5a6edb;
+    color: white;
+}
+
 main {
     position: relative;
 }
@@ -47,6 +57,21 @@ body {
 .navbar-nav.mx-auto .nav-link.active {
     background: rgba(255, 255, 255, 0.2);
     border-radius: 5px;
+}
+
+.page-item.active .page-link {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+.page-link {
+    color: #6c757d !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+.page-link:hover {
+    color: var(--primary-color) !important;
 }
 
 .btn-gradient {

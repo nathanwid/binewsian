@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/panel}">
+<head>
+    <title>Admin Panel</title>
+
+    <th:block layout:fragment="styles">
+        <style>
+            body {
+                min-height:100vh;
+                padding-top: 73px;
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container mb-4">
+            <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-gradient">
+                    <i class="bi bi-grid-1x2"></i> Dashboard
+                </button>
+                <button class="btn btn-light" style="border:1px solid #c3c4c7;" data-bs-toggle="modal" data-bs-target="#createContributorModal">
+                    <i class="bi bi-plus-lg"></i> New Contributor
+                </button>
+                <button type="button" class="btn btn-light" style="border:1px solid #c3c4c7;" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+                    <i class="bi bi-plus-lg"></i> Create Category
+                </button>
+            </div>
+        </div>
+
+        <!-- Stat Cards -->
+        <div class="container mb-4">
+            <div class="row g-3">
+                <div th:replace="fragments/stat-card :: statCard('bi-newspaper', 'Total News', 24, 'icon-news')"></div>
+                <div th:replace="fragments/stat-card :: statCard('bi-activity', 'Total Activity', 12, 'icon-activity')"></div>
+                <div th:replace="fragments/stat-card :: statCard('bi-tags', 'Total Category', 15, 'icon-published')"></div>
+                <div th:replace="fragments/stat-card :: statCard('bi-file-earmark', 'Total Contributor', 6, 'icon-draft')"></div>
+            </div>
+        </div>
+
+        <!-- Content Card -->
+        <div class="container mb-4">
+            <div class="card content-card">
+                <div class="card-body">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs mb-3" id="newsTabs">
+                        <div class="d-flex mb-3">
+                            <li class="nav-item">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-news" type="button" role="tab">
+                                    <i class="bi bi-newspaper me-1"></i> Manage News
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-activity" type="button" role="tab">
+                                    <i class="bi bi-activity me-1"></i> Manage Activity
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-category" type="button" role="tab">
+                                    <i class="bi bi-tags me-1"></i> Manage Category
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-contributor" type="button" role="tab">
+                                    <i class="bi bi-file-earmark me-1"></i> Manage Contributor
+                                </button>
+                            </li>
+                        </div>
+                    </ul>
+
+                    <!-- Tab Panels -->
+                    <div class="tab-content">
+                        <!-- Manage News -->
+                        <div class="tab-pane fade" id="panel-news" role="tabpanel" aria-labelledby="tab-news">
+                            <div class="search-wrap mb-3 d-flex align-items-center gap-2">
+                                <i class="bi bi-search text-muted"></i>
+                                <input type="text" class="form-control" placeholder="Search News" aria-label="Search News">
+                            </div>
+                            <div class="news-item">
+                                <div class="d-flex align-items-start">
+                                    <div class="thumb me-3"></div>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-start justify-content-between">
+                                            <h6 class="news-title mb-1">Binus University Ranked 1st in Indonesia’s Best Campus 2025</h6>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="status-pill status-published">Published</span>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-link p-1 ellipsis-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <i class="bi bi-three-dots-vertical"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                        <li>
+                                                            <button class="dropdown-item" type="button" id="action-edit">
+                                                                <i class="bi bi-pencil me-2"></i> Edit
+                                                            </button>
+                                                        </li>
+                                                        <li>
+                                                            <button class="dropdown-item text-danger" type="button" id="action-delete" data-item-id="123">
+                                                                <i class="bi bi-trash me-2"></i> Delete
+                                                            </button>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex flex-wrap gap-2 mb-1">
+                                            <span class="badge badge-soft">
+                                                <i class="bi bi-tag"></i> Achievement
+                                            </span>
+                                            <span class="badge badge-soft">
+                                                <i class="bi bi-tag"></i> Academic
+                                            </span>
+                                            <span class="text-muted small">•<span style="margin-left: 6.5px;">2 days ago</span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                <p class="footer-note mb-0">Showing 3 of 24 results</p>
+                                <div>
+                                    <nav aria-label="Page navigation example">
+                                        <ul class="pagination mb-0">
+                                            <li class="page-item">
+                                                <a class="page-link" href="#" aria-label="Previous">
+                                                    <span aria-hidden="true">&laquo;</span>
+                                                </a>
+                                            </li>
+                                            <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                            <li class="page-item">
+                                                <a class="page-link" href="#" aria-label="Next">
+                                                    <span aria-hidden="true">&raquo;</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Manage Activity  -->
+                        <div class="tab-pane fade" id="panel-activity" role="tabpanel" aria-labelledby="tab-activity">
+                            <div class="search-wrap mb-3 d-flex align-items-center gap-2">
+                                <i class="bi bi-search text-muted"></i>
+                                <input type="text" class="form-control" placeholder="Search Activity" aria-label="Search Activity">
+                            </div>
+                            <div class="d-flex justify-content-center align-items-center text-muted">No activities yet.</div>
+                        </div>
+
+                        <!-- Manage Category -->
+                        <div class="tab-pane fade" id="panel-category" role="tabpanel" aria-labelledby="tab-category">
+                            <!-- Search -->
+                            <div class="search-wrap mb-3 d-flex align-items-center gap-2">
+                                <i class="bi bi-search text-muted"></i>
+                                <input id="searchCategory" type="text" class="form-control" placeholder="Search Category">
+                            </div>
+
+                            <!-- Category List -->
+                            <div id="categoryList" th:if="${!#lists.isEmpty(categories)}">
+                                <div class="news-item" th:each="category : ${categories}" th:attr="data-name=${category.name}">
+                                    <div class="d-flex align-items-start">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <h6 class="mb-1" th:text="${category.name}"></h6>
+
+                                                <div class="dropdown">
+                                                    <button class="btn btn-link p-1 ellipsis-btn" data-bs-toggle="dropdown">
+                                                        <i class="bi bi-three-dots-vertical"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                        <li>
+                                                            <button class="dropdown-item action-edit" th:attr="data-id=${category.id}">
+                                                                <i class="bi bi-pencil me-2"></i> Edit
+                                                            </button>
+                                                        </li>
+                                                        <li>
+                                                            <button class="dropdown-item text-danger action-delete" th:attr="data-id=${category.id}">
+                                                                <i class="bi bi-trash me-2"></i> Delete
+                                                            </button>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            <span class="badge badge-soft">
+                                                <i class="bi bi-tag"></i> Category
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pagination -->
+                            <nav th:if="${totalPages > 1}" class="mt-3">
+                                <ul class="pagination justify-content-center">
+                                    <!-- Previous -->
+                                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                                        <a class="page-link" th:href="@{/admin/panel(page=${currentPage - 1})}">
+                                            &laquo;
+                                        </a>
+                                    </li>
+
+                                    <!-- Page Numbers -->
+                                    <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage} ? 'active'">
+                                        <a class="page-link" th:text="${i + 1}" th:href="@{/admin/panel(page=${i})}"></a>
+                                    </li>
+
+                                    <!-- Next -->
+                                    <li class="page-item" th:classappend="${currentPage + 1 == totalPages} ? 'disabled'">
+                                        <a class="page-link" th:href="@{/admin/panel(page=${currentPage + 1})}">
+                                            &raquo;
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+
+                            <div th:if="${#lists.isEmpty(categories)}" class="text-muted text-center">
+                                No categories yet.
+                            </div>
+
+                            <div id="noCategory" style="display:none;" class="text-muted text-center">
+                                No matching categories.
+                            </div>
+                        </div>
+
+                        <!-- Manage Contributor  -->
+                        <div class="tab-pane fade" id="panel-contributor" role="tabpanel" aria-labelledby="tab-contributor">
+                            <div class="search-wrap mb-3 d-flex align-items-center gap-2">
+                                <i class="bi bi-search text-muted"></i>
+                                <input type="text" class="form-control" placeholder="Search Contributor" aria-label="Search Contributor">
+                            </div>
+                            <div class="d-flex justify-content-center align-items-center text-muted">No contributors yet.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Category Modal -->
+        <div class="modal fade" id="createCategoryModal" tabindex="-1" aria-labelledby="createCategoryModal" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="createCategoryModalLabel">Create Category</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="categoryName" class="form-label">Category Name</label>
+                            <input type="text" class="form-control" id="categoryName" required>
+                            <div id="categoryError" class="invalid-feedback"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" id="btnCreateCategory" class="btn btn-purple">Create Category</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Category Modal -->
+        <div class="modal fade" id="editCategoryModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5">Edit Category</h1>
+                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <input type="hidden" id="editCategoryId">
+                        <div class="mb-3">
+                            <label class="form-label">Category Name</label>
+                            <input type="text" id="editCategoryName" class="form-control">
+                            <div id="editCategoryError" class="invalid-feedback"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button class="btn btn-purple" id="btnUpdateCategory">Update</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Contributor Modal -->
+        <div class="modal fade" id="createContributorModal" tabindex="-1" aria-labelledby="createContributorModal" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="createContributorLabel">Create Contributor</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="contributorName" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="contributorName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="contributorEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="contributorEmail" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-purple">Create Contribtor</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script>
+            $("#searchCategory").on("input", function () {
+                const q = $(this).val().toLowerCase();
+                let matches = 0;
+            
+                $("#categoryList .news-item").each(function () {
+                    const name = $(this).data("name").toLowerCase();
+                    const isMatch = name.includes(q);
+            
+                    $(this).toggle(isMatch);
+                    if (isMatch) matches++;
+                });
+            
+                $("#noCategory").toggle(matches === 0 && q.length > 0);
+            })
+
+            $("#categoryName").on("input", function () {
+                validateAlphaOnly($(this), $("#categoryError"));
+            })
+
+            $("#editCategoryName").on("input", function () {
+                validateAlphaOnly($(this), $("#editCategoryError"));
+            })
+
+            $(document).on("click", ".action-edit", function () {
+                const id = $(this).data("id");
+                const name = $(this).closest(".news-item").data("name");
+
+                $("#editCategoryId").val(id);
+                $("#editCategoryName").val(name);
+                $("#editCategoryName").removeClass("is-invalid");
+                $("#editCategoryError").text("");
+
+                $("#editCategoryModal").modal("show");
+            })
+
+            $("#createCategoryModal").on("hidden.bs.modal", function () {
+                resetCategoryForm();
+            })
+
+            $("#btnCreateCategory").click(function () {
+                const name = $("#categoryName").val().trim();
+
+                if (name === "") {
+                    $("#categoryName").addClass("is-invalid");
+                    $("#categoryError").text("Category name is required.");
+                    return;
+                }
+
+                $.ajax({
+                    url: "/admin/categories/create",
+                    method: "POST",
+                    data: { name: name },
+                    success: function () {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Created!",
+                            text: "Category created successfully!",
+                            timer: 1600,
+                            showConfirmButton: false
+                        }).then(() => {
+                            resetCategoryForm();
+                            $("#createCategoryModal").modal("hide");
+                            location.reload();
+                        })
+                    },
+                    error: function (xhr) {
+                        if (xhr.status === 400) {
+                            $("#categoryName").addClass("is-invalid");
+                            $("#categoryError").text(xhr.responseText || "Invalid category name.");
+                        } else {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Failed to update category",
+                                text: xhr.responseText || "Unknown error"
+                            })
+                        }
+                    }
+                })
+            })
+
+            $("#btnUpdateCategory").click(function () {
+                const id = $("#editCategoryId").val();
+                const name = $("#editCategoryName").val().trim();
+
+                if (name === "") {
+                    $("#editCategoryName").addClass("is-invalid");
+                    $("#editCategoryError").text("Category name is required.");
+                    return;
+                }
+
+                $.ajax({
+                    url: "/admin/categories/update",
+                    method: "POST",
+                    data: { id: id, name: name },
+                    success: function () {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Updated!",
+                            text: "Category updated successfully!",
+                            timer: 1600,
+                            showConfirmButton: false
+                        }).then(() => {
+                            resetCategoryForm();
+                            $("#editCategoryModal").modal("hide");
+                            location.reload();
+                        });
+                    },
+
+                    error: function (xhr) {
+                        if (xhr.status === 400) {
+                            $("#editCategoryName").addClass("is-invalid");
+                            $("#editCategoryError").text(xhr.responseText || "Invalid category name.");
+                        } else {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Failed to update category",
+                                text: xhr.responseText || "Unknown error"
+                            })
+                        }
+                    }
+                })
+            })
+
+            $(document).on("click", ".action-delete", function () {
+                const id = $(this).data("id");
+
+                Swal.fire({
+                    title: "Delete category?",
+                    text: "This action cannot be undone.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Delete",
+                    cancelButtonText: "Cancel"
+                }).then(result => {
+                    if (!result.isConfirmed) return;
+
+                    $.ajax({
+                        url: "/admin/categories/delete",
+                        method: "POST",
+                        data: { id: id },
+
+                        success: function () {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Deleted!",
+                                text: "Category has been deleted.",
+                                timer: 1600,
+                                showConfirmButton: false
+                            }).then(() => location.reload());
+                        },
+                        error: function (xhr) {
+                            let message = "Unexpected server error.";
+
+                            if (xhr.status === 400 && xhr.responseText) {
+                                message = xhr.responseText;
+                            } else if (xhr.status === 500) {
+                                message = xhr.responseText || "Unexpected server error.";
+                            }
+
+                            Swal.fire({
+                                icon: "error",
+                                title: "Delete failed",
+                                text: message
+                            })
+                        }
+                    })
+                })
+            })
+
+            function validateAlphaOnly(inputElement, errorElement) {
+                const regex = /^[A-Za-z\s]*$/;
+                const value = inputElement.val();
+
+                if (!regex.test(value)) {
+                    inputElement.addClass("is-invalid");
+                    errorElement.text("Only alphabet letters are allowed.");
+                    inputElement.val(value.replace(/[^A-Za-z\s]/g, ""));
+                } else {
+                    inputElement.removeClass("is-invalid");
+                    errorElement.text("");
+                }
+            }
+
+            function resetCategoryForm() {
+                $("#categoryName").val("").removeClass("is-invalid");
+                $("#categoryError").text("");
+                $("#editCategoryName").val("").removeClass("is-invalid");
+                $("#editCategoryError").text("");
+            }
+
+            $(document).ready(function () {
+                const DEFAULT_TAB = "#panel-news";
+                let activeTab = localStorage.getItem("activeAdminTab");
+
+                if (!activeTab) {
+                    activeTab = DEFAULT_TAB;
+                    localStorage.setItem("activeAdminTab", activeTab);
+                }
+
+                const $tabBtn = $(`[data-bs-target="${activeTab}"]`);
+                if ($tabBtn.length) {
+                    $tabBtn.tab("show");
+                }
+
+                $('[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {
+                    const target = $(e.target).data("bs-target");
+                    localStorage.setItem("activeAdminTab", target);
+                })
+            })
+        </script>
+    </th:block>
+</body>
+</html>

@@ -59,6 +59,21 @@ body {
     border-radius: 5px;
 }
 
+.page-item.active .page-link {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+.page-link {
+    color: #6c757d !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+.page-link:hover {
+    color: var(--primary-color) !important;
+}
+
 .btn-gradient {
     background: var(--primary-gradient);
     border: none;

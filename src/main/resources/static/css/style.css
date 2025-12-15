@@ -94,11 +94,6 @@ body {
     transition: all 0.3s;
 }
 
-.card-custom:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-}
-
 .badge-custom {
     padding: 0.5rem 1rem;
     border-radius: 20px;
@@ -106,15 +101,7 @@ body {
 }
 
 .role-badge-user {
-    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-}
-
-.role-badge-contributor {
-    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-}
-
-.role-badge-admin {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: var(--primary-gradient);
 }
 
 .footer {

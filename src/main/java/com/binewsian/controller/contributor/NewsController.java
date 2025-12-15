@@ -12,20 +12,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/contributor")
 @RequireRole(Role.CONTRIBUTOR)
-public class ContributorController {
+public class NewsController {
 
     @GetMapping("/create-news")
     public String showCreateNewsPage(HttpSession session, Model model) {
         User user = (User) session.getAttribute("user");
         model.addAttribute("user", user);
         return "contributor/create-news";
-    }
-
-    @GetMapping("/create-activity")
-    public String showCreateActivityPage(HttpSession session, Model model) {
-        User user = (User) session.getAttribute("user");
-        model.addAttribute("user", user);
-        return "contributor/create-activity";
     }
 
 }

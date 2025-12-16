@@ -17,5 +17,6 @@ public record CreateActivityRequest(
     LocalTime timeEnd,
     LocalDate activityDate,
     LocalDateTime registrationDeadline,
-    String details
+    String details,
+    Boolean isDraft
 ) {}

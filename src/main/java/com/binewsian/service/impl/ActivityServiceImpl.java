@@ -1,6 +1,7 @@
 package com.binewsian.service.impl;
 
 import com.binewsian.dto.CreateActivityRequest;
+import com.binewsian.enums.ActivityStatus;
 import com.binewsian.exception.BiNewsianException;
 import com.binewsian.model.Activity;
 import com.binewsian.repository.ActivityRepository;
@@ -22,10 +23,11 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     public void create(CreateActivityRequest request) throws BiNewsianException {
-        validate(request);
+        if (!request.isDraft()) {
+            validate(request);
+        }
 
         Activity activity = new Activity();
-        activity.setTitle(request.title());
         activity.setTitle(request.title());
         activity.setActivityType(request.activityType());
         activity.setQuota(request.quota());
@@ -37,6 +39,7 @@ public class ActivityServiceImpl implements ActivityService {
         activity.setActivityDate(request.activityDate());
         activity.setRegistrationDeadline(request.registrationDeadline());
         activity.setDetails(request.details());
+        activity.setActivityStatus(request.isDraft() ? ActivityStatus.DRAFT : ActivityStatus.PUBLISHED);
 
         activityRepository.save(activity);
     }
@@ -48,9 +51,13 @@ public class ActivityServiceImpl implements ActivityService {
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
             return "https://" + url;
         }
+
+        return url;
     }
 
     private void validate(CreateActivityRequest r) throws BiNewsianException {
+        if (r.isDraft()) return;
+
         if (r.title() == null || r.title().isBlank())
             throw new BiNewsianException("Title is required");
 

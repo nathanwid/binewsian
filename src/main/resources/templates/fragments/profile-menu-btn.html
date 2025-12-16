@@ -1,0 +1,6 @@
+<div th:fragment="iconButton(icon, label)">
+    <button type="button" class="btn btn-link text-dark d-block mb-3 text-start p-0 fw-semibold" style="text-decoration: none;">
+        <i th:class="'bi ' + ${icon}"></i>
+        <span class="ms-1" th:text="${label}">Label</span>
+    </button>
+</div>

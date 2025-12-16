@@ -19,22 +19,29 @@
                     <!-- Profile Card -->
                     <div class="card card-custom animate-fade-in">
                         <div class="card-body text-center p-4">
-                            <div class="mb-3">
-                                <i class="bi bi-person-circle" style="font-size: 8rem; color: var(--primary-color);"></i>
+                            <div class="d-flex">
+                                <i class="bi bi-person-circle" style="font-size: 4.5rem; color: var(--primary-color);"></i>
+                                <div class="ms-3 text-start align-self-center">
+                                    <h5 class="mb-2" th:text="${user.username}">-</h5>
+                                    <span class="badge badge-custom role-badge-user"
+                                          th:text="${user.role.name() == 'USER' ? 'Binusian' : #strings.capitalize(#strings.toLowerCase(user.role.name()))}">
+                                    </span>
+                                </div>
                             </div>
-                            <h4 class="mb-2" th:text="${user.username}">Username</h4>
-                            <span class="badge badge-custom role-badge-user mb-3"
-                                  th:classappend="${user.role.name() == 'ADMIN'} ? 'role-badge-admin' : (${user.role.name() == 'CONTRIBUTOR'} ? 'role-badge-contributor' : '')"
-                                  th:text="${user.role}">
-                                </span>
-                            <p class="text-muted mb-3">
-                                <i class="bi bi-envelope-fill"></i>
-                                <span th:text="${user.email}">email@example.com</span>
-                            </p>
-                            <div class="d-grid">
-                                <button class="btn btn-gradient" disabled>
-                                    <i class="bi bi-pencil-square"></i> Edit Profile
-                                </button>
+                            <hr>
+                            <div class="text-start">
+                                <div id="bookmarkBtn">
+                                    <div th:insert="~{fragments/profile-menu-btn :: iconButton('bi-bookmark', 'Bookmark')}"></div>
+                                </div>
+                                <div id="editProfileBtn">
+                                    <div th:insert="~{fragments/profile-menu-btn :: iconButton('bi-pencil-square', 'Edit Profile')}"></div>
+                                </div>
+                                <div id="changePasswordBtn">
+                                    <div th:insert="~{fragments/profile-menu-btn :: iconButton('bi-key', 'Change Password')}"></div>
+                                </div>
+                                <a th:href="@{/logout}" style="text-decoration: none;">
+                                    <div th:replace="~{fragments/profile-menu-btn :: iconButton('bi-box-arrow-right', 'Logout')}"></div>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -45,94 +52,37 @@
                     <div class="card card-custom mb-4 animate-fade-in" style="animation-delay: 0.1s;">
                         <div class="card-body">
                             <h5 class="card-title mb-4">
-                                <i class="bi bi-info-circle-fill text-primary"></i> Informasi Akun
+                                <i class="bi bi-info-circle-fill text-primary me-2"></i>
+                                Informasi Akun
                             </h5>
 
-                            <div class="table-responsive">
-                                <table class="table table-borderless">
-                                    <tbody>
-                                        <tr>
-                                            <td class="text-muted" style="width: 200px;">
-                                                <i class="bi bi-person-badge"></i> ID User
-                                            </td>
-                                            <td class="fw-bold" th:text="${user.id}">#001</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted">
-                                                <i class="bi bi-person-fill"></i> Username
-                                            </td>
-                                            <td class="fw-bold" th:text="${user.username}">username</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted">
-                                                <i class="bi bi-envelope-fill"></i> Email
-                                            </td>
-                                            <td class="fw-bold" th:text="${user.email}">email@example.com</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted">
-                                                <i class="bi bi-award-fill"></i> Role
-                                            </td>
-                                            <td>
-                                                <span class="badge badge-custom role-badge-user"
-                                                      th:classappend="${user.role.name() == 'ADMIN'} ? 'role-badge-admin' : (${user.role.name() == 'CONTRIBUTOR'} ? 'role-badge-contributor' : '')"
-                                                      th:text="${user.role}">
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted">
-                                                <i class="bi bi-toggle-on"></i> Status
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-success" th:if="${user.enabled}">
-                                                    <i class="bi bi-check-circle"></i> Aktif
-                                                </span>
-                                                <span class="badge bg-danger" th:unless="${user.enabled}">
-                                                    <i class="bi bi-x-circle"></i> Tidak Aktif
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted">
-                                                <i class="bi bi-calendar-plus"></i> Bergabung Sejak
-                                            </td>
-                                            <td class="fw-bold" th:text="${#temporals.format(user.createdAt, 'dd MMMM yyyy, HH:mm')}">01 Januari 2024</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="d-flex align-items-center text-muted" style="min-width: 160px;">
+                                    <i class="bi bi-person-fill me-2"></i>
+                                    <span>Username</span>
+                                </div>
+                                <div class="ms-3">
+                                    <h6 class="mb-0 fw-semibold" th:text="${user.username}">-</h6>
+                                </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <!-- Activity Stats -->
-                    <div class="card card-custom animate-fade-in" style="animation-delay: 0.2s;">
-                        <div class="card-body">
-                            <h5 class="card-title mb-4">
-                                <i class="bi bi-graph-up text-success"></i> Statistik Aktivitas
-                            </h5>
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="d-flex align-items-center text-muted" style="min-width: 160px;">
+                                    <i class="bi bi-envelope-fill me-2"></i>
+                                    <span>Email</span>
+                                </div>
+                                <div class="ms-3">
+                                    <h6 class="mb-0 fw-semibold" th:text="${user.email}">-</h6>
+                                </div>
+                            </div>
 
-                            <div class="row text-center">
-                                <div class="col-md-4 mb-3">
-                                    <div class="p-3 bg-light rounded">
-                                        <i class="bi bi-calendar-check" style="font-size: 2rem; color: var(--primary-color);"></i>
-                                        <h4 class="mt-2 mb-0">0</h4>
-                                        <small class="text-muted">Total Login</small>
-                                    </div>
+                            <div class="d-flex align-items-center">
+                                <div class="d-flex align-items-center text-muted" style="min-width: 160px;">
+                                    <i class="bi bi-calendar-plus me-2"></i>
+                                    <span>Joined Since</span>
                                 </div>
-                                <div class="col-md-4 mb-3">
-                                    <div class="p-3 bg-light rounded">
-                                        <i class="bi bi-clock-history" style="font-size: 2rem; color: var(--secondary-color);"></i>
-                                        <h4 class="mt-2 mb-0">0</h4>
-                                        <small class="text-muted">Jam Aktif</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <div class="p-3 bg-light rounded">
-                                        <i class="bi bi-file-earmark" style="font-size: 2rem; color: #fa709a;"></i>
-                                        <h4 class="mt-2 mb-0">0</h4>
-                                        <small class="text-muted">Konten Dibuat</small>
-                                    </div>
+                                <div class="ms-3">
+                                    <h6 class="mb-0 fw-semibold"th:text="${#temporals.format(user.createdAt, 'dd MMMM yyyy')}">-</h6>
                                 </div>
                             </div>
                         </div>

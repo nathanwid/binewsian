@@ -1,0 +1,101 @@
+package com.binewsian.service.impl;
+
+import com.binewsian.dto.CreateActivityRequest;
+import com.binewsian.exception.BiNewsianException;
+import com.binewsian.model.Activity;
+import com.binewsian.repository.ActivityRepository;
+import com.binewsian.service.ActivityService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.net.URI;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class ActivityServiceImpl implements ActivityService {
+
+    private final ActivityRepository activityRepository;
+
+    @Override
+    public void create(CreateActivityRequest request) throws BiNewsianException {
+        validate(request);
+
+        Activity activity = new Activity();
+        activity.setTitle(request.title());
+        activity.setTitle(request.title());
+        activity.setActivityType(request.activityType());
+        activity.setQuota(request.quota());
+        activity.setRewardAmount(request.rewardAmount());
+        activity.setRegistrationLink(request.registrationLink());
+        activity.setLocation(request.location());
+        activity.setTimeStart(request.timeStart());
+        activity.setTimeEnd(request.timeEnd());
+        activity.setActivityDate(request.activityDate());
+        activity.setRegistrationDeadline(request.registrationDeadline());
+        activity.setDetails(request.details());
+
+        activityRepository.save(activity);
+    }
+
+    private String normalizeUrl(String url) {
+        if (url == null || url.isBlank()) return url;
+
+        url = url.trim();
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            return "https://" + url;
+        }
+    }
+
+    private void validate(CreateActivityRequest r) throws BiNewsianException {
+        if (r.title() == null || r.title().isBlank())
+            throw new BiNewsianException("Title is required");
+
+        if (r.activityType() == null)
+            throw new BiNewsianException("Activity type is required");
+
+        if (r.location() == null || r.location().isBlank())
+            throw new BiNewsianException("Location is required");
+
+        if (r.details() == null || r.details().isBlank())
+            throw new BiNewsianException("Activity details cannot be empty");
+
+        if (r.quota() == null || r.quota() <= 0)
+            throw new BiNewsianException("Quota must be greater than 0");
+
+        if (r.rewardAmount() == null || r.rewardAmount() <= 0)
+            throw new BiNewsianException("Reward amount must be greater than 0");
+
+        if (r.activityDate() == null)
+            throw new BiNewsianException("Activity date is required");
+
+        if (r.timeStart() == null || r.timeEnd() == null)
+            throw new BiNewsianException("Start time and end time are required");
+
+        if (r.registrationDeadline() == null)
+            throw new BiNewsianException("Registration deadline is required");
+
+        if (!r.timeEnd().isAfter(r.timeStart()))
+            throw new BiNewsianException("End time must be after start time");
+
+        LocalDateTime activityStartDateTime = r.activityDate().atTime(r.timeStart());
+
+        if (!r.registrationDeadline().isBefore(activityStartDateTime))
+            throw new BiNewsianException("Registration deadline must be before activity start time");
+
+        if (r.activityDate().isBefore(LocalDate.now()))
+            throw new BiNewsianException("Activity date cannot be in the past");
+
+        if (r.registrationLink() == null || r.registrationLink().isBlank())
+            throw new BiNewsianException("Registration link is required");
+
+        try {
+            new URI(normalizeUrl(r.registrationLink()));
+        } catch (Exception e) {
+            throw new BiNewsianException("Registration link is not a valid URL");
+        }
+    }
+}

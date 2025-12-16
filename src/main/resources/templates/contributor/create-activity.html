@@ -33,13 +33,13 @@
 
                                 <div class="row">
                                     <div class="col-md-3 mb-3">
-                                        <label for="type" class="form-label">Type<span class="text-danger">*</span></label>
-                                        <select class="form-select" id="type">
+                                        <label for=activityType class="form-label">Type<span class="text-danger">*</span></label>
+                                        <select class="form-select" id=activityType>
                                             <option selected>Select a type</option>
-                                            <option value="SAT">Student Activity Point</option>
+                                            <option value="SAT">Student Activity Transcript</option>
                                             <option value="ComServ">Community Service</option>
                                         </select>
-                                        <div id="typeError" class="invalid-feedback"></div>
+                                        <div id="activityTypeError" class="invalid-feedback"></div>
                                     </div>
 
                                     <div class="col-md-3 mb-3">
@@ -49,15 +49,15 @@
                                     </div>
 
                                     <div class="col-md-3 mb-3">
-                                        <label for="amount" class="form-label">Point/Hour Amount<span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" id="amount" min="1" placeholder="Enter reward amount">
-                                        <div id="amountError" class="invalid-feedback"></div>
+                                        <label for="rewardAmount" class="form-label">Point/Hour Amount<span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="rewardAmount" min="1" placeholder="Enter reward amount">
+                                        <div id="rewardAmountError" class="invalid-feedback"></div>
                                     </div>
 
                                     <div class="col-md-3 mb-3">
-                                        <label for="link" class="form-label">Registration Link<span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="link" placeholder="Enter registration link">
-                                        <div id="linkError" class="invalid-feedback"></div>
+                                        <label for="registrationLink" class="form-label">Registration Link<span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="registrationLink" placeholder="Enter registration link">
+                                        <div id="registrationLinkError" class="invalid-feedback"></div>
                                     </div>
                                 </div>
 
@@ -88,21 +88,21 @@
                                     </div>
 
                                     <div class="col-md-3 mb-3">
-                                        <label for="date" class="form-label">Date<span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control" id="date">
-                                        <div id="dateError" class="invalid-feedback"></div>
+                                        <label for="activityDate" class="form-label">Date<span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="activityDate">
+                                        <div id="activityDateError" class="invalid-feedback"></div>
                                     </div>
 
                                     <div class="col-md-3 mb-3">
-                                        <label for="deadline" class="form-label">Registration Deadline<span class="text-danger">*</span></label>
-                                        <input type="datetime-local" class="form-control" id="deadline">
-                                        <div id="deadlineError" class="invalid-feedback"></div>
+                                        <label for="registrationDeadline" class="form-label">Registration Deadline<span class="text-danger">*</span></label>
+                                        <input type="datetime-local" class="form-control" id="registrationDeadline">
+                                        <div id="registrationDeadlineError" class="invalid-feedback"></div>
                                     </div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Activity Details<span class="text-danger">*</span></label>
-                                    <div id="activity-editor" style="height: 400px;"></div>
+                                    <div id="activityEditor" style="height: 400px;"></div>
                                     <input type="hidden" id="activity-details">
                                     <div id="activityEditorError" class="invalid-feedback"></div>
                                 </div>
@@ -126,8 +126,7 @@
 
     <th:block layout:fragment="scripts">
         <script>
-            const activityEditor = new Quill("#activity-editor", quillConfig);
-            const activityEditorContent = activityEditor.root.innerHTML;
+            const activityEditor = new Quill("#activityEditor", quillConfig);
 
             function setInvalid(id, message) {
                 $(`#${id}`).addClass("is-invalid");
@@ -150,13 +149,41 @@
             }
 
             function setInvalidEditor(message) {
-                $("#activity-editor").addClass("is-invalid form-control").css("border", "1px solid #dc3545");
+                $("#activityEditor").addClass("is-invalid form-control").css("border", "1px solid #dc3545");
                 $("#activityEditorError").text(message).addClass("d-block");
             }
 
             function clearInvalidEditor() {
-                $("#activity-editor").removeClass("is-invalid form-control").css("border", "");
+                $("#activityEditor").removeClass("is-invalid form-control").css("border", "");
                 $("#activityEditorError").text("").removeClass("d-block");
+            }
+
+            function getDateOnly(dateInput) {
+                if (!dateInput) return null;
+                const date = new Date(dateInput);
+                date.setHours(0, 0, 0, 0);
+                return date;
+            };
+
+            function getDateTime(dateInput) {
+                if (!dateInput) return null;
+                return new Date(dateInput);
+            }
+
+            function normalizeUrl(url) {
+                if (!/^https?:\/\//i.test(url)) {
+                    return "https://" + url;
+                }
+                return url;
+            }
+
+            function isValidUrl(url) {
+                try {
+                    new URL(url);
+                    return true;
+                } catch {
+                    return false;
+                }
             }
 
             $("input, select").on("input change", function () {
@@ -172,12 +199,13 @@
                 }
             });
 
-            $("#deadline").on("change", function () {
-                const start = $("#timeStart").val();
-                const end = $("#timeEnd").val();
+            $("#registrationDeadline").on("change", function () {
+                const now = getDateOnly(new Date());
+                const deadline = getDateOnly($("#registrationDeadline").val());
+                const activityDate = getDateOnly($("#activityDate").val());
 
-                if (start && end && start < end) {
-                    clearInvalidGroup(["timeStart", "timeEnd"], "timeError");
+                if (deadline && deadline > now && (!activityDate || deadline < activityDate)) {
+                    clearInvalid("registrationDeadline");
                 }
             });
 
@@ -192,33 +220,29 @@
 
                 const data = {
                     title: $("#title").val(),
-                    type: $("#type").val(),
+                    activityType: $("#activityType").val(),
                     quota: $("#quota").val(),
-                    amount: $("#amount").val(),
-                    link: $("#link").val(),
+                    rewardAmount: $("#rewardAmount").val(),
+                    registrationLink: $("#registrationLink").val(),
                     location: $("#location").val(),
                     timeStart: $("#timeStart").val(),
                     timeEnd: $("#timeEnd").val(),
-                    date: $("#date").val(),
-                    deadline: $("#deadline").val(),
+                    activityDate: $("#activityDate").val(),
+                    registrationDeadline: $("#registrationDeadline").val(),
                     details: activityEditor.root.innerHTML
                 };
 
                 let isValid = true;
-                $(".is-invalid").removeClass("is-invalid");
-
-                function clearInvalid(id) {
-                    const input = $(id);
-                    input.removeClass("is-invalid");
-                }
+                $(".invalid-feedback").text("").removeClass("d-block");
+                clearInvalidEditor();
 
                 if (!data.title) {
                     setInvalid("title", "Title is required");
                     isValid = false;
                 }
 
-                if (!data.type || data.type === "Select a type") {
-                    setInvalid("type", "Please select a valid type");
+                if (!data.activityType || data.activityType === "Select a type") {
+                    setInvalid("activityType", "Please select a valid type");
                     isValid = false;
                 }
 
@@ -227,13 +251,13 @@
                     isValid = false;
                 }
 
-                if (!data.amount || isNaN(data.amount) || parseInt(data.amount) <= 0) {
-                    setInvalid("amount", "Please enter a valid point/hour amount");
+                if (!data.rewardAmount || isNaN(data.rewardAmount) || parseInt(data.rewardAmount) <= 0) {
+                    setInvalid("rewardAmount", "Please enter a valid point/hour amount");
                     isValid = false;
                 }
 
-                if (!data.link || !isValidURL(data.link)) {
-                    setInvalid("link", "Please enter a valid registration link");
+                if (!data.registrationLink || !isValidUrl(normalizeUrl(data.registrationLink))) {
+                    setInvalid("registrationLink", "Please enter a valid registration link");
                     isValid = false;
                 }
 
@@ -247,18 +271,30 @@
                     isValid = false;
                 }
 
-                if (!data.date || data.date < new Date().toISOString().split("T")[0]) {
-                    setInvalid("date", "Please select a valid date");
+                const activityDate = getDateOnly(data.activityDate);
+                if (!activityDate) {
+                    setInvalid("activityDate", "Please select a valid date");
                     isValid = false;
                 }
 
-                if (
-                    !data.deadline ||
-                    new Date(data.deadline) <= new Date() ||
-                    (data.date && new Date(data.deadline) > new Date(data.date + "T23:59:59"))
-                ) {
-                    setInvalid("deadline", "Please select a valid registration deadline");
+                const today = getDateOnly(new Date());
+                if (activityDate < today) {
+                    setInvalid("activityDate", "Activity date cannot be in the past");
                     isValid = false;
+                }
+
+                const deadline = getDateTime(data.registrationDeadline);
+                if (!deadline) {
+                    setInvalid("registrationDeadline", "Please select a valid registration deadline");
+                    isValid = false;
+                }
+
+                if (activityDate && data.timeStart && deadline) {
+                    const activityStart = new Date(`${data.activityDate}T${data.timeStart}`);
+                    if (deadline >= activityStart) {
+                        setInvalid("registrationDeadline" ,"Registration deadline must be before activity start time");
+                        isValid = false;
+                    }
                 }
 
                 if (activityEditor.getText().trim().length === 0) {
@@ -271,41 +307,35 @@
                 }
 
                 $.ajax({
-                    url: "/admin/categories/update",
+                    url: "/activities/create",
                     method: "POST",
-                    data: { id: id, name: name },
+                    contentType: "application/json",
+                    data: JSON.stringify(data),
                     success: function () {
                         Swal.fire({
                             icon: "success",
-                            title: "Updated!",
-                            text: "Category updated successfully!",
+                            title: "Created!",
+                            text: "Activity created successfully!",
                             timer: 1600,
                             showConfirmButton: false
                         }).then(() => {
-                            resetCategoryForm();
-                            $("#editCategoryModal").modal("hide");
                             location.reload();
                         });
                     },
 
                     error: function (xhr) {
-                        if (xhr.status === 400) {
-                            $("#editCategoryName").addClass("is-invalid");
-                            $("#editCategoryError").text(xhr.responseText || "Invalid category name.");
-                        } else {
-                            Swal.fire({
-                                icon: "error",
-                                title: "Failed to update category",
-                                text: xhr.responseText || "Unknown error"
-                            })
-                        }
+                        Swal.fire({
+                            icon: "error",
+                            title: "Failed to create activity",
+                            text: xhr.responseText || "Unknown error"
+                        })
                     }
                 })
             })
         </script>
         <style>
-            #activity-editor.is-invalid .ql-toolbar,
-            #activity-editor.is-invalid .ql-editor {
+            #activityEditor.is-invalid .ql-toolbar,
+            #activityEditor.is-invalid .ql-editor {
                 border-color: #dc3545 !important;
             }
         </style>

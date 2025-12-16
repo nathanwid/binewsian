@@ -28,46 +28,91 @@
                                 <div class="mb-3">
                                     <label for="title" class="form-label">Activity Title<span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="title">
+                                    <div id="titleError" class="invalid-feedback"></div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-3 mb-3">
-                                        <label for="type" class="form-label">Type<span class="text-danger">*</span></label>
-                                        <select class="form-select" id="type">
+                                        <label for=activityType class="form-label">Type<span class="text-danger">*</span></label>
+                                        <select class="form-select" id=activityType>
                                             <option selected>Select a type</option>
-                                            <option value="SAT">Student Activity Point</option>
+                                            <option value="SAT">Student Activity Transcript</option>
                                             <option value="ComServ">Community Service</option>
                                         </select>
+                                        <div id="activityTypeError" class="invalid-feedback"></div>
                                     </div>
 
                                     <div class="col-md-3 mb-3">
                                         <label for="quota" class="form-label">Quota<span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="quota" placeholder="Enter quota for this activity">
+                                        <input type="number" class="form-control" id="quota" min="1" placeholder="Enter quota for this activity">
+                                        <div id="quotaError" class="invalid-feedback"></div>
                                     </div>
 
                                     <div class="col-md-3 mb-3">
-                                        <label for="amount" class="form-label">Point/Hour amount<span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="amount" placeholder="Enter reward amount for this activity">
+                                        <label for="rewardAmount" class="form-label">Point/Hour Amount<span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="rewardAmount" min="1" placeholder="Enter reward amount">
+                                        <div id="rewardAmountError" class="invalid-feedback"></div>
                                     </div>
 
                                     <div class="col-md-3 mb-3">
-                                        <label for="date" class="form-label">Activity Date<span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control" id="date">
+                                        <label for="registrationLink" class="form-label">Registration Link<span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="registrationLink" placeholder="Enter registration link">
+                                        <div id="registrationLinkError" class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <label for="location" class="form-label">Location<span class="text-danger">*</span></label>
+                                        <select class="form-select" id="location">
+                                            <option selected>Select location</option>
+                                            <option value="Onsite">Onsite</option>
+                                            <option value="Online">Online</option>
+                                        </select>
+                                        <div id="locationError" class="invalid-feedback"></div>
+                                    </div>
+
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label">Time<span class="text-danger">*</span></label>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="flex-fill">
+                                                <label for="timeStart" class="visually-hidden">Start Time</label>
+                                                <input type="time" class="form-control" id="timeStart" placeholder="Start">
+                                            </div>
+                                            <div class="flex-fill">
+                                                <label for="timeEnd" class="visually-hidden">End Time</label>
+                                                <input type="time" class="form-control" id="timeEnd" placeholder="End">
+                                            </div>
+                                        </div>
+                                        <div id="timeError" class="invalid-feedback"></div>
+                                    </div>
+
+                                    <div class="col-md-3 mb-3">
+                                        <label for="activityDate" class="form-label">Date<span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="activityDate">
+                                        <div id="activityDateError" class="invalid-feedback"></div>
+                                    </div>
+
+                                    <div class="col-md-3 mb-3">
+                                        <label for="registrationDeadline" class="form-label">Registration Deadline<span class="text-danger">*</span></label>
+                                        <input type="datetime-local" class="form-control" id="registrationDeadline">
+                                        <div id="registrationDeadlineError" class="invalid-feedback"></div>
                                     </div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Activity Details<span class="text-danger">*</span></label>
-                                    <div id="activity-editor" style="height: 400px;"></div>
+                                    <div id="activityEditor" style="height: 400px;"></div>
                                     <input type="hidden" id="activity-details">
+                                    <div id="activityEditorError" class="invalid-feedback"></div>
                                 </div>
 
                                 <div class="d-flex justify-content-end gap-2 mt-4">
-                                    <button type="button" class="btn btn-outline-secondary">
+                                    <button type="submit" id="btnSaveAsDraft" class="btn btn-outline-secondary">
                                         <i class="bi bi-save me-2"></i> Save as Draft
                                     </button>
 
-                                    <button type="submit" class="btn btn-purple">
+                                    <button type="submit" id="btnPublish" class="btn btn-purple">
                                         <i class="bi bi-check-circle me-2"></i> Publish
                                     </button>
                                 </div>
@@ -81,9 +126,282 @@
 
     <th:block layout:fragment="scripts">
         <script>
-            const activityEditor = new Quill("#activity-editor", quillConfig);
-            const activityEditorContent = activityEditor.root.innerHTML;
+            const activityEditor = new Quill("#activityEditor", quillConfig);
+
+            function setInvalid(id, message) {
+                $(`#${id}`).addClass("is-invalid");
+                $(`#${id}Error`).text(message);
+            }
+
+            function clearInvalid(id) {
+                $(`#${id}`).removeClass("is-invalid");
+                $(`#${id}Error`).text("");
+            }
+
+            function setInvalidGroup(ids, errorId, message) {
+                ids.forEach((id) => $(`#${id}`).addClass("is-invalid"));
+                $(`#${errorId}`).text(message).addClass("d-block");
+            }
+
+            function clearInvalidGroup(ids, errorId) {
+                ids.forEach((id) => $(`#${id}`).removeClass("is-invalid"));
+                $(`#${errorId}`).text("").removeClass("d-block");
+            }
+
+            function setInvalidEditor(message) {
+                $("#activityEditor").addClass("is-invalid form-control").css("border", "1px solid #dc3545");
+                $("#activityEditorError").text(message).addClass("d-block");
+            }
+
+            function clearInvalidEditor() {
+                $("#activityEditor").removeClass("is-invalid form-control").css("border", "");
+                $("#activityEditorError").text("").removeClass("d-block");
+            }
+
+            function getDateOnly(dateInput) {
+                if (!dateInput) return null;
+                const date = new Date(dateInput);
+                date.setHours(0, 0, 0, 0);
+                return date;
+            };
+
+            function getDateTime(dateInput) {
+                if (!dateInput) return null;
+                return new Date(dateInput);
+            }
+
+            function normalizeUrl(url) {
+                if (!/^https?:\/\//i.test(url)) {
+                    return "https://" + url;
+                }
+                return url;
+            }
+
+            function isValidUrl(url) {
+                try {
+                    new URL(url);
+                    return true;
+                } catch {
+                    return false;
+                }
+            }
+
+            function validatePublishForm() {
+                let isValid = true;
+
+                $(".is-invalid").removeClass("is-invalid");
+                $(".invalid-feedback").text("").removeClass("d-block");
+                clearInvalidEditor();
+
+                const title = $("#title").val();
+                if (!title) {
+                    setInvalid("title", "Title is required");
+                    isValid = false;
+                }
+
+                const activityType = $("#activityType").val();
+                if (!activityType || activityType === "Select a type") {
+                    setInvalid("activityType", "Please select a valid type");
+                    isValid = false;
+                }
+
+                const quota = parseInt($("#quota").val());
+                if (!quota || isNaN(quota) || parseInt(quota) <= 0) {
+                    setInvalid("quota", "Please enter a valid quota");
+                    isValid = false;
+                }
+
+                const rewardAmount = parseInt($("#rewardAmount").val());
+                if (!rewardAmount || isNaN(rewardAmount) || parseInt(rewardAmount) <= 0) {
+                    setInvalid("rewardAmount", "Please enter a valid point/hour amount");
+                    isValid = false;
+                }
+
+                const registrationLink = $("#registrationLink").val();
+                if (!registrationLink || !isValidUrl(normalizeUrl(registrationLink))) {
+                    setInvalid("registrationLink", "Please enter a valid registration link");
+                    isValid = false;
+                }
+
+                const location = $("#location").val();
+                if (!location || location === "Select location") {
+                    setInvalid("location", "Please select a valid location");
+                    isValid = false;
+                }
+
+                const timeStart = $("#timeStart").val();
+                const timeEnd = $("#timeEnd").val();
+                if (!timeStart || !timeEnd || timeStart >= timeEnd) {
+                    setInvalidGroup(["timeStart", "timeEnd"], "timeError", "Please select a valid time range");
+                    isValid = false;
+                }
+
+                const activityDate = getDateOnly($("#activityDate").val());
+                if (!activityDate) {
+                    setInvalid("activityDate", "Please select a valid date");
+                    isValid = false;
+                }
+
+                const today = getDateOnly(new Date());
+                if (activityDate < today) {
+                    setInvalid("activityDate", "Activity date cannot be in the past");
+                    isValid = false;
+                }
+
+                const deadline = getDateTime($("#registrationDeadline").val());
+                if (!deadline) {
+                    setInvalid("registrationDeadline", "Please select a valid registration deadline");
+                    isValid = false;
+                }
+
+                if (activityDate && timeStart && deadline) {
+                    const activityStart = new Date(`${activityDate}T${timeStart}`);
+                    if (deadline >= activityStart) {
+                        setInvalid("registrationDeadline" ,"Registration deadline must be before activity start time");
+                        isValid = false;
+                    }
+                }
+
+                const details = activityEditor.root.innerHTML;
+                if (activityEditor.getText().trim().length === 0) {
+                    setInvalidEditor("Activity details cannot be empty");
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            function emptyToNull(value) {
+                return value === "" ? null : value;
+            }
+
+            function safeParseInt(value) {
+                const parsed = parseInt(value);
+                return Number.isNaN(parsed) ? null : parsed;
+            }
+
+            function buildPayload(isDraft) {
+                const activityTypeValue = $("#activityType").val();
+                const locationValue = $("#location").val();
+
+                let registrationLink = $("#registrationLink").val();
+                if (registrationLink) {
+                    registrationLink = normalizeUrl(registrationLink);
+                }
+
+                const editorText = activityEditor.getText().trim();
+                const editorHtml = activityEditor.root.innerHTML;
+
+                return {
+                    title: emptyToNull($("#title").val().trim()),
+                    activityType: activityTypeValue === "Select a type" ? null : activityTypeValue,
+                    quota: safeParseInt($("#quota").val()),
+                    rewardAmount: safeParseInt($("#rewardAmount").val()),
+                    registrationLink: emptyToNull(),
+                    location: locationValue === "Select location" ? null : locationValue,
+                    timeStart: emptyToNull($("#timeStart").val()),
+                    timeEnd: emptyToNull($("#timeEnd").val()),
+                    activityDate: emptyToNull($("#activityDate").val()),
+                    registrationDeadline: emptyToNull($("#registrationDeadline").val()),
+                    details: editorText.length === 0 ? null : editorHtml,
+                    isDraft: isDraft
+                };
+            }
+
+            $("input, select").on("input change", function () {
+                clearInvalid(this.id);
+            });
+
+            $("#timeStart, #timeEnd").on("change", function () {
+                const start = $("#timeStart").val();
+                const end = $("#timeEnd").val();
+
+                if (start && end && start < end) {
+                    clearInvalidGroup(["timeStart", "timeEnd"], "timeError");
+                }
+            });
+
+            $("#registrationDeadline").on("change", function () {
+                const now = getDateOnly(new Date());
+                const deadline = getDateOnly($("#registrationDeadline").val());
+                const activityDate = getDateOnly($("#activityDate").val());
+
+                if (deadline && deadline > now && (!activityDate || deadline < activityDate)) {
+                    clearInvalid("registrationDeadline");
+                }
+            });
+
+            activityEditor.on('text-change', function() {
+                if (activityEditor.getText().trim().length > 0) {
+                    clearInvalidEditor();
+                }
+            });
+
+            $("form").on("submit", function (e) {
+                e.preventDefault();
+
+                const targetId = e.originalEvent.submitter.id;
+                const isDraft = targetId === "btnSaveAsDraft";
+
+                if (!isDraft) {
+                    if (!validatePublishForm()) return;
+                }
+
+                const data = buildPayload(isDraft);
+
+                $.ajax({
+                    url: "/contributor/activities/create",
+                    method: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(data),
+                    success: function () {
+                        if (isDraft) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Saved as Draft!",
+                                text: "Your activity has been saved as a draft. You can continue editing it later.",
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                 window.location.href = "/contributor/content";
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Activity Published!",
+                                text: "Your activity has been published successfully.",
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                 window.location.href = "/contributor/content";
+                            });
+                        }
+                    },
+
+                    error: function (xhr) {
+                        let message = "Unexpected server error.";
+
+                        if (xhr.status === 400 && xhr.responseText) {
+                            message = xhr.responseText;
+                        } else if (xhr.status === 500) {
+                            message = xhr.responseText || "Unexpected server error.";
+                        }
+
+                        Swal.fire({
+                            icon: "error",
+                            title: isDraft ? "Failed to save draft" : "Failed to publish activity",
+                            text: message
+                        })
+                    }
+                })
+            })
         </script>
+        <style>
+            #activityEditor.is-invalid .ql-toolbar,
+            #activityEditor.is-invalid .ql-editor {
+                border-color: #dc3545 !important;
+            }
+        </style>
     </th:block>
 </body>
 </html>

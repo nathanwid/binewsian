@@ -33,7 +33,7 @@ public class StorageServiceImpl implements StorageService {
     @Value("${supabase.s3.bucket-name}")
     private String bucketName;
 
-    @Value("${supabase.s3.public-url}")
+    @Value("${supabase.s3.public-base-url}")
     private String publicUrl;
 
     @Override

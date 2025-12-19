@@ -5,9 +5,9 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum ActivityType {
-    STUDENT_ACTIVITY_TRANSCRIPT("Student Activity Transcript"),
-    COMMUNITY_SERVICE("Community Service");
+public enum NewsStatus {
+    DRAFT("Draft"),
+    PUBLISHED("Published");
 
     private final String displayName;
 }

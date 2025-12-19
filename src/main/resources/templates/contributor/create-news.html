@@ -28,6 +28,7 @@
                                 <div class="mb-3">
                                     <label for="title" class="form-label">Article Title<span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="title">
+                                    <div id="titleError" class="invalid-feedback"></div>
                                 </div>
 
                                 <div class="row">
@@ -35,38 +36,42 @@
                                         <label for="category" class="form-label">Category<span class="text-danger">*</span></label>
                                         <select class="form-select" data-placeholder="Choose" id="category">
                                             <option selected>Select a category</option>
-                                            <option value="technology">Technology</option>
-                                            <option value="business">Business</option>
-                                            <option value="sports">Sports</option>
-                                            <option value="entertainment">Entertainment</option>
-                                            <option value="health">Health</option>
-                                            <option value="science">Science</option>
+                                            <option value="TECHNOLOGY">Technology</option>
+                                            <option value="BUSINESS">Business</option>
+                                            <option value="SPORTS">Sports</option>
+                                            <option value="ENTERTAINMENT">Entertainment</option>
+                                            <option value="HEALTH">Health</option>
+                                            <option value="SCIENCE">Science</option>
                                         </select>
+                                        <div id="categoryError" class="invalid-feedback"></div>
                                     </div>
 
                                     <div class="col-md-8 mb-3">
-                                        <label for="featured-image" class="form-label">Featured Image (5MB)</label>
-                                        <input class="form-control" type="file" id="featured-image">
+                                        <label for="featuredImage" class="form-label">Featured Image (5MB)</label>
+                                        <input class="form-control" type="file" id="featuredImage" accept="image/png,image/jpeg,image/jpg,image/webp">
+                                        <div id="featuredImageError" class="invalid-feedback"></div>
                                     </div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="summary" class="form-label">Summary<span class="text-danger">*</span></label>
                                     <textarea class="form-control" id="summary" rows="3" placeholder="Write a brief summary of your article (max 200 characters)"></textarea>
+                                    <div id="summaryError" class="invalid-feedback"></div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Article Content<span class="text-danger">*</span></label>
-                                    <div id="article-editor" style="height: 400px;"></div>
+                                    <div id="articleEditor" style="height: 400px;"></div>
                                     <input type="hidden" id="article-content">
+                                    <div id="articleEditorError" class="invalid-feedback"></div>
                                 </div>
 
                                 <div class="d-flex justify-content-end gap-2 mt-4">
-                                    <button type="button" class="btn btn-outline-secondary">
+                                    <button type="submit" id="btnSaveDraft" class="btn btn-outline-secondary">
                                         <i class="bi bi-save me-2"></i> Save as Draft
                                     </button>
 
-                                    <button type="submit" class="btn btn-purple">
+                                    <button type="submit" id="btnPublish" class="btn btn-purple">
                                         <i class="bi bi-check-circle me-2"></i> Publish
                                     </button>
                                 </div>
@@ -80,9 +85,206 @@
 
     <th:block layout:fragment="scripts">
         <script>
-            const articleEditor = new Quill("#article-editor", quillConfig);
-            const articleEditorContent = articleEditor.root.innerHTML;
+            const MAX_FILE_SIZE = 5 * 1024 * 1024;
+            const articleEditor = new Quill("#articleEditor", quillConfig);
+            const fileInput = $("#featuredImage").get(0);
+
+            function setInvalid(id, message) {
+                $(`#${id}`).addClass("is-invalid");
+                $(`#${id}Error`).text(message);
+            }
+
+            function clearInvalid(id) {
+                $(`#${id}`).removeClass("is-invalid");
+                $(`#${id}Error`).text("");
+            }
+
+            function setInvalidEditor(message) {
+                $("#articleEditor").addClass("is-invalid form-control").css("border", "1px solid #dc3545");
+                $("#articleEditorError").text(message).addClass("d-block");
+            }
+
+            function clearInvalidEditor() {
+                $("#articleEditor").removeClass("is-invalid form-control").css("border", "");
+                $("#articleEditorError").text("").removeClass("d-block");
+            }
+
+            function clearValidation() {
+                $(".is-invalid").removeClass("is-invalid");
+                $(".invalid-feedback").text("").removeClass("d-block");
+                clearInvalidEditor();
+            }
+
+            function validateFile(file) {
+                let isValid = true;
+
+                if (!file.type.startsWith("image/")) {
+                    setInvalid("featuredImage", "Allowed formats: JPG, PNG, WebP");
+                    isValid = false;
+                } else if (file.size > MAX_FILE_SIZE) {
+                    setInvalid("featuredImage", "Image size must be less than 5MB");
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            function validatePublish() {
+                let isValid = true;
+
+                const title = $("#title").val();
+                if (!title) {
+                    setInvalid("title", "Title is required");
+                    isValid = false;
+                }
+
+                const category = $("#category").val();
+                if (!category || category === "Select a category") {
+                    setInvalid("category", "Please select a valid category");
+                    isValid = false;
+                }
+
+                const summary = $("#summary").val();
+                if (!summary) {
+                    setInvalid("summary", "Summary cannot be empty");
+                    isValid = false;
+                }
+
+                const editorText = articleEditor.getText().trim();
+                if (editorText.length === 0) {
+                    setInvalidEditor("Summary cannot be empty");
+                    isValid = false;
+                }
+
+                const file = fileInput.files[0];
+                if (!file) {
+                    setInvalid("featuredImage", "Featured image is required");
+                    isValid = false;
+                } else {
+                    if (!file.type.startsWith("image")) {
+                        setInvalid("featuredImage", "Allowed formats: JPG, PNG, WebP");
+                        isValid = false;
+                    } else if (file.size > MAX_FILE_SIZE) {
+                        setInvalid("featuredImage", "Image size must be less than 5MB");
+                        isValid = false;
+                    }
+                }
+
+                return isValid && validateFile(file);
+            }
+
+            function validateDraft() {
+                const file = fileInput.files[0];
+                if (file) {
+                    return validateFile(file);
+                }
+                return true;
+            }
+
+            function emptyToNull(value) {
+                return value === "" ? null : value;
+            }
+
+            function buildPayload(isDraft) {
+                const categoryValue = $("#category").val();
+                const editorText = articleEditor.getText().trim();
+                const editorHtml = articleEditor.root.innerHTML;
+
+                const data = {
+                    title: emptyToNull($("#title").val().trim()),
+                    category: categoryValue === "Select a category" ? null : categoryValue,
+                    summary: emptyToNull($("#summary").val().trim()),
+                    content: editorText.length === 0 ? null : editorHtml,
+                    isDraft: isDraft
+                }
+
+                const formData = new FormData();
+                formData.append("data", new Blob([JSON.stringify(data)], { type: "application/json" }))
+
+                const file = fileInput.files[0];
+                if (file) {
+                    formData.append("featuredImage", file)
+                }
+
+                return formData;
+            }
+
+            $("input, select").on("input change", function () {
+                clearInvalid(this.id);
+            });
+
+            articleEditor.on('text-change', function() {
+                if (articleEditor.getText().trim().length > 0) {
+                    clearInvalidEditor();
+                }
+            });
+
+            $("form").on("submit", function (e) {
+                e.preventDefault();
+                clearValidation();
+
+                const targetId = e.originalEvent.submitter.id;
+                const isDraft = targetId === "btnSaveDraft";
+
+                const isValid = isDraft ? validateDraft() : validatePublish();
+                if (!isValid) return;
+
+                const data = buildPayload(isDraft);
+
+                $.ajax({
+                    url: "/contributor/news/create",
+                    method: "POST",
+                    processData: false,
+                    contentType: false,
+                    data: data,
+                    success: function () {
+                        if (isDraft) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Saved as Draft!",
+                                text: "Your article has been saved as a draft.",
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                 window.location.href = "/contributor/content";
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Article Published!",
+                                text: "Your article has been published successfully.",
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                 window.location.href = "/contributor/content";
+                            });
+                        }
+                    },
+
+                    error: function (xhr) {
+                        let message = "Unexpected server error.";
+
+                        if (xhr.status === 400 && xhr.responseText) {
+                            message = xhr.responseText;
+                        } else if (xhr.status === 500) {
+                            message = xhr.responseText || "Unexpected server error.";
+                        }
+
+                        Swal.fire({
+                            icon: "error",
+                            title: isDraft ? "Failed to save draft" : "Failed to publish article",
+                            text: message
+                        })
+                    }
+                })
+            })
         </script>
+        <style>
+            #articleEditor.is-invalid .ql-toolbar,
+            #articleEditor.is-invalid .ql-editor {
+                border-color: #dc3545 !important;
+            }
+        </style>
     </th:block>
 </body>
 </html>

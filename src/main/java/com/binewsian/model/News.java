@@ -1,22 +1,20 @@
 package com.binewsian.model;
 
-import com.binewsian.enums.ActivityStatus;
-import com.binewsian.enums.ActivityType;
+import com.binewsian.enums.NewsCategory;
+import com.binewsian.enums.NewsStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "activities")
-public class Activity {
+@Table(name = "news")
+public class News {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -24,24 +22,19 @@ public class Activity {
     private String title;
 
     @Enumerated(EnumType.STRING)
-    private ActivityType type;
+    private NewsCategory category;
 
-    private Integer quota;
-    private Integer rewardAmount;
-    private String registrationLink;
-    private String location;
-    private LocalTime timeStart;
-    private LocalTime timeEnd;
-    private LocalDate activityDate;
-    private LocalDateTime registrationDeadline;
+    private String summary;
 
     @Column(columnDefinition = "TEXT")
-    private String details;
+    private String content;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ActivityStatus status;
+    private NewsStatus status;
 
+    private String featuredImageKey;
+    private String featuredImageUrl;
     private LocalDateTime publishedAt;
 
     @CreationTimestamp

@@ -36,8 +36,8 @@
                                         <label for=activityType class="form-label">Type<span class="text-danger">*</span></label>
                                         <select class="form-select" id=activityType>
                                             <option selected>Select a type</option>
-                                            <option value="SAT">Student Activity Transcript</option>
-                                            <option value="ComServ">Community Service</option>
+                                            <option value="STUDENT_ACTIVITY_TRANSCRIPT">Student Activity Transcript</option>
+                                            <option value="COMMUNITY_SERVICE">Community Service</option>
                                         </select>
                                         <div id="activityTypeError" class="invalid-feedback"></div>
                                     </div>
@@ -45,7 +45,7 @@
                                     <div class="col-md-3 mb-3">
                                         <label for="quota" class="form-label">Quota<span class="text-danger">*</span></label>
                                         <input type="number" class="form-control" id="quota" min="1" placeholder="Enter quota for this activity">
-                                        <div id="quotaError" class="invalid-feedback"></div>
+                                        <div id="quotaerror" class="invalid-feedback"></div>
                                     </div>
 
                                     <div class="col-md-3 mb-3">
@@ -103,12 +103,12 @@
                                 <div class="mb-3">
                                     <label class="form-label">Activity Details<span class="text-danger">*</span></label>
                                     <div id="activityEditor" style="height: 400px;"></div>
-                                    <input type="hidden" id="activity-details">
+                                    <input type="hidden" id="activityDetails">
                                     <div id="activityEditorError" class="invalid-feedback"></div>
                                 </div>
 
                                 <div class="d-flex justify-content-end gap-2 mt-4">
-                                    <button type="submit" id="btnSaveAsDraft" class="btn btn-outline-secondary">
+                                    <button type="submit" id="btnSaveDraft" class="btn btn-outline-secondary">
                                         <i class="bi bi-save me-2"></i> Save as Draft
                                     </button>
 
@@ -186,12 +186,86 @@
                 }
             }
 
-            function validatePublishForm() {
-                let isValid = true;
-
+            function clearValidation() {
                 $(".is-invalid").removeClass("is-invalid");
                 $(".invalid-feedback").text("").removeClass("d-block");
                 clearInvalidEditor();
+            }
+
+            function validateBaseDateTime() {
+                let isValid = true;
+
+                const activityDateRaw = $("#activityDate").val();
+                const timeStart = $("#timeStart").val();
+                const timeEnd = $("#timeEnd").val();
+                const deadlineRaw = $("#registrationDeadline").val();
+
+                if (!activityDateRaw && !timeStart && !timeEnd && !deadlineRaw) {
+                    return true;
+                }
+
+                const activityDate = activityDateRaw ? getDateOnly(activityDateRaw) : null;
+                const today = getDateOnly(new Date());
+
+                if (activityDate && activityDate < today) {
+                    setInvalid("activityDate", "Activity date cannot be in the past");
+                    isValid = false;
+                }
+
+                if (timeStart && timeEnd && timeStart >= timeEnd) {
+                    setInvalidGroup(["timeStart", "timeEnd"], "timeError", "Please select a valid time range");
+                    isValid = false;
+                }
+
+                if (activityDate && timeStart && deadlineRaw) {
+                    const deadline = getDateTime(deadlineRaw);
+                    const activityStart = new Date(`${activityDateRaw}T${timeStart}`);
+
+                    console.log("Deadline:", deadline);
+                    console.log("Activity Start:", activityStart);
+
+                    if (deadline >= activityStart) {
+                        setInvalid("registrationDeadline", "Registration deadline must be before activity start time");
+                        isValid = false;
+                    }
+                }
+
+                return isValid;
+            }
+
+            function validateDraft() {
+                return validateBaseDateTime();
+            }
+
+            function validatePublishDateTime() {
+                let isValid = true;
+
+                const activityDate = $("#activityDate").val();
+                if (!activityDate) {
+                    setInvalid("activityDate", "Activity date is required");
+                    isValid = false;
+                }
+
+                const timeStart = $("#timeStart").val();
+                const timeEnd = $("#timeEnd").val();
+                if (!timeStart || !timeEnd) {
+                    setInvalidGroup(["timeStart", "timeEnd"], "timeError", "Start and end time are required");
+                    isValid = false;
+                }
+
+                const deadline = $("#registrationDeadline").val();
+                if (!deadline) {
+                    setInvalid("registrationDeadline", "Registration deadline is required");
+                    isValid = false;
+                }
+
+                if (!isValid) return false;
+                return validateBaseDateTime();
+            }
+
+            function validatePublish() {
+                let isValid = true;
+                isValid = validatePublishDateTime() && isValid;
 
                 const title = $("#title").val();
                 if (!title) {
@@ -229,41 +303,8 @@
                     isValid = false;
                 }
 
-                const timeStart = $("#timeStart").val();
-                const timeEnd = $("#timeEnd").val();
-                if (!timeStart || !timeEnd || timeStart >= timeEnd) {
-                    setInvalidGroup(["timeStart", "timeEnd"], "timeError", "Please select a valid time range");
-                    isValid = false;
-                }
-
-                const activityDate = getDateOnly($("#activityDate").val());
-                if (!activityDate) {
-                    setInvalid("activityDate", "Please select a valid date");
-                    isValid = false;
-                }
-
-                const today = getDateOnly(new Date());
-                if (activityDate < today) {
-                    setInvalid("activityDate", "Activity date cannot be in the past");
-                    isValid = false;
-                }
-
-                const deadline = getDateTime($("#registrationDeadline").val());
-                if (!deadline) {
-                    setInvalid("registrationDeadline", "Please select a valid registration deadline");
-                    isValid = false;
-                }
-
-                if (activityDate && timeStart && deadline) {
-                    const activityStart = new Date(`${activityDate}T${timeStart}`);
-                    if (deadline >= activityStart) {
-                        setInvalid("registrationDeadline" ,"Registration deadline must be before activity start time");
-                        isValid = false;
-                    }
-                }
-
-                const details = activityEditor.root.innerHTML;
-                if (activityEditor.getText().trim().length === 0) {
+                const editorText = activityEditor.getText().trim();
+                if (editorText.length === 0) {
                     setInvalidEditor("Activity details cannot be empty");
                     isValid = false;
                 }
@@ -297,7 +338,7 @@
                     activityType: activityTypeValue === "Select a type" ? null : activityTypeValue,
                     quota: safeParseInt($("#quota").val()),
                     rewardAmount: safeParseInt($("#rewardAmount").val()),
-                    registrationLink: emptyToNull(),
+                    registrationLink: emptyToNull(registrationLink),
                     location: locationValue === "Select location" ? null : locationValue,
                     timeStart: emptyToNull($("#timeStart").val()),
                     timeEnd: emptyToNull($("#timeEnd").val()),
@@ -339,18 +380,18 @@
 
             $("form").on("submit", function (e) {
                 e.preventDefault();
+                clearValidation();
 
                 const targetId = e.originalEvent.submitter.id;
-                const isDraft = targetId === "btnSaveAsDraft";
+                const isDraft = targetId === "btnSaveDraft";
 
-                if (!isDraft) {
-                    if (!validatePublishForm()) return;
-                }
+                const isValid = isDraft ? validateDraft() : validatePublish();
+                if (!isValid) return;
 
                 const data = buildPayload(isDraft);
 
                 $.ajax({
-                    url: "/contributor/activities/create",
+                    url: "/contributor/activities",
                     method: "POST",
                     contentType: "application/json",
                     data: JSON.stringify(data),
@@ -359,7 +400,7 @@
                             Swal.fire({
                                 icon: "success",
                                 title: "Saved as Draft!",
-                                text: "Your activity has been saved as a draft. You can continue editing it later.",
+                                text: "Your activity has been saved as a draft.",
                                 timer: 2000,
                                 showConfirmButton: false
                             }).then(() => {

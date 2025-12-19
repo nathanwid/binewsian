@@ -32,7 +32,7 @@ public class ActivityController {
         return "contributor/create-activity";
     }
 
-    @PostMapping("/activities/create")
+    @PostMapping("/activities")
     public ResponseEntity<?> createActivity(@RequestBody CreateActivityRequest request) {
         try {
             activityService.create(request);

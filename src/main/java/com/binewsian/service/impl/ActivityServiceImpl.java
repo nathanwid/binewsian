@@ -1,12 +1,18 @@
 package com.binewsian.service.impl;
 
+import com.binewsian.constant.AppConstant;
 import com.binewsian.dto.CreateActivityRequest;
 import com.binewsian.enums.ActivityStatus;
+import com.binewsian.enums.ActivityType;
 import com.binewsian.exception.BiNewsianException;
 import com.binewsian.model.Activity;
 import com.binewsian.repository.ActivityRepository;
 import com.binewsian.service.ActivityService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +50,18 @@ public class ActivityServiceImpl implements ActivityService {
         activity.setPublishedAt(isDraft ? null : LocalDateTime.now());
 
         activityRepository.save(activity);
+    }
+
+    @Override
+    public void delete(Long id) throws BiNewsianException {
+        Activity activity = activityRepository.findById(id).orElseThrow(() -> new BiNewsianException(AppConstant.ACTIVITY_NOT_FOUND));
+        activityRepository.delete(activity);
+    }
+
+    @Override
+    public Page<Activity> findPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        return activityRepository.findByStatus(ActivityStatus.PUBLISHED, pageable);
     }
 
     private String normalizeUrl(String url) {

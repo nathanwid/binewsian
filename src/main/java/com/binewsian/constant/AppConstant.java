@@ -6,5 +6,7 @@ public class AppConstant {
 
     public final static String NEWS_NOT_FOUND = "News not found.";
 
+    public final static String ACTIVITY_NOT_FOUND = "Activity not found.";
+
     public final static String UNEXPECTED_SERVER_ERROR = "Unexpected server error.";
 }

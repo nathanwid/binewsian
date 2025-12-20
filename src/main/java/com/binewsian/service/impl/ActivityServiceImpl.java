@@ -23,13 +23,14 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     public void create(CreateActivityRequest request) throws BiNewsianException {
-        if (!request.isDraft()) {
+        boolean isDraft = request.isDraft();
+        if (!isDraft) {
             validate(request);
         }
 
         Activity activity = new Activity();
         activity.setTitle(request.title());
-        activity.setActivityType(request.activityType());
+        activity.setType(request.activityType());
         activity.setQuota(request.quota());
         activity.setRewardAmount(request.rewardAmount());
         activity.setRegistrationLink(request.registrationLink());
@@ -39,7 +40,8 @@ public class ActivityServiceImpl implements ActivityService {
         activity.setActivityDate(request.activityDate());
         activity.setRegistrationDeadline(request.registrationDeadline());
         activity.setDetails(request.details());
-        activity.setActivityStatus(request.isDraft() ? ActivityStatus.DRAFT : ActivityStatus.PUBLISHED);
+        activity.setStatus(isDraft ? ActivityStatus.DRAFT : ActivityStatus.PUBLISHED);
+        activity.setPublishedAt(isDraft ? null : LocalDateTime.now());
 
         activityRepository.save(activity);
     }
@@ -56,8 +58,6 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     private void validate(CreateActivityRequest r) throws BiNewsianException {
-        if (r.isDraft()) return;
-
         if (r.title() == null || r.title().isBlank())
             throw new BiNewsianException("Title is required");
 
@@ -68,7 +68,7 @@ public class ActivityServiceImpl implements ActivityService {
             throw new BiNewsianException("Location is required");
 
         if (r.details() == null || r.details().isBlank())
-            throw new BiNewsianException("Activity details cannot be empty");
+            throw new BiNewsianException("Activity content cannot be empty");
 
         if (r.quota() == null || r.quota() <= 0)
             throw new BiNewsianException("Quota must be greater than 0");

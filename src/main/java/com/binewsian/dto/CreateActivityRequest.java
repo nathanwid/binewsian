@@ -7,16 +7,17 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public record CreateActivityRequest(
-    String title,
-    ActivityType activityType,
-    Integer quota,
-    Integer rewardAmount,
-    String registrationLink,
-    String location,
-    LocalTime timeStart,
-    LocalTime timeEnd,
-    LocalDate activityDate,
-    LocalDateTime registrationDeadline,
-    String details,
-    Boolean isDraft
-) {}
+        String title,
+        ActivityType activityType,
+        Integer quota,
+        Integer rewardAmount,
+        String registrationLink,
+        String location,
+        LocalTime timeStart,
+        LocalTime timeEnd,
+        LocalDate activityDate,
+        LocalDateTime registrationDeadline,
+        String details,
+        Boolean isDraft
+) {
+}

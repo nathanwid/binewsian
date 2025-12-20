@@ -161,11 +161,70 @@
 
                         <!-- Manage Activity  -->
                         <div class="tab-pane fade" id="panel-activity" role="tabpanel" aria-labelledby="tab-activity">
+                            <!-- Search -->
                             <div class="search-wrap mb-3 d-flex align-items-center gap-2">
                                 <i class="bi bi-search text-muted"></i>
-                                <input type="text" class="form-control" placeholder="Search Activity" aria-label="Search Activity">
+                                <input id="searchActivity" type="text" class="form-control" placeholder="Search Activity" aria-label="Search Activity">
                             </div>
-                            <div class="d-flex justify-content-center align-items-center text-muted">No activities yet.</div>
+
+                            <!-- Activity List -->
+                            <div id="activityList" th:if="${!#lists.isEmpty(activities)}">
+                                <div class="news-item" th:each="activity : ${activities}" th:attr="data-name=${activity.title}">
+                                    <div class="d-flex align-items-start">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <h6 class="mb-1" th:text="${activity.title}"></h6>
+
+                                                <div class="dropdown">
+                                                    <button class="btn btn-link p-1 ellipsis-btn" data-bs-toggle="dropdown">
+                                                        <i class="bi bi-three-dots-vertical"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                        <li>
+                                                            <button class="dropdown-item text-danger action-delete" th:data-id="${activity.id}" th:data-type="activity">
+                                                                <i class="bi bi-trash me-2"></i> Delete
+                                                            </button>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            <span class="badge badge-soft">
+                                                <span th:text="${activity.type.getDisplayName()}">-</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div th:if="${#lists.isEmpty(activities)}" class="text-muted text-center">
+                                No activities yet.
+                            </div>
+
+                            <div id="noActivities" style="display:none;" class="text-muted text-center">
+                                No matching activities.
+                            </div>
+
+                            <!-- Pagination -->
+                            <nav th:if="${activitiesTotalPages > 1}" class="mt-3">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item" th:classappend="${activitiesCurrentPage == 0} ? 'disabled'">
+                                        <a class="page-link" th:href="@{/admin/panel(activityPage=${activitiesCurrentPage - 1}, tab='news')}">
+                                            &laquo;
+                                        </a>
+                                    </li>
+
+                                    <li class="page-item" th:each="i : ${#numbers.sequence(0, activitiesTotalPages - 1)}" th:classappend="${i == activitiesCurrentPage} ? 'active'">
+                                        <a class="page-link" th:text="${i + 1}" th:href="@{/admin/panel(activityPage=${i}, tab='news')}"></a>
+                                    </li>
+
+                                    <li class="page-item" th:classappend="${activitiesCurrentPage + 1 == activitiesTotalPages} ? 'disabled'">
+                                        <a class="page-link" th:href="@{/admin/panel(activityPage=${activitiesCurrentPage + 1}, tab='news')}">
+                                            &raquo;
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
                         </div>
 
                         <!-- Manage Category -->
@@ -361,6 +420,21 @@
                 $("#noNews").toggle(matches === 0 && q.length > 0);
             })
 
+            $("#searchActivity").on("input", function () {
+                const q = $(this).val().toLowerCase();
+                let matches = 0;
+
+                $("#activityList .news-item").each(function () {
+                    const name = $(this).data("name").toLowerCase();
+                    const isMatch = name.includes(q);
+
+                    $(this).toggle(isMatch);
+                    if (isMatch) matches++;
+                });
+
+                $("#noActivities").toggle(matches === 0 && q.length > 0);
+            })
+
             $("#categoryName").on("input", function () {
                 validateAlphaOnly($(this), $("#categoryError"));
             })
@@ -477,6 +551,7 @@
 
                 if (type === "category") ajaxUrl = "/admin/categories/delete";
                 if (type === "news") ajaxUrl = "/admin/news/delete";
+                if (type === "activity") ajaxUrl = "/admin/activities/delete";
 
                 Swal.fire({
                     title: "Delete category?",

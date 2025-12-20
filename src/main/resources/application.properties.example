@@ -1,0 +1,34 @@
+spring.application.name=BiNewsian
+
+# Database Configuration
+spring.datasource.url=YOUR_DATABASE_NAME
+spring.datasource.username=YOUR_DATABASE_USERNAME
+spring.datasource.password=YOUR_DATABASE_PASSWORD
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# Supabase S3 Configuration
+supabase.s3.endpoint=https://zzdkaxxgoyjgpajwtqpl.storage.supabase.co/storage/v1/s3
+supabase.s3.public-base-url=https://zzdkaxxgoyjgpajwtqpl.storage.supabase.co/storage/v1/object/public/binewsian
+supabase.s3.region=ap-south-1
+supabase.s3.access-key=YOUR_ACCESS_KEY
+supabase.s3.secret-key=YOUR_SECRET_KEY
+supabase.s3.bucket-name=binewsian-dev
+
+# JPA Configuration
+spring.jpa.hibernate.ddl-auto=update
+
+# Session Configuration
+server.servlet.session.timeout=30m
+server.servlet.session.cookie.http-only=true
+server.servlet.session.cookie.secure=false
+
+# File Upload Configuration
+spring.servlet.multipart.enabled=true
+spring.servlet.multipart.max-file-size=5MB
+spring.servlet.multipart.max-request-size=6MB
+
+# Error Pages Configuration
+server.error.whitelabel.enabled=false
+server.error.include-message=always
+server.error.include-stacktrace=on_param
+server.error.include-exception=false

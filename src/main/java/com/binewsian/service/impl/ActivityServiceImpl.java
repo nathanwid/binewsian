@@ -30,8 +30,11 @@ public class ActivityServiceImpl implements ActivityService {
     @Override
     public void create(CreateActivityRequest request, User user) throws BiNewsianException {
         boolean isDraft = request.isDraft();
-        if (!isDraft) {
-            validate(request);
+
+        if (isDraft) {
+            validateDraft(request);
+        } else {
+            validatePublish(request);
         }
 
         Activity activity = new Activity();
@@ -76,7 +79,41 @@ public class ActivityServiceImpl implements ActivityService {
         return url;
     }
 
-    private void validate(CreateActivityRequest r) throws BiNewsianException {
+    private void validateDraft(CreateActivityRequest r) throws BiNewsianException {
+        validateBaseDateTime(r);
+    }
+
+    private void validateBaseDateTime(CreateActivityRequest r) throws BiNewsianException {
+        if (r.activityDate() == null && r.timeStart() == null && r.timeEnd() == null && r.registrationDeadline() == null) {
+            return;
+        }
+
+        if (r.timeStart() != null && r.timeEnd() != null && !r.timeEnd().isAfter(r.timeStart()))
+            throw new BiNewsianException("End time must be after start time");
+
+        LocalDateTime activityStartDateTime = r.activityDate().atTime(r.timeStart());
+
+        if (r.registrationDeadline() != null && !r.registrationDeadline().isBefore(activityStartDateTime))
+            throw new BiNewsianException("Registration deadline must be before activity start time");
+
+        if (r.activityDate() != null && r.activityDate().isBefore(LocalDate.now()))
+            throw new BiNewsianException("Activity date cannot be in the past");
+    }
+
+    private void validatePublishDateTime(CreateActivityRequest r) throws BiNewsianException {
+        if (r.activityDate() == null)
+            throw new BiNewsianException("Activity date is required");
+
+        if (r.timeStart() == null || r.timeEnd() == null)
+            throw new BiNewsianException("Start time and end time are required");
+
+        if (r.registrationDeadline() == null)
+            throw new BiNewsianException("Registration deadline is required");
+        
+        validateBaseDateTime(r);
+    }
+
+    private void validatePublish(CreateActivityRequest r) throws BiNewsianException {
         if (r.title() == null || r.title().isBlank())
             throw new BiNewsianException("Title is required");
 
@@ -94,26 +131,8 @@ public class ActivityServiceImpl implements ActivityService {
 
         if (r.rewardAmount() == null || r.rewardAmount() <= 0)
             throw new BiNewsianException("Reward amount must be greater than 0");
-
-        if (r.activityDate() == null)
-            throw new BiNewsianException("Activity date is required");
-
-        if (r.timeStart() == null || r.timeEnd() == null)
-            throw new BiNewsianException("Start time and end time are required");
-
-        if (r.registrationDeadline() == null)
-            throw new BiNewsianException("Registration deadline is required");
-
-        if (!r.timeEnd().isAfter(r.timeStart()))
-            throw new BiNewsianException("End time must be after start time");
-
-        LocalDateTime activityStartDateTime = r.activityDate().atTime(r.timeStart());
-
-        if (!r.registrationDeadline().isBefore(activityStartDateTime))
-            throw new BiNewsianException("Registration deadline must be before activity start time");
-
-        if (r.activityDate().isBefore(LocalDate.now()))
-            throw new BiNewsianException("Activity date cannot be in the past");
+        
+        validatePublishDateTime(r);
 
         if (r.registrationLink() == null || r.registrationLink().isBlank())
             throw new BiNewsianException("Registration link is required");

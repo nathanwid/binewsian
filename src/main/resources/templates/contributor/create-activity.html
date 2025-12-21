@@ -36,8 +36,9 @@
                                         <label for=activityType class="form-label">Type<span class="text-danger">*</span></label>
                                         <select class="form-select" id=activityType>
                                             <option selected>Select a type</option>
-                                            <option value="STUDENT_ACTIVITY_TRANSCRIPT">Student Activity Transcript</option>
-                                            <option value="COMMUNITY_SERVICE">Community Service</option>
+                                            <option th:each="type : ${T(com.binewsian.enums.ActivityType).values()}" 
+                                                    th:value="${type.name()}" 
+                                                    th:text="${type.displayName}">
                                         </select>
                                         <div id="activityTypeError" class="invalid-feedback"></div>
                                     </div>

@@ -1,10 +1,8 @@
 package com.binewsian.dto;
 
-import com.binewsian.enums.NewsCategory;
-
 public record CreateNewsRequest(
         String title,
-        NewsCategory category,
+        Long categoryId,
         String summary,
         String content,
         Boolean isDraft

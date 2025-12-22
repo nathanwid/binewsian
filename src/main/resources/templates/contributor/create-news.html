@@ -35,13 +35,10 @@
                                     <div class="col-md-4 mb-3">
                                         <label for="category" class="form-label">Category<span class="text-danger">*</span></label>
                                         <select class="form-select" data-placeholder="Choose" id="category">
-                                            <option selected>Select a category</option>
-                                            <option value="TECHNOLOGY">Technology</option>
-                                            <option value="BUSINESS">Business</option>
-                                            <option value="SPORTS">Sports</option>
-                                            <option value="ENTERTAINMENT">Entertainment</option>
-                                            <option value="HEALTH">Health</option>
-                                            <option value="SCIENCE">Science</option>
+                                            <option value="" selected disabled>Select a category</option>
+                                            <option th:each="category : ${categories}" 
+                                                    th:value="${category.id}" 
+                                                    th:text="${category.name}">
                                         </select>
                                         <div id="categoryError" class="invalid-feedback"></div>
                                     </div>
@@ -139,7 +136,7 @@
                 }
 
                 const category = $("#category").val();
-                if (!category || category === "Select a category") {
+                if (!category || isNaN(category) || category === "Select a category") {
                     setInvalid("category", "Please select a valid category");
                     isValid = false;
                 }
@@ -186,13 +183,12 @@
             }
 
             function buildPayload(isDraft) {
-                const categoryValue = $("#category").val();
                 const editorText = articleEditor.getText().trim();
                 const editorHtml = articleEditor.root.innerHTML;
 
                 const data = {
                     title: emptyToNull($("#title").val().trim()),
-                    category: categoryValue === "Select a category" ? null : categoryValue,
+                    categoryId: $("#category").val(),
                     summary: emptyToNull($("#summary").val().trim()),
                     content: editorText.length === 0 ? null : editorHtml,
                     isDraft: isDraft

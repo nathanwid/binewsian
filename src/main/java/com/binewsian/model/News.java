@@ -1,6 +1,5 @@
 package com.binewsian.model;
 
-import com.binewsian.enums.NewsCategory;
 import com.binewsian.enums.NewsStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -21,8 +20,9 @@ public class News {
 
     private String title;
 
-    @Enumerated(EnumType.STRING)
-    private NewsCategory category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     private String summary;
 

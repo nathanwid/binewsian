@@ -6,6 +6,9 @@ import com.binewsian.model.Category;
 import com.binewsian.repository.CategoryRepository;
 import com.binewsian.service.CategoryService;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -55,6 +58,11 @@ public class CategoryServiceImpl implements CategoryService {
         } catch (DataIntegrityViolationException ex) {
             throw new BiNewsianException("Category is still in use and cannot be deleted.");
         }
+    }
+
+    @Override
+    public List<Category> findAll() {
+        return categoryRepository.findAll();
     }
 
     @Override

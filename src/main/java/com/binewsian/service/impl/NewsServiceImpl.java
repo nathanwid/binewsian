@@ -4,8 +4,10 @@ import com.binewsian.constant.AppConstant;
 import com.binewsian.dto.CreateNewsRequest;
 import com.binewsian.enums.NewsStatus;
 import com.binewsian.exception.BiNewsianException;
+import com.binewsian.model.Category;
 import com.binewsian.model.News;
 import com.binewsian.model.User;
+import com.binewsian.repository.CategoryRepository;
 import com.binewsian.repository.NewsRepository;
 import com.binewsian.service.NewsService;
 import com.binewsian.service.StorageService;
@@ -25,6 +27,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class NewsServiceImpl implements NewsService {
 
+    private final CategoryRepository categoryRepository;
     private final NewsRepository newsRepository;
     private final StorageService storageService;
 
@@ -46,9 +49,16 @@ public class NewsServiceImpl implements NewsService {
             publicUrl = storageService.getPublicUrl(key);
         }
 
+        Long categoryId = request.categoryId();
+        Category category = null;
+        if (categoryId != null) {
+            category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new BiNewsianException(AppConstant.CATEGORY_NOT_FOUND));
+        }
+
         News news = new News();
         news.setTitle(request.title());
-        news.setCategory(request.category());
+        news.setCategory(category);
         news.setSummary(request.summary());
         news.setContent(request.content());
         news.setFeaturedImageKey(key);
@@ -76,7 +86,7 @@ public class NewsServiceImpl implements NewsService {
         if (r.title() == null || r.title().isBlank())
             throw new BiNewsianException("Title is required");
 
-        if (r.category() == null)
+        if (r.categoryId() == null)
             throw new BiNewsianException("Category is required");
 
         if (r.summary() == null || r.summary().isBlank())

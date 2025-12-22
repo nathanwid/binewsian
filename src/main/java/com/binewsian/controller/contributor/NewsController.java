@@ -5,10 +5,15 @@ import com.binewsian.constant.AppConstant;
 import com.binewsian.dto.CreateNewsRequest;
 import com.binewsian.enums.Role;
 import com.binewsian.exception.BiNewsianException;
+import com.binewsian.model.Category;
 import com.binewsian.model.User;
+import com.binewsian.service.CategoryService;
 import com.binewsian.service.NewsService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -23,11 +28,16 @@ import org.springframework.web.multipart.MultipartFile;
 public class NewsController {
 
     private final NewsService newsService;
+    private final CategoryService categoryService;
 
     @GetMapping("/create-news")
     public String showCreateNewsPage(HttpSession session, Model model) {
         User user = (User) session.getAttribute("user");
+        List<Category> categories = categoryService.findAll();
+
         model.addAttribute("user", user);
+        model.addAttribute("categories", categories);
+
         return "contributor/create-news";
     }
 

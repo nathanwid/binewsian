@@ -361,6 +361,16 @@
                 color: #fff;
             }
 
+            #featuredImage:has(~ #btnPreview.d-none):has(~ #btnDelete.d-none) {
+                border-top-right-radius: 0.375rem !important;
+                border-bottom-right-radius: 0.375rem !important;
+            }
+
+            .input-group > #featuredImage:last-child {
+                border-top-right-radius: 0.375rem !important;
+                border-bottom-right-radius: 0.375rem !important;
+            }
+
             @media (max-width: 576px) {
                 .d-flex.gap-2 {
                     flex-wrap: wrap;

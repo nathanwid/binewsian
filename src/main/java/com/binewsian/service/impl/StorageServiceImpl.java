@@ -2,7 +2,10 @@ package com.binewsian.service.impl;
 
 import com.binewsian.exception.BiNewsianException;
 import com.binewsian.service.StorageService;
+import com.binewsian.util.S3KeyGenerator;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,7 +21,6 @@ import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignReques
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +32,9 @@ public class StorageServiceImpl implements StorageService {
     @Autowired
     private S3Presigner s3Presigner;
 
+    @Autowired
+    private S3KeyGenerator s3KeyGenerator;
+
     @Value("${supabase.s3.bucket-name}")
     private String bucketName;
 
@@ -39,7 +44,7 @@ public class StorageServiceImpl implements StorageService {
     @Override
     public String uploadFile(MultipartFile file) throws BiNewsianException {
         try {
-            String key = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            String key = s3KeyGenerator.generateKey(file);
 
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)

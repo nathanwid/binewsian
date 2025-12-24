@@ -2,7 +2,7 @@ package com.binewsian.controller.contributor;
 
 import com.binewsian.annotation.RequireRole;
 import com.binewsian.constant.AppConstant;
-import com.binewsian.dto.CreateActivityRequest;
+import com.binewsian.dto.ActivityRequest;
 import com.binewsian.enums.ActivityStatus;
 import com.binewsian.enums.ActivityType;
 import com.binewsian.enums.Role;
@@ -64,7 +64,7 @@ public class ActivityController {
 
     @PostMapping("/activities")
     public ResponseEntity<?> createActivity(
-            @RequestBody CreateActivityRequest request,
+            @RequestBody ActivityRequest request,
             HttpSession session
     ) {
         try {
@@ -81,7 +81,7 @@ public class ActivityController {
     @PutMapping("/activities/{id}")
     public ResponseEntity<?> updateActivity(
             @PathVariable Long id, 
-            @RequestBody CreateActivityRequest request,
+            @RequestBody ActivityRequest request,
             HttpSession session
     ) {
         try {

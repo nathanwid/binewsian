@@ -8,7 +8,7 @@ import java.time.LocalTime;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-public record CreateActivityRequest(
+public record ActivityRequest(
         String title,
         ActivityType activityType,
         Integer quota,

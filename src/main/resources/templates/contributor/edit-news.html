@@ -7,10 +7,10 @@
     <div layout:fragment="content">
         <div class="container mb-4">
             <div class="d-flex flex-wrap gap-2">
-                <a th:href="@{/contributor/content}" class="btn btn-light" style="border:1px solid #c3c4c7;">
+                <a th:href="@{/contributor/content}" class="btn btn-gradient" style="border:1px solid #c3c4c7;">
                     <i class="bi bi-grid-1x2"></i> Dashboard
                 </a>
-                <a th:href="@{/contributor/create-news}" class="btn btn-gradient" style="border:1px solid #c3c4c7;">
+                <a th:href="@{/contributor/create-news}" class="btn btn-light" style="border:1px solid #c3c4c7;">
                     <i class="bi bi-plus-lg"></i> Create News
                 </a>
                 <a th:href="@{/contributor/create-activity}" class="btn btn-light" style="border:1px solid #c3c4c7;">
@@ -24,18 +24,19 @@
                 <div class="col-md-12">
                     <div class="card content-card mb-4">
                         <div class="card-body">
-                            <form>
+                            <form th:object="${news}">
+                                <input type="hidden" th:field="${news.id}" id="id">
                                 <div class="mb-3">
                                     <label for="title" class="form-label">Article Title<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="title">
+                                    <input type="text" class="form-control" th:field="${news.title}" id="title">
                                     <div id="titleError" class="invalid-feedback"></div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label for="category" class="form-label">Category<span class="text-danger">*</span></label>
-                                        <select class="form-select" data-placeholder="Choose" id="category">
-                                            <option value="" selected disabled>Select a category</option>
+                                        <select class="form-select" data-placeholder="Choose" th:field="${news.category}" id="category">
+                                            <option value="" disabled>Select a category</option>
                                             <option th:each="category : ${categories}" 
                                                     th:value="${category.id}" 
                                                     th:text="${category.name}">
@@ -54,32 +55,34 @@
                                                 <i class="bi bi-trash"></i> Delete
                                             </button>
                                         </div>
+                                        <input type="hidden" th:field="${news.featuredImageKey}" id="existingImageKey">
+                                        <input type="hidden" th:field="${news.featuredImageUrl}" id="existingImageUrl">
                                         <div id="featuredImageError" class="invalid-feedback"></div>
                                     </div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="summary" class="form-label">Summary<span class="text-danger">*</span></label>
-                                    <textarea class="form-control" id="summary" rows="3" placeholder="Write a brief summary of your article (max 200 characters)"></textarea>
+                                    <textarea class="form-control" th:field="${news.summary}" id="summary" rows="3" placeholder="Write a brief summary of your article (max 200 characters)"></textarea>
                                     <div id="summaryError" class="invalid-feedback"></div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Article Content<span class="text-danger">*</span></label>
                                     <div id="articleEditor" style="height: 400px;"></div>
-                                    <input type="hidden" id="article-content">
+                                    <input type="hidden" th:field="${news.content}" id="articleContent">
                                     <div id="articleEditorError" class="invalid-feedback"></div>
                                 </div>
 
                                 <div class="d-flex justify-content-end gap-2 mt-4">
-                                    <button type="submit" id="btnSaveDraft" class="btn btn-outline-secondary">
+                                    <button type="submit" th:if="${canEdit}" id="btnSaveDraft" class="btn btn-outline-secondary">
                                         <i class="bi bi-save me-2"></i> Save as Draft
                                     </button>
 
-                                    <button type="submit" id="btnPublish" class="btn btn-purple">
+                                    <button type="submit" th:if="${canEdit}" id="btnPublish" class="btn btn-purple">
                                         <i class="bi bi-check-circle me-2"></i> Publish
                                     </button>
-                                </div>
+                                </div>  
                             </form>
                         </div>
                     </div>
@@ -104,10 +107,57 @@
             const MAX_FILE_SIZE = 5 * 1024 * 1024;
             const articleEditor = new Quill("#articleEditor", quillConfig);
             const fileInput = $("#featuredImage").get(0);
-            let imageUrl = null;
+
+            const initialContent = $("#articleContent").val();
+            if (initialContent) {
+                articleEditor.root.innerHTML = initialContent;
+            }
+
+            let currentImageData = { 
+                key: null, 
+                url: null, 
+                isFromServer: false,
+                shouldDelete: false 
+            };
+
+            const existingImageKey = $("#existingImageKey").val();
+            const existingImageUrl = $("#existingImageUrl").val();
+
+            if (existingImageUrl && existingImageUrl !== "" && existingImageUrl !== "null") {
+                currentImageData.key = existingImageKey; 
+                currentImageData.url = existingImageUrl;
+                currentImageData.isFromServer = true;
+                currentImageData.shouldDelete = false;
+
+                $("#btnPreview").removeClass("d-none");
+                $("#btnDelete").removeClass("d-none");
+            }
+
+            $("#btnPreview").on("click", function () {
+                $("#imagePreview").attr("src", currentImageData.url);
+                $("#imagePreviewModal").modal("show");
+            });
+
+            $("#btnDelete").on("click", function () {
+                if (currentImageData.url && !currentImageData.isFromServer) {
+                    URL.revokeObjectURL(currentImageData.url);
+                } 
+
+                currentImageData.key = null;
+                currentImageData.url = null;
+                currentImageData.shouldDelete = currentImageData.isFromServer;
+
+                $("#featuredImage").val("");
+                $("#imagePreview").attr("src", "");
+
+                $("#imagePreviewModal").modal("hide");
+                $("#btnPreview").addClass("d-none");
+                $(this).addClass("d-none");
+            });
 
             $("#featuredImage").on("change", function () {
                 const file = this.files[0];
+
                 if (file) {
                     const isValid = validateFile(file);
                     if (!isValid) {
@@ -117,27 +167,17 @@
 
                     clearInvalid("featuredImage");
 
-                    imageUrl = URL.createObjectURL(file);
-                    $("#imagePreview").attr("src", imageUrl);
+                    if (currentImageData.url && !currentImageData.isFromServer) {
+                        URL.revokeObjectURL(currentImageData.url);
+                    }
+                    
+                    currentImageData.key = file.name; 
+                    currentImageData.url = URL.createObjectURL(file);
+                    currentImageData.shouldDelete = currentImageData.isFromServer;
+
                     $("#btnPreview").removeClass("d-none");
                     $("#btnDelete").removeClass("d-none");
                 }
-            });
-
-            $("#btnPreview").on("click", function () {
-                $("#imagePreviewModal").modal("show");
-            });
-
-            $("#btnDelete").on("click", function () {
-                const file = fileInput.files[0];
-                if (file) {
-                    URL.revokeObjectURL(imageUrl);
-                }
-
-                fileInput.value = "";
-                $("#imagePreview").attr("src", "");
-                $(this).addClass("d-none");
-                $("#btnPreview").addClass("d-none");
             });
 
             function setInvalid(id, message) {
@@ -245,8 +285,11 @@
                     categoryId: $("#category").val(),
                     summary: emptyToNull($("#summary").val().trim()),
                     content: editorText.length === 0 ? null : editorHtml,
+                    deleteImage: currentImageData.shouldDelete,
                     isDraft: isDraft
                 }
+
+                console.log("Payload Data:", data);
 
                 const formData = new FormData();
                 formData.append("data", new Blob([JSON.stringify(data)], { type: "application/json" }))
@@ -279,11 +322,12 @@
                 const isValid = isDraft ? validateDraft() : validatePublish();
                 if (!isValid) return;
 
+                const id = $("#id").val();
                 const data = buildPayload(isDraft);
 
                 $.ajax({
-                    url: "/contributor/news",
-                    method: "POST",
+                    url: `/contributor/news/${id}`,
+                    method: "PUT",
                     processData: false,
                     contentType: false,
                     data: data,

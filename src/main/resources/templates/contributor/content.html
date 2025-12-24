@@ -64,7 +64,7 @@
                         <div class="tab-pane fade show active" id="panel-news" role="tabpanel" aria-labelledby="tab-news">
                             <div class="search-wrap mb-3 d-flex align-items-center gap-2">
                                 <i class="bi bi-search text-muted"></i>
-                                <input type="text" class="form-control" placeholder="Search News" aria-label="Search News">
+                                <input id="searchNews" type="text" class="form-control" placeholder="Search News">
                             </div>
 
                             <!-- News List -->
@@ -242,6 +242,36 @@
 
     <th:block layout:fragment="scripts">
         <script>
+            $("#searchNews").on("input", function () {
+                const q = $(this).val().toLowerCase();
+                let matches = 0;
+
+                $("#newsList .news-item").each(function () {
+                    const name = $(this).data("name").toLowerCase();
+                    const isMatch = name.includes(q);
+
+                    $(this).toggle(isMatch);
+                    if (isMatch) matches++;
+                });
+
+                $("#noNews").toggle(matches === 0 && q.length > 0);
+            })
+
+            $("#searchActivity").on("input", function () {
+                const q = $(this).val().toLowerCase();
+                let matches = 0;
+
+                $("#activityList .news-item").each(function () {
+                    const name = $(this).data("name").toLowerCase();
+                    const isMatch = name.includes(q);
+
+                    $(this).toggle(isMatch);
+                    if (isMatch) matches++;
+                });
+
+                $("#noActivities").toggle(matches === 0 && q.length > 0);
+            })
+
             $(document).on("click", ".action-delete", function () {
                 let ajaxUrl = null;
 

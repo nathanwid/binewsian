@@ -1,7 +1,7 @@
 package com.binewsian.service.impl;
 
 import com.binewsian.constant.AppConstant;
-import com.binewsian.dto.CreateActivityRequest;
+import com.binewsian.dto.ActivityRequest;
 import com.binewsian.enums.ActivityStatus;
 import com.binewsian.exception.BiNewsianException;
 import com.binewsian.model.Activity;
@@ -28,7 +28,7 @@ public class ActivityServiceImpl implements ActivityService {
     private final ActivityRepository activityRepository;
 
     @Override
-    public void create(CreateActivityRequest request, User user) throws BiNewsianException {
+    public void create(ActivityRequest request, User user) throws BiNewsianException {
         boolean isDraft = request.isDraft();
 
         if (isDraft) {
@@ -57,14 +57,14 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
-    public void update(Long id, CreateActivityRequest request, User user) throws BiNewsianException {
+    public void update(Long id, ActivityRequest request, User user) throws BiNewsianException {
         Activity activity = activityRepository.findById(id).orElseThrow(() -> new BiNewsianException(AppConstant.ACTIVITY_NOT_FOUND));
 
         if (!activity.getCreatedBy().getId().equals(user.getId())) {
             throw new BiNewsianException("You are not authorized to edit this activity.");
         }
 
-        if (activity.getStatus().equals(ActivityStatus.PUBLISHED)) {
+        if (activity.getStatus() == ActivityStatus.PUBLISHED) {
             throw new BiNewsianException("Published activity cannot be edited.");
         }
 
@@ -128,11 +128,11 @@ public class ActivityServiceImpl implements ActivityService {
         return url;
     }
 
-    private void validateDraft(CreateActivityRequest r) throws BiNewsianException {
+    private void validateDraft(ActivityRequest r) throws BiNewsianException {
         validateBaseDateTime(r);
     }
 
-    private void validateBaseDateTime(CreateActivityRequest r) throws BiNewsianException {
+    private void validateBaseDateTime(ActivityRequest r) throws BiNewsianException {
         if (r.activityDate() == null && r.timeStart() == null && r.timeEnd() == null && r.registrationDeadline() == null) {
             return;
         }
@@ -149,7 +149,7 @@ public class ActivityServiceImpl implements ActivityService {
             throw new BiNewsianException("Activity date cannot be in the past");
     }
 
-    private void validatePublishDateTime(CreateActivityRequest r) throws BiNewsianException {
+    private void validatePublishDateTime(ActivityRequest r) throws BiNewsianException {
         if (r.activityDate() == null)
             throw new BiNewsianException("Activity date is required");
 
@@ -162,7 +162,7 @@ public class ActivityServiceImpl implements ActivityService {
         validateBaseDateTime(r);
     }
 
-    private void validatePublish(CreateActivityRequest r) throws BiNewsianException {
+    private void validatePublish(ActivityRequest r) throws BiNewsianException {
         if (r.title() == null || r.title().isBlank())
             throw new BiNewsianException("Title is required");
 

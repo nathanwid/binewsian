@@ -33,6 +33,7 @@ public class News {
     @Column(nullable = false)
     private NewsStatus status;
 
+    private String featuredImageFileName;
     private String featuredImageKey;
     private String featuredImageUrl;
     private LocalDateTime publishedAt;

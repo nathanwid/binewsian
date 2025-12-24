@@ -6,10 +6,7 @@ import com.binewsian.model.Activity;
 import com.binewsian.model.Category;
 import com.binewsian.model.News;
 import com.binewsian.model.User;
-import com.binewsian.service.ActivityService;
-import com.binewsian.service.CategoryService;
-import com.binewsian.service.HomeService;
-import com.binewsian.service.NewsService;
+import com.binewsian.service.*;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,6 +25,7 @@ public class HomeController {
     private final HomeService homeService;
     private final NewsService newsService;
     private final ActivityService activityService;
+    private final ContributorService contributorService;
 
     @GetMapping("/")
     public String home() {
@@ -64,6 +62,7 @@ public class HomeController {
             @RequestParam(defaultValue = "0") int newsPage,
             @RequestParam(defaultValue = "0") int categoryPage,
             @RequestParam(defaultValue = "0") int activityPage,
+            @RequestParam(defaultValue = "0") int contributorPage,
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "news") String tab,
             HttpSession session,
@@ -74,6 +73,7 @@ public class HomeController {
         Page<News> news = newsService.findPaginated(newsPage, size);
         Page<Category> categories = categoryService.findPaginated(categoryPage, size);
         Page<Activity> activities = activityService.findPaginated(activityPage, size);
+        Page<User> contributors = contributorService.findContributorPaginated(contributorPage, size);
 
         model.addAttribute("summary", homeService.getAdminSummary());
         model.addAttribute("user", user);
@@ -92,6 +92,11 @@ public class HomeController {
         model.addAttribute("categories", categories.getContent());
         model.addAttribute("categoryCurrentPage", categoryPage);
         model.addAttribute("categoryTotalPages", categories.getTotalPages());
+
+        // Category
+        model.addAttribute("contributors", contributors.getContent());
+        model.addAttribute("contributorCurrentPage", contributorPage);
+        model.addAttribute("contributorTotalPages", contributors.getTotalPages());
 
         // Active tab
         model.addAttribute("activeTab", tab);

@@ -7,6 +7,10 @@ import com.binewsian.repository.UserRepository;
 import com.binewsian.service.ContributorService;
 import com.binewsian.service.EmailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +49,12 @@ public class ContributorServiceImpl implements ContributorService {
         }
 
         userRepository.save(user);
+    }
+
+    @Override
+    public Page<User> findContributorPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        return userRepository.findByRole(Role.CONTRIBUTOR, pageable);
     }
 
     private String generateRandomPassword() {

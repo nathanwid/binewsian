@@ -389,7 +389,7 @@
                 const data = buildPayload(isDraft);
 
                 $.ajax({
-                    url: "/contributor/activities/create",
+                    url: "/contributor/activities",
                     method: "POST",
                     contentType: "application/json",
                     data: JSON.stringify(data),

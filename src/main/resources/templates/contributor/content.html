@@ -46,12 +46,12 @@
                     <ul class="nav nav-tabs mb-3" id="newsTabs">
                         <div class="d-flex mb-3">
                             <li class="nav-item">
-                                <button class="nav-link active" id="tab-news" data-bs-toggle="tab" data-bs-target="#panel-news" type="button" role="tab">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-news" type="button" role="tab">
                                     <i class="bi bi-newspaper me-1"></i> My News
                                 </button>
                             </li>
                             <li class="nav-item">
-                                <button class="nav-link" id="tab-activity" data-bs-toggle="tab" data-bs-target="#panel-activity" type="button" role="tab">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-activity" type="button" role="tab">
                                     <i class="bi bi-activity me-1"></i> My Activity
                                 </button>
                             </li>
@@ -61,7 +61,7 @@
                     <!-- Tab Panels -->
                     <div class="tab-content">
                         <!-- My News -->
-                        <div class="tab-pane fade show active" id="panel-news" role="tabpanel" aria-labelledby="tab-news">
+                        <div class="tab-pane fade" id="panel-news" role="tabpanel" aria-labelledby="tab-news">
                             <div class="search-wrap mb-3 d-flex align-items-center gap-2">
                                 <i class="bi bi-search text-muted"></i>
                                 <input id="searchNews" type="text" class="form-control" placeholder="Search News">
@@ -324,11 +324,11 @@
 
             $(document).ready(function () {
                 const DEFAULT_TAB = "#panel-news";
-                let activeTab = localStorage.getItem("activeAdminTab");
+                let activeTab = localStorage.getItem("activeContributorTab");
 
                 if (!activeTab) {
                     activeTab = DEFAULT_TAB;
-                    localStorage.setItem("activeAdminTab", activeTab);
+                    localStorage.setItem("activeContributorTab", activeTab);
                 }
 
                 const $tabBtn = $(`[data-bs-target="${activeTab}"]`);
@@ -338,7 +338,7 @@
 
                 $('[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {
                     const target = $(e.target).data("bs-target");
-                    localStorage.setItem("activeAdminTab", target);
+                    localStorage.setItem("activeContributorTab", target);
                 })
             })
         </script>

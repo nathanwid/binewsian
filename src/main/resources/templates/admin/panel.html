@@ -16,9 +16,9 @@
     <div layout:fragment="content">
         <div class="container mb-4">
             <div class="d-flex flex-wrap gap-2">
-                <button class="btn btn-gradient">
+                <a th:href="@{/admin/panel}" class="btn btn-gradient" style="border:1px solid #c3c4c7;">
                     <i class="bi bi-grid-1x2"></i> Dashboard
-                </button>
+                </a>
                 <button class="btn btn-light" style="border:1px solid #c3c4c7;" data-bs-toggle="modal" data-bs-target="#createContributorModal">
                     <i class="bi bi-plus-lg"></i> New Contributor
                 </button>
@@ -73,9 +73,9 @@
                         <!-- Manage News -->
                         <div class="tab-pane fade" id="panel-news" role="tabpanel" aria-labelledby="tab-news">
                             <!-- Search -->
-                            <div class="search-wrap mb-3 d-flex align-items-center gap-2">
+                            <div th:if="${!#lists.isEmpty(news)}" class="search-wrap mb-3 d-flex align-items-center gap-2">
                                 <i class="bi bi-search text-muted"></i>
-                                <input id="searchNews" type="text" class="form-control" placeholder="Search News">
+                                <input id="searchNews" data-list="#newsList" data-empty="#noNews" type="text" class="form-control" placeholder="Search News">
                             </div>
 
                             <!-- News List -->
@@ -161,9 +161,9 @@
                         <!-- Manage Activity  -->
                         <div class="tab-pane fade" id="panel-activity" role="tabpanel" aria-labelledby="tab-activity">
                             <!-- Search -->
-                            <div class="search-wrap mb-3 d-flex align-items-center gap-2">
+                            <div th:if="${!#lists.isEmpty(activities)}" class="search-wrap mb-3 d-flex align-items-center gap-2">
                                 <i class="bi bi-search text-muted"></i>
-                                <input id="searchActivity" type="text" class="form-control" placeholder="Search Activity" aria-label="Search Activity">
+                                <input id="searchActivity" data-list="#activityList" data-empty="#noActivities" type="text" class="form-control" placeholder="Search Activity" aria-label="Search Activity">
                             </div>
 
                             <!-- Activity List -->
@@ -229,9 +229,9 @@
                         <!-- Manage Category -->
                         <div class="tab-pane fade" id="panel-category" role="tabpanel" aria-labelledby="tab-category">
                             <!-- Search -->
-                            <div class="search-wrap mb-3 d-flex align-items-center gap-2">
+                            <div th:if="${!#lists.isEmpty(categories)}" class="search-wrap mb-3 d-flex align-items-center gap-2">
                                 <i class="bi bi-search text-muted"></i>
-                                <input id="searchCategory" type="text" class="form-control" placeholder="Search Category">
+                                <input id="searchCategory" data-list="#categoryList" data-empty="#noCategories" type="text" class="form-control" placeholder="Search Category">
                             </div>
 
                             <!-- Category List -->
@@ -273,7 +273,7 @@
                                 No categories yet.
                             </div>
 
-                            <div id="noCategory" style="display:none;" class="text-muted text-center">
+                            <div id="noCategories" style="display:none;" class="text-muted text-center">
                                 No matching categories.
                             </div>
 
@@ -302,12 +302,12 @@
                         <!-- Manage Contributor  -->
                         <div class="tab-pane fade" id="panel-contributor" role="tabpanel" aria-labelledby="tab-contributor">
                             <!-- Search -->
-                            <div class="search-wrap mb-3 d-flex align-items-center gap-2">
+                            <div th:if="${!#lists.isEmpty(contributors)}" class="search-wrap mb-3 d-flex align-items-center gap-2">
                                 <i class="bi bi-search text-muted"></i>
-                                <input id="searchContributor" type="text" class="form-control" placeholder="Search Contributor">
+                                <input id="searchContributor" data-list="#contributorList" data-empty="#noContributors" type="text" class="form-control" placeholder="Search Contributor">
                             </div>
 
-                            <!-- Category List -->
+                            <!-- Contributor List -->
                             <div id="contributorList" th:if="${!#lists.isEmpty(contributors)}">
                                 <div class="news-item" th:each="contributor : ${contributors}" th:attr="data-name=${contributor.username}">
                                     <div class="d-flex align-items-start">
@@ -344,7 +344,7 @@
                                 No contributors yet.
                             </div>
 
-                            <div id="noContributor" style="display:none;" class="text-muted text-center">
+                            <div id="noContributors" style="display:none;" class="text-muted text-center">
                                 No matching contributors.
                             </div>
 
@@ -455,66 +455,198 @@
     </div>
 
     <th:block layout:fragment="scripts">
-        <script>
-            $("#searchCategory").on("input", function () {
+        <script th:inline="javascript">
+            const searchConfig = {
+                'searchNews': { endpoint: '/admin/news/search', type: 'news' },
+                'searchCategory': { endpoint: '/admin/categories/search', type: 'category' },
+                'searchActivity': { endpoint: '/admin/activities/search', type: 'activity' },
+                'searchContributor': { endpoint: '/admin/contributors/search', type: 'contributor' }
+            };
+
+            $("[id^='search']").on("input", function () {
                 const q = $(this).val().toLowerCase();
-                let matches = 0;
+                const searchId = $(this).attr('id');
+                const list = $(this).data("list");
+                const empty = $(this).data("empty");
+                const tabPane = $(this).closest('.tab-pane');
+                const pagination = tabPane.find('nav');
 
-                $("#categoryList .news-item").each(function () {
-                    const name = $(this).data("name").toLowerCase();
-                    const isMatch = name.includes(q);
+                if (q.length === 0) {
+                    location.reload();
+                    return;
+                }
 
-                    $(this).toggle(isMatch);
-                    if (isMatch) matches++;
-                });
+                const config = searchConfig[searchId];
+                if (!config) {
+                    return;
+                }
 
-                $("#noCategory").toggle(matches === 0 && q.length > 0);
+                pagination.hide();
+
+                $.ajax({
+                    url: config.endpoint,
+                    method: 'GET',
+                    data: { query: q },
+                    success: function(data) {
+
+                        $(list).empty();
+
+                        if (data.length === 0) {
+                            $(empty).show();
+                        } else {
+                            $(empty).hide();
+
+                            data.forEach(function(item) {
+                                const html = renderItemFromObject(item, config.type);
+                                $(list).append(html);
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        $(empty).text('Search failed. Please try again.').show();
+                    }
+                })
             })
 
-            $("#searchNews").on("input", function () {
-                const q = $(this).val().toLowerCase();
-                let matches = 0;
+            function renderItemFromObject(item, type) {
+                switch(type) {
+                    case 'news':
+                        return renderNewsItem(item);
+                    case 'category':
+                        return renderCategoryItem(item);
+                    case 'activity':
+                        return renderActivityItem(item);
+                    case 'contributor':
+                        return renderContributorItem(item);
+                    default:
+                        return '';
+                }
+            }
 
-                $("#newsList .news-item").each(function () {
-                    const name = $(this).data("name").toLowerCase();
-                    const isMatch = name.includes(q);
+            function renderNewsItem(item) {
+                return `
+                    <div class="news-item" data-name="${item.title || ''}">
+                        <div class="d-flex align-items-start">
+                            <div class="thumb me-3 d-flex align-items-center justify-content-center bg-light rounded">
+                                ${item.featuredImageUrl
+                                    ? `<img src="${item.featuredImageUrl}" class="w-100 h-100 object-fit-cover rounded" alt="Thumbnail">`
+                                    : `<i class="bi bi-image text-muted fs-4"></i>`
+                                }
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-start justify-content-between">
+                                    <h6 class="news-title mb-1">${item.title || ''}</h6>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="status-pill status-published">${item.status || '-'}</span>
+                                        <div class="dropdown">
+                                            <button class="btn btn-link p-1 ellipsis-btn" type="button" data-bs-toggle="dropdown">
+                                                <i class="bi bi-three-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <button class="dropdown-item text-danger action-delete" data-id="${item.id}" data-type="news">
+                                                        <i class="bi bi-trash me-2"></i> Delete
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-wrap gap-2 mb-1">
+                                    <span class="badge badge-soft">
+                                        <i class="bi bi-tag"></i>
+                                        <span>${item.category || '-'}</span>
+                                    </span>
+                                    <span class="text-muted small">• <span>${item.createdAt || ''}</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
 
-                    $(this).toggle(isMatch);
-                    if (isMatch) matches++;
-                });
+            function renderCategoryItem(item) {
+                return `
+                    <div class="news-item" data-name="${item.name}">
+                        <div class="d-flex align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <h6 class="mb-1">${item.name}</h6>
+                                    <div class="dropdown">
+                                        <button class="btn btn-link p-1 ellipsis-btn" data-bs-toggle="dropdown">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li>
+                                                <button class="dropdown-item action-edit" data-id="${item.id}">
+                                                    <i class="bi bi-pencil me-2"></i> Edit
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="dropdown-item text-danger action-delete" data-id="${item.id}" data-type="category">
+                                                    <i class="bi bi-trash me-2"></i> Delete
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <span class="badge badge-soft">
+                                    <i class="bi bi-tag"></i> Category
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
 
-                $("#noNews").toggle(matches === 0 && q.length > 0);
-            })
+            function renderActivityItem(item) {
+                return `
+                    <div class="news-item" data-name="${item.title || ''}">
+                        <div class="d-flex align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <h6 class="mb-1">${item.title || ''}</h6>
+                                    <div class="dropdown">
+                                        <button class="btn btn-link p-1 ellipsis-btn" data-bs-toggle="dropdown">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li>
+                                                <button class="dropdown-item text-danger action-delete" data-id="${item.id}" data-type="activity">
+                                                    <i class="bi bi-trash me-2"></i> Delete
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <span class="badge badge-soft">
+                                    <span>${item.type || '-'}</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
 
-            $("#searchActivity").on("input", function () {
-                const q = $(this).val().toLowerCase();
-                let matches = 0;
-
-                $("#activityList .news-item").each(function () {
-                    const name = $(this).data("name").toLowerCase();
-                    const isMatch = name.includes(q);
-
-                    $(this).toggle(isMatch);
-                    if (isMatch) matches++;
-                });
-
-                $("#noActivities").toggle(matches === 0 && q.length > 0);
-            })
-
-            $("#searchContributor").on("input", function () {
-                const q = $(this).val().toLowerCase();
-                let matches = 0;
-
-                $("#contributorList .news-item").each(function () {
-                    const name = $(this).data("name").toLowerCase();
-                    const isMatch = name.includes(q);
-
-                    $(this).toggle(isMatch);
-                    if (isMatch) matches++;
-                });
-
-                $("#noContributor").toggle(matches === 0 && q.length > 0);
-            })
+            function renderContributorItem(item) {
+                return `
+                    <div class="news-item" data-name="${item.username || ''}">
+                        <div class="d-flex align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="fw-semibold mb-1">${item.username || ''}</h6>
+                                        <small class="text-muted d-flex align-items-center gap-1">
+                                            <i class="bi bi-envelope"></i>
+                                            <span>${item.email || '-'}</span>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
 
             $("#categoryName").on("input", function () {
                 validateAlphaOnly($(this), $("#categoryError"));

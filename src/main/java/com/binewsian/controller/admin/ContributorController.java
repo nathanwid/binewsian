@@ -8,9 +8,13 @@ import com.binewsian.service.ContributorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
@@ -30,6 +34,22 @@ public class ContributorController {
         } catch (Exception ex) {
             return ResponseEntity.status(500).body(AppConstant.UNEXPECTED_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/contributors/search")
+    @ResponseBody
+    public List<Map<String, Object>> searchContributor(@RequestParam String query) {
+        return contributorService.findAll().stream()
+                .filter(c -> c.getUsername().toLowerCase().contains(query.toLowerCase()) ||
+                        c.getEmail().toLowerCase().contains(query.toLowerCase()))
+                .map(c -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", c.getId());
+                    map.put("username", c.getUsername());
+                    map.put("email", c.getEmail());
+                    return map;
+                })
+                .collect(Collectors.toList());
     }
 
 }

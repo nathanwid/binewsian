@@ -14,6 +14,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -118,7 +125,7 @@ public class HomeController {
         model.addAttribute("categoryCurrentPage", categoryPage);
         model.addAttribute("categoryTotalPages", categories.getTotalPages());
 
-        // Category
+        // Contributor
         model.addAttribute("contributors", contributors.getContent());
         model.addAttribute("contributorCurrentPage", contributorPage);
         model.addAttribute("contributorTotalPages", contributors.getTotalPages());

@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -55,6 +56,11 @@ public class ContributorServiceImpl implements ContributorService {
     public Page<User> findContributorPaginated(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         return userRepository.findByRole(Role.CONTRIBUTOR, pageable);
+    }
+
+    @Override
+    public List<User> findAll() {
+        return userRepository.findByRoleOrderByCreatedAtDesc(Role.CONTRIBUTOR);
     }
 
     private String generateRandomPassword() {

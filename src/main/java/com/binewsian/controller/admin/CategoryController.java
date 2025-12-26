@@ -8,9 +8,13 @@ import com.binewsian.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
@@ -54,6 +58,20 @@ public class CategoryController {
         } catch (Exception ex) {
             return ResponseEntity.status(500).body(AppConstant.UNEXPECTED_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/categories/search")
+    @ResponseBody
+    public List<Map<String, Object>> searchCategory(@RequestParam String query) {
+        return categoryService.findAll().stream()
+                .filter(c -> c.getName().toLowerCase().contains(query.toLowerCase()))
+                .map(c -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", c.getId());
+                    map.put("name", c.getName());
+                    return map;
+                })
+                .collect(Collectors.toList());
     }
 
 }

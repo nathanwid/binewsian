@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Transactional
@@ -115,6 +116,11 @@ public class ActivityServiceImpl implements ActivityService {
     public Page<Activity> findPaginatedByUserId(int page, int size, long userId) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         return activityRepository.findByCreatedBy_Id(userId, pageable);
+    }
+
+    @Override
+    public List<Activity> findAllByStatus() {
+        return activityRepository.findByStatusOrderByPublishedAtDesc(ActivityStatus.PUBLISHED);
     }
 
     private String normalizeUrl(String url) {

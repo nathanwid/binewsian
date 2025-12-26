@@ -8,9 +8,13 @@ import com.binewsian.service.ActivityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller("adminActivityController")
 @RequestMapping("/admin")
@@ -30,6 +34,21 @@ public class ActivityController {
         } catch (Exception ex) {
             return ResponseEntity.status(500).body(AppConstant.UNEXPECTED_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/activities/search")
+    @ResponseBody
+    public List<Map<String, Object>> searchActivity(@RequestParam String query) {
+        return activityService.findAllByStatus().stream()
+                .filter(a -> a.getTitle().toLowerCase().contains(query.toLowerCase()))
+                .map(a -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", a.getId());
+                    map.put("title", a.getTitle());
+                    map.put("type", a.getType().getDisplayName());
+                    return map;
+                })
+                .collect(Collectors.toList());
     }
 
 }

@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Transactional
@@ -162,6 +163,11 @@ public class NewsServiceImpl implements NewsService {
     public Page<News> findPaginatedByUserId(int page, int size, long userId) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         return newsRepository.findByCreatedBy_Id(userId, pageable);
+    }
+
+    @Override
+    public List<News> findAllByStatus() {
+        return newsRepository.findByStatusOrderByPublishedAtDesc(NewsStatus.PUBLISHED);
     }
 
     private void validate(CreateNewsRequest r) throws BiNewsianException {

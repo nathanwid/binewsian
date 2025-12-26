@@ -8,9 +8,13 @@ import com.binewsian.service.NewsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller("adminNewsController")
 @RequestMapping("/admin")
@@ -30,6 +34,24 @@ public class NewsController {
         } catch (Exception ex) {
             return ResponseEntity.status(500).body(AppConstant.UNEXPECTED_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/news/search")
+    @ResponseBody
+    public List<Map<String, Object>> searchNews(@RequestParam String query) {
+        return newsService.findAllByStatus().stream()
+                .filter(n -> n.getTitle().toLowerCase().contains(query.toLowerCase()))
+                .map(n -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", n.getId());
+                    map.put("title", n.getTitle());
+                    map.put("status", n.getStatus().getDisplayName());
+                    map.put("category", n.getCategory().getName());
+                    map.put("featuredImageUrl", n.getFeaturedImageUrl());
+                    map.put("createdAt", n.getCreatedAt().format(DateTimeFormatter.ofPattern("dd MMMM yyyy")));
+                    return map;
+                })
+                .collect(Collectors.toList());
     }
 
 }

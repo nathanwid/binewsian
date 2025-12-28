@@ -6,7 +6,7 @@
 <body>
     <div layout:fragment="content">
         <div class="auth-header">
-            <h2 class="mb-0">Registrasi</h2>
+            <h2 class="mb-0">Create an account</h2>
         </div>
 
         <div class="auth-body">
@@ -35,18 +35,18 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="confirmPassword" class="form-label">Konfirmasi Password</label>
+                    <label for="confirmPassword" class="form-label">Confirm Password</label>
                     <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
                 </div>
 
                 <button type="submit" class="btn btn-auth w-100 mb-3">
-                    <i class="bi bi-person-plus-fill"></i> Daftar
+                    <i class="bi bi-person-plus-fill"></i> Register
                 </button>
 
                 <div class="text-center">
                     <p class="mb-0">
-                        Sudah punya akun?
-                        <a th:href="@{/login}" class="auth-link">Login di sini</a>
+                        Already have an account?
+                        <a th:href="@{/login}" class="auth-link">Log in here</a>
                     </p>
                 </div>
             </form>

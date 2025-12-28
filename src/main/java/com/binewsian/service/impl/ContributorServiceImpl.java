@@ -1,5 +1,6 @@
 package com.binewsian.service.impl;
 
+import com.binewsian.constant.AppConstant;
 import com.binewsian.enums.Role;
 import com.binewsian.exception.BiNewsianException;
 import com.binewsian.model.User;
@@ -27,11 +28,11 @@ public class ContributorServiceImpl implements ContributorService {
 
     @Override
     public void create(String username, String email) throws BiNewsianException {
-        if (userRepository.existsByUsername(username)) {
-            throw new BiNewsianException("Username sudah digunakan");
+        if (userRepository.existsByUsernameAllIgnoreCase(username)) {
+            throw new BiNewsianException(AppConstant.USERNAME_ALREADY_EXISTS);
         }
-        if (userRepository.existsByEmail(email)) {
-            throw new BiNewsianException("Email sudah digunakan");
+        if (userRepository.existsByEmailAllIgnoreCase(email)) {
+            throw new BiNewsianException(AppConstant.EMAIL_ALREADY_EXISTS);
         }
 
         String rawPassword = generateRandomPassword();
@@ -39,7 +40,7 @@ public class ContributorServiceImpl implements ContributorService {
         User user = new User();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(rawPassword));
-        user.setEmail(email);
+        user.setEmail(email.toLowerCase());
         user.setRole(Role.CONTRIBUTOR);
 
         // Send credentials to user

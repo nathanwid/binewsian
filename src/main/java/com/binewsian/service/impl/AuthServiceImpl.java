@@ -1,5 +1,6 @@
 package com.binewsian.service.impl;
 
+import com.binewsian.constant.AppConstant;
 import com.binewsian.exception.BiNewsianException;
 import com.binewsian.enums.Role;
 import com.binewsian.model.User;
@@ -20,17 +21,17 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void register(String username, String password, String email) throws BiNewsianException {
-        if (userRepository.existsByUsername(username)) {
-            throw new BiNewsianException("Username sudah digunakan");
+        if (userRepository.existsByUsernameAllIgnoreCase(username)) {
+            throw new BiNewsianException(AppConstant.USERNAME_ALREADY_EXISTS);
         }
-        if (userRepository.existsByEmail(email)) {
-            throw new BiNewsianException("Email sudah digunakan");
+        if (userRepository.existsByEmailAllIgnoreCase(email)) {
+            throw new BiNewsianException(AppConstant.EMAIL_ALREADY_EXISTS);
         }
 
         User user = new User();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
-        user.setEmail(email);
+        user.setEmail(email.toLowerCase());
         user.setRole(Role.USER);
 
         userRepository.save(user);

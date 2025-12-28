@@ -52,7 +52,7 @@ public class AuthController {
             if ("unauthorized".equals(error)) {
                 model.addAttribute("error", "Silakan login terlebih dahulu!");
             } else {
-                model.addAttribute("error", "Username atau password salah!");
+                model.addAttribute("error", "Email atau password salah!");
             }
         }
         if (logout != null) {
@@ -63,15 +63,15 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam String username, @RequestParam String password,
+    public String login(@RequestParam String email, @RequestParam String password,
                         @RequestParam(required = false) String rememberMe, HttpSession session,
                         HttpServletResponse response, Model model) {
 
-        User user = authService.authenticate(username, password);
+        User user = authService.authenticate(email, password);
 
         if (user == null) {
-            model.addAttribute("error", "Username atau password salah!");
-            model.addAttribute("username", username);
+            model.addAttribute("error", "Email atau password salah!");
+            model.addAttribute("email", email);
             return "login";
         }
 
@@ -81,7 +81,7 @@ public class AuthController {
 
         // Handle Remember Me
         if ("on".equals(rememberMe)) {
-            String token = rememberMeSvc.createToken(username);
+            String token = rememberMeSvc.createToken(email.toLowerCase());
             Cookie cookie = new Cookie("remember_token", token);
             cookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
             cookie.setPath("/");
@@ -142,7 +142,7 @@ public class AuthController {
 
         // Delete remember me token
         if (user != null) {
-            rememberMeSvc.deleteTokenByUsername(user.getUsername());
+            rememberMeSvc.deleteTokenByEmail(user.getEmail());
         }
 
         // Delete cookie

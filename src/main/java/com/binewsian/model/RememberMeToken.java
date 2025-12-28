@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "tokens")
+@Table(name = "remember_me_tokens")
 public class RememberMeToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +24,7 @@ public class RememberMeToken {
     private String token;
 
     @Column(nullable = false)
-    private String username;
+    private String email;
 
     @Column(name = "expires_at", nullable = false)
     private LocalDateTime expiresAt;
@@ -33,9 +33,9 @@ public class RememberMeToken {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    public RememberMeToken(String token, String username, LocalDateTime expiresAt) {
+    public RememberMeToken(String token, String email, LocalDateTime expiresAt) {
         this.token = token;
-        this.username = username;
+        this.email = email;
         this.expiresAt = expiresAt;
     }
 

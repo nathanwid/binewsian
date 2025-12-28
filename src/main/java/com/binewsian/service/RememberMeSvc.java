@@ -4,10 +4,10 @@ import com.binewsian.model.User;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface RememberMeSvc {
-    String createToken(String username);
+    String createToken(String email);
 
     User validateTokenAndGetUser(String token);
 
     @Transactional
-    void deleteTokenByUsername(String username);
+    void deleteTokenByEmail(String email);
 }

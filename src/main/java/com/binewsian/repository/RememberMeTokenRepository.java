@@ -9,5 +9,5 @@ import java.util.Optional;
 @Repository
 public interface RememberMeTokenRepository extends JpaRepository<RememberMeToken, Long> {
     Optional<RememberMeToken> findByToken(String token);
-    void deleteByUsername(String username);
+    void deleteByEmail(String email);
 }

@@ -20,17 +20,17 @@ public class RememberMeSvcImpl implements RememberMeSvc {
     private final UserRepository userRepository;
 
     @Override
-    public String createToken(String username) {
+    public String createToken(String email) {
         // Generate random token
         String token = UUID.randomUUID().toString();
 
         // Delete old token for this user
-        deleteTokenByUsername(username);
+        deleteTokenByEmail(email);
 
         // Create new token (expires in 7 days)
         RememberMeToken rememberMeToken = new RememberMeToken(
                 token,
-                username,
+                email,
                 LocalDateTime.now().plusDays(7)
         );
 
@@ -56,14 +56,14 @@ public class RememberMeSvcImpl implements RememberMeSvc {
         }
 
         // Get user
-        Optional<User> userOpt = userRepository.findByUsername(rememberMeToken.getUsername());
+        Optional<User> userOpt = userRepository.findByEmail(rememberMeToken.getEmail());
 
         return userOpt.orElse(null);
     }
 
     @Override
-    public void deleteTokenByUsername(String username) {
-        tokenRepository.deleteByUsername(username);
+    public void deleteTokenByEmail(String email) {
+        tokenRepository.deleteByEmail(email);
     }
 
 }

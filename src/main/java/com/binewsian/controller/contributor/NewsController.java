@@ -2,8 +2,7 @@ package com.binewsian.controller.contributor;
 
 import com.binewsian.annotation.RequireRole;
 import com.binewsian.constant.AppConstant;
-import com.binewsian.dto.CreateNewsRequest;
-import com.binewsian.dto.UpdateNewsRequest;
+import com.binewsian.dto.NewsRequest;
 import com.binewsian.enums.NewsStatus;
 import com.binewsian.enums.Role;
 import com.binewsian.exception.BiNewsianException;
@@ -65,7 +64,7 @@ public class NewsController {
 
     @PostMapping(value = "/news", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createNews(
-            @RequestPart("data") CreateNewsRequest request,
+            @RequestPart("data") NewsRequest request,
             @RequestPart(value = "featuredImage", required = false) MultipartFile featuredImage,
             HttpSession session
     ) {
@@ -83,7 +82,7 @@ public class NewsController {
     @PutMapping(value = "/news/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateNews(
             @PathVariable Long id,
-            @RequestPart("data") UpdateNewsRequest request,
+            @RequestPart("data") NewsRequest request,
             @RequestPart(value = "featuredImage", required = false) MultipartFile featuredImage,
             HttpSession session
     ) {
@@ -99,7 +98,7 @@ public class NewsController {
     }
 
     @DeleteMapping("/news/{id}")
-    public ResponseEntity<?> deketeNews(@PathVariable Long id) {
+    public ResponseEntity<?> deleteNews(@PathVariable Long id) {
         try {
             newsService.delete(id);
             return ResponseEntity.ok().build();

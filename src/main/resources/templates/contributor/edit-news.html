@@ -147,6 +147,8 @@
                 currentImageData.url = null;
                 currentImageData.shouldDelete = currentImageData.isFromServer;
 
+                console.log(currentImageData)
+
                 $("#featuredImage").val("");
                 $("#imagePreview").attr("src", "");
 
@@ -288,8 +290,6 @@
                     deleteImage: currentImageData.shouldDelete,
                     isDraft: isDraft
                 }
-
-                console.log("Payload Data:", data);
 
                 const formData = new FormData();
                 formData.append("data", new Blob([JSON.stringify(data)], { type: "application/json" }))

@@ -1,8 +1,7 @@
 package com.binewsian.service.impl;
 
 import com.binewsian.constant.AppConstant;
-import com.binewsian.dto.CreateNewsRequest;
-import com.binewsian.dto.UpdateNewsRequest;
+import com.binewsian.dto.NewsRequest;
 import com.binewsian.enums.NewsStatus;
 import com.binewsian.exception.BiNewsianException;
 import com.binewsian.model.Category;
@@ -34,13 +33,17 @@ public class NewsServiceImpl implements NewsService {
     private final StorageService storageService;
 
     @Override
-    public void create(CreateNewsRequest request, MultipartFile featuredImage, User user) throws BiNewsianException {
+    public void create(NewsRequest request, MultipartFile featuredImage, User user) throws BiNewsianException {
         boolean isDraft = request.isDraft();
 
-        validateRequest(request.title(), request.categoryId(), request.summary(), request.content(), isDraft);
+        validateRequest(request);
 
-        Category category = categoryRepository.findById(request.categoryId())   
-                .orElseThrow(() -> new BiNewsianException(AppConstant.CATEGORY_NOT_FOUND));
+        Category category = null;
+
+        if (request.categoryId() != null) {
+            category = categoryRepository.findById(request.categoryId())
+                    .orElseThrow(() -> new BiNewsianException(AppConstant.CATEGORY_NOT_FOUND));
+        }
 
         News news = new News();
         news.setTitle(request.title());
@@ -51,24 +54,28 @@ public class NewsServiceImpl implements NewsService {
         news.setPublishedAt(isDraft ? null : LocalDateTime.now());
         news.setCreatedBy(user);
 
-        processImage(news, featuredImage, isDraft);
+        processImage(news, featuredImage, isDraft, request.deleteImage());
 
         newsRepository.save(news);
     }
 
     @Override
-    public void update(Long id, UpdateNewsRequest request, MultipartFile featuredImage, User user) throws BiNewsianException {
+    public void update(Long id, NewsRequest request, MultipartFile featuredImage, User user) throws BiNewsianException {
         boolean isDraft = request.isDraft();
 
         News news = newsRepository.findById(id)
                 .orElseThrow(() -> new BiNewsianException(AppConstant.NEWS_NOT_FOUND));
 
         validateOwnerAndStatus(news, user);
-        validateRequest(request.title(), request.categoryId(), request.summary(), request.content(), isDraft);
+        validateRequest(request);
 
-        Category category = categoryRepository.findById(request.categoryId())
-                .orElseThrow(() -> new BiNewsianException(AppConstant.CATEGORY_NOT_FOUND));
+        Category category = null;
 
+        if (request.categoryId() != null) {
+            category = categoryRepository.findById(request.categoryId())
+                    .orElseThrow(() -> new BiNewsianException(AppConstant.CATEGORY_NOT_FOUND));
+        }
+        
         news.setTitle(request.title());
         news.setCategory(category);
         news.setSummary(request.summary());
@@ -77,14 +84,15 @@ public class NewsServiceImpl implements NewsService {
         news.setPublishedAt(isDraft ? null : LocalDateTime.now());
         news.setCreatedBy(user);
 
-        processImage(news, featuredImage, isDraft);
+        processImage(news, featuredImage, isDraft, request.deleteImage());
 
         newsRepository.save(news);
     }
 
     @Override
     public void delete(Long id) throws BiNewsianException {
-        News news = newsRepository.findById(id).orElseThrow(() -> new BiNewsianException(AppConstant.NEWS_NOT_FOUND));
+        News news = newsRepository.findById(id)
+                .orElseThrow(() -> new BiNewsianException(AppConstant.NEWS_NOT_FOUND));
 
         if (news.getFeaturedImageKey() != null) {
             storageService.deleteFile(news.getFeaturedImageKey());
@@ -95,7 +103,8 @@ public class NewsServiceImpl implements NewsService {
 
     @Override
     public News findById(Long id) throws BiNewsianException {
-        return newsRepository.findById(id).orElseThrow(() -> new BiNewsianException(AppConstant.NEWS_NOT_FOUND));
+        return newsRepository.findById(id)
+                .orElseThrow(() -> new BiNewsianException(AppConstant.NEWS_NOT_FOUND));
     }
 
     @Override
@@ -125,17 +134,21 @@ public class NewsServiceImpl implements NewsService {
         }
     }
 
-    private void validateRequest(String title, Long categoryId, String summary, String content, boolean isDraft) throws BiNewsianException {
+    private void validateRequest(NewsRequest r) throws BiNewsianException {
+        String summary = r.summary();
+
         if (summary != null && summary.length() > 500) {
-            throw new BiNewsianException("Summary cannot exceed 500 characters");
+            throw new BiNewsianException("Summary cannot exceed 500 characters.");
         }
 
-        if (!isDraft) {
+        if (!r.isDraft()) {
+            String title = r.title();
+
             if (title == null || title.isBlank()) {
                 throw new BiNewsianException("Title is required.");
             }
 
-            if (categoryId == null) {
+            if (r.categoryId() == null) {
                 throw new BiNewsianException("Category is required.");
             }
 
@@ -143,44 +156,50 @@ public class NewsServiceImpl implements NewsService {
                 throw new BiNewsianException("Summary is required.");
             }
 
+            String content = r.content();
+
             if (content == null || content.isBlank()) {
                 throw new BiNewsianException("Content cannot be empty.");
             }
         }
     }
 
-    private void processImage(News news, MultipartFile file, boolean isDraft) throws BiNewsianException {
+    private void processImage(News news, MultipartFile file, boolean isDraft, boolean deleteImage) throws BiNewsianException {
         boolean hasFile = file != null && !file.isEmpty();
+        String currentImageKey = news.getFeaturedImageKey();
 
-        if (!isDraft && !hasFile && news.getFeaturedImageKey() == null) {
+        if (!isDraft && !hasFile && currentImageKey == null) {
             throw new BiNewsianException("Featured image is required for published news.");
         }
 
-        if (!hasFile) {
-            return;
+        if (currentImageKey != null && deleteImage) {
+            storageService.deleteFile(currentImageKey);
+
+            news.setFeaturedImageFileName(null);
+            news.setFeaturedImageKey(null);
+            news.setFeaturedImageUrl(null);
         }
 
-        String contentType = file.getContentType();
-        if (!contentType.startsWith("image/")) {
-            throw new BiNewsianException("File must be an image.");
+        if (hasFile) {
+            String contentType = file.getContentType();
+
+            if (!contentType.startsWith("image/")) {
+                throw new BiNewsianException("File must be an image.");
+            }
+
+            long maxSize = 5 * 1024 * 1024;
+
+            if (file.getSize() > maxSize) {
+                throw new BiNewsianException("Image size must not be greater than 5MB.");
+            }
+
+            String name = file.getOriginalFilename();
+            String key = storageService.uploadFile(file);
+            String url = storageService.getPublicUrl(key);
+
+            news.setFeaturedImageFileName(name);
+            news.setFeaturedImageKey(key);
+            news.setFeaturedImageUrl(url);
         }
-
-        long maxSize = 5 * 1024 * 1024;
-        if (file.getSize() > maxSize) {
-            throw new BiNewsianException("Image size must not be greater than 5MB.");
-        }
-
-        String oldImageKey = news.getFeaturedImageKey();
-        if (oldImageKey != null) {
-            storageService.deleteFile(oldImageKey);
-        }
-
-        String name = file.getOriginalFilename();
-        String key = storageService.uploadFile(file);
-        String url = storageService.getPublicUrl(key);
-
-        news.setFeaturedImageFileName(name);
-        news.setFeaturedImageKey(key);
-        news.setFeaturedImageUrl(url);
     }
 }

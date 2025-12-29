@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -59,7 +60,8 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     public void update(Long id, ActivityRequest request, User user) throws BiNewsianException {
-        Activity activity = activityRepository.findById(id).orElseThrow(() -> new BiNewsianException(AppConstant.ACTIVITY_NOT_FOUND));
+        Activity activity = activityRepository.findById(id)
+                .orElseThrow(() -> new BiNewsianException(AppConstant.ACTIVITY_NOT_FOUND));
 
         if (!activity.getCreatedBy().getId().equals(user.getId())) {
             throw new BiNewsianException("You are not authorized to edit this activity.");
@@ -97,13 +99,16 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     public void delete(Long id) throws BiNewsianException {
-        Activity activity = activityRepository.findById(id).orElseThrow(() -> new BiNewsianException(AppConstant.ACTIVITY_NOT_FOUND));
+        Activity activity = activityRepository.findById(id)
+                .orElseThrow(() -> new BiNewsianException(AppConstant.ACTIVITY_NOT_FOUND));
+
         activityRepository.delete(activity);
     }
 
     @Override
     public Activity findById(Long id) throws BiNewsianException {
-        return activityRepository.findById(id).orElseThrow(() -> new BiNewsianException(AppConstant.ACTIVITY_NOT_FOUND));
+        return activityRepository.findById(id)
+                .orElseThrow(() -> new BiNewsianException(AppConstant.ACTIVITY_NOT_FOUND));
     }
 
     @Override
@@ -127,6 +132,7 @@ public class ActivityServiceImpl implements ActivityService {
         if (url == null || url.isBlank()) return url;
 
         url = url.trim();
+
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
             return "https://" + url;
         }
@@ -139,61 +145,91 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     private void validateBaseDateTime(ActivityRequest r) throws BiNewsianException {
-        if (r.activityDate() == null && r.timeStart() == null && r.timeEnd() == null && r.registrationDeadline() == null) {
+        LocalDate activityDate = r.activityDate();
+        LocalTime timeStart = r.timeStart();
+        LocalTime timeEnd = r.timeEnd();
+        LocalDateTime registrationDeadline = r.registrationDeadline();
+        
+        if (activityDate == null && timeStart == null && timeEnd == null && registrationDeadline == null) {
             return;
         }
 
-        if (r.timeStart() != null && r.timeEnd() != null && !r.timeEnd().isAfter(r.timeStart()))
+        if (timeStart != null && timeEnd != null && !timeEnd.isAfter(timeStart)) {
             throw new BiNewsianException("End time must be after start time");
+        }
 
-        LocalDateTime activityStartDateTime = r.activityDate().atTime(r.timeStart());
+        LocalDateTime activityStartDateTime = activityDate.atTime(timeStart);
 
-        if (r.registrationDeadline() != null && !r.registrationDeadline().isBefore(activityStartDateTime))
+        if (registrationDeadline != null && !registrationDeadline.isBefore(activityStartDateTime)) {
             throw new BiNewsianException("Registration deadline must be before activity start time");
+        }
 
-        if (r.activityDate() != null && r.activityDate().isBefore(LocalDate.now()))
+        if (activityDate != null && activityDate.isBefore(LocalDate.now())) {
             throw new BiNewsianException("Activity date cannot be in the past");
+        }
     }
 
     private void validatePublishDateTime(ActivityRequest r) throws BiNewsianException {
-        if (r.activityDate() == null)
+        if (r.activityDate() == null) {
             throw new BiNewsianException("Activity date is required");
+        }
 
-        if (r.timeStart() == null || r.timeEnd() == null)
+        if (r.timeStart() == null || r.timeEnd() == null) {
             throw new BiNewsianException("Start time and end time are required");
+        }
 
-        if (r.registrationDeadline() == null)
+        if (r.registrationDeadline() == null) {
             throw new BiNewsianException("Registration deadline is required");
+        }
         
         validateBaseDateTime(r);
     }
 
     private void validatePublish(ActivityRequest r) throws BiNewsianException {
-        if (r.title() == null || r.title().isBlank())
+        String title = r.title();
+
+        if (title == null || title.isBlank()) {
             throw new BiNewsianException("Title is required");
+        }
 
-        if (r.activityType() == null)
+        if (r.activityType() == null) {
             throw new BiNewsianException("Activity type is required");
+        }
 
-        if (r.location() == null || r.location().isBlank())
+        String location = r.location();
+
+        if (location == null || location.isBlank()) {
             throw new BiNewsianException("Location is required");
+        }
 
-        if (r.details() == null || r.details().isBlank())
+        String details = r.details();
+
+        if (details == null || details.isBlank()) {
             throw new BiNewsianException("Activity content cannot be empty");
+        }
 
-        if (r.quota() == null || r.quota() <= 0)
+        Integer quota = r.quota();
+
+        if (quota == null || quota <= 0) {
             throw new BiNewsianException("Quota must be greater than 0");
+        }
 
-        if (r.rewardAmount() == null || r.rewardAmount() <= 0)
+        Integer rewardAmount = r.rewardAmount();
+
+        if (rewardAmount == null || rewardAmount <= 0) {
             throw new BiNewsianException("Reward amount must be greater than 0");
-        
+        }
+
         validatePublishDateTime(r);
 
-        if (r.registrationLink() == null || r.registrationLink().isBlank())
+        String registrationLink = r.registrationLink();
+        
+        if (registrationLink == null || registrationLink.isBlank()) {
             throw new BiNewsianException("Registration link is required");
+        }
 
         try {
-            new URI(normalizeUrl(r.registrationLink()));
+            new URI(normalizeUrl(registrationLink));
         } catch (Exception e) {
             throw new BiNewsianException("Registration link is not a valid URL");
         }

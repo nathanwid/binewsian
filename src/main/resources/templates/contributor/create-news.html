@@ -252,7 +252,8 @@
                     categoryId: $("#category").val(),
                     summary: emptyToNull($("#summary").val().trim()),
                     content: editorText.length === 0 ? null : editorHtml,
-                    isDraft: isDraft
+                    isDraft: isDraft,
+                    deleteImage: false
                 }
 
                 const formData = new FormData();

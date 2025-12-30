@@ -137,8 +137,8 @@ public class NewsServiceImpl implements NewsService {
     private void validateRequest(NewsRequest r) throws BiNewsianException {
         String summary = r.summary();
 
-        if (summary != null && summary.length() > 500) {
-            throw new BiNewsianException("Summary cannot exceed 500 characters.");
+        if (summary != null && summary.length() > 200) {
+            throw new BiNewsianException("Summary cannot exceed 200 characters.");
         }
 
         if (!r.isDraft()) {

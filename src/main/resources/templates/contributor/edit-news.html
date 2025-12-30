@@ -289,8 +289,8 @@
                 let isValid = true;
 
                 const summary = $("#summary").val();
-                if (summary && summary.length > 500) {
-                    setInvalid("summary", "Summary cannot exceed 500 characters");
+                if (summary && summary.length > 200) {
+                    setInvalid("summary", "Summary cannot exceed 200 characters");
                     isValid = false;
                 }
 

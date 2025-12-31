@@ -49,13 +49,13 @@
                                         <div id="featuredImageError" class="invalid-feedback"></div>
 
                                         <!-- Image Preview Container -->
-                                        <div id="previewContainer" class="preview-container d-none">
-                                            <div id="previewCard" class="preview-card">
+                                        <div id="previewContainer" class="mt-3 d-none" style="max-width: 400px;">
+                                            <div id="btnPreviewImage" style="cursor: pointer;" class="border rounded p-2 d-flex align-items-center justify-content-between bg-light">
                                                 <div class="d-flex align-items-center gap-3">
-                                                    <img id="previewThumbnail" src="" alt="Preview" class="thumbnail-img">
+                                                    <img id="previewThumbnail" src="" alt="Preview" style="width: 48px; height: 48px; object-fit: cover;">
                                                     <div>
-                                                        <div id="previewFileName" class="fw-medium file-info-name"></div>
-                                                        <small id="previewFileSize" class="text-muted"></small>
+                                                        <div class="fw-medium" id="previewFileName" style="font-size: 14px;"></div>
+                                                        <small class="text-muted" id="previewFileSize"></small>
                                                     </div>
                                                 </div>
                                                 <button type="button" class="btn btn-link p-0 btn-delete-custom" id="btnRemoveImage">
@@ -74,7 +74,7 @@
 
                                 <div class="mb-3">
                                     <label class="form-label">Article Content<span class="text-danger">*</span></label>
-                                    <div id="articleEditor" class="rich-text-editor"></div>
+                                    <div id="articleEditor" style="height: 400px;"></div>
                                     <input type="hidden" id="article-content">
                                     <div id="articleEditorError" class="invalid-feedback"></div>
                                 </div>
@@ -124,7 +124,7 @@
 
             let imageUrl = null;
 
-            $("#previewCard").on("click", function () {
+            $("#btnPreviewImage").on("click", function () {
                 const currentSrc = $previewThumbnail.attr("src");
 
                 if (currentSrc) {
@@ -358,43 +358,9 @@
             })
         </script>
         <style>
-            .rich-text-editor {
-                height: 400px;
-            }
-
-            .rich-text-editor.is-invalid .ql-toolbar,
-            .rich-text-editor.is-invalid .ql-container { 
+            #articleEditor.is-invalid .ql-toolbar,
+            #articleEditor.is-invalid .ql-editor {
                 border-color: #dc3545 !important;
-            }
-
-            .rich-text-editor.is-invalid .ql-toolbar {
-                border-bottom: none; 
-            }
-
-            .preview-container {
-                max-width: 400px;
-                margin-top: 1rem;
-            }
-
-            .preview-card {
-                cursor: pointer;
-                background-color: #f8f9fa; 
-                padding: 0.5rem;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                border: 1px solid #dee2e6;
-                border-radius: 0.375rem;
-            }
-
-            .thumbnail-img {
-                width: 48px;
-                height: 48px;
-                object-fit: cover;
-            }
-
-            .file-info-name {
-                font-size: 14px;
             }
 
             .btn-delete-custom {
@@ -405,7 +371,7 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                transition: all 0.2s ease; 
+                transition: all 0.2s ease; /* Transisi halus */
             }
 
             .btn-delete-custom:hover {
@@ -415,6 +381,16 @@
 
             .btn-delete-custom:active {
                 background-color: rgba(220, 53, 69, 0.2); 
+            }
+
+            #featuredImage:has(~ #btnPreviewImage.d-none):has(~ #btnDelete.d-none) {
+                border-top-right-radius: 0.375rem !important;
+                border-bottom-right-radius: 0.375rem !important;
+            }
+
+            .input-group > #featuredImage:last-child {
+                border-top-right-radius: 0.375rem !important;
+                border-bottom-right-radius: 0.375rem !important;
             }
 
             @media (max-width: 576px) {

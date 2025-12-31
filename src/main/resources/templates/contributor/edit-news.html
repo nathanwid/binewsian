@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/panel}">
 <head>
-    <title>Create News</title>
+    <title>Edit News</title>
 </head>
 <body>
     <div layout:fragment="content">
@@ -53,16 +53,16 @@
                                         <div id="featuredImageError" class="invalid-feedback"></div>
 
                                         <!-- Image Preview Container -->
-                                        <div id="previewContainer" class="mt-3 d-none" style="max-width: 400px;">
-                                            <div id="btnPreviewImage" style="cursor: pointer;" class="border rounded p-2 d-flex align-items-center justify-content-between bg-light">
-                                                <div class="d-flex align-items-center gap-3">
-                                                    <img id="previewThumbnail" src="" alt="Preview" style="width: 48px; height: 48px; object-fit: cover;">
-                                                    <div>
-                                                        <div class="fw-medium" id="previewFileName" style="font-size: 14px;"></div>
-                                                        <small class="text-muted" id="previewFileSize"></small>
+                                        <div id="previewContainer" class="upload-preview d-none">
+                                            <div id="previewCard" class="upload-preview__card">
+                                                <div class="upload-preview__content">
+                                                    <img id="previewThumbnail" src="" alt="Preview" class="upload-preview__thumb">
+                                                    <div class="upload-preview__info">
+                                                        <div id="previewFileName" class="fw-medium upload-preview__name"></div>
+                                                        <small id="previewFileSize" class="upload-preview__size"></small>
                                                     </div>
                                                 </div>
-                                                <button type="button" class="btn btn-link p-0 btn-delete-custom" id="btnRemoveImage">
+                                                <button type="button" class="btn btn-link p-0 upload-preview__btn-delete" id="btnRemoveImage">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </div>
@@ -78,7 +78,7 @@
 
                                 <div class="mb-3">
                                     <label class="form-label">Article Content<span class="text-danger">*</span></label>
-                                    <div id="articleEditor" style="height: 400px;"></div>
+                                    <div id="articleEditor" class="rich-text-editor"></div>
                                     <input type="hidden" th:field="${news.content}" id="articleContent">
                                     <div id="articleEditorError" class="invalid-feedback"></div>
                                 </div>
@@ -99,12 +99,12 @@
             </div>
         </div>
 
-        <!-- Image Preview Modal -->
-        <div class="modal fade" id="previewModal" tabindex="-1">
+        <!-- Image Viewer Modal -->
+        <div class="modal fade" id="imageViewerModal" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
                     <div class="modal-body text-center">
-                        <img id="previewImage" src="" alt="Image Preview" class="img-fluid">
+                        <img id="imageViewerDisplay" src="" alt="Image Preview" class="img-fluid">
                     </div>
                 </div>
             </div>
@@ -136,8 +136,8 @@
             const $previewFileName = $("#previewFileName");
             const $previewFileSize = $("#previewFileSize");
 
-            const $previewModal = $("#previewModal");
-            const $previewImage = $("#previewImage");
+            const $imageViewerModal = $("#imageViewerModal");
+            const $imageViewerDisplay = $("#imageViewerDisplay");
 
             const existingImageKey = $("#existingImageKey").val();
             const existingImageUrl = $("#existingImageUrl").val();
@@ -156,12 +156,12 @@
                 $previewContainer.removeClass("d-none");
             }
 
-            $("#btnPreviewImage").on("click", function () {
+            $("#previewCard").on("click", function () {
                 const currentSrc = $previewThumbnail.attr("src");
 
                 if (currentSrc) {
-                    $("#previewImage").attr("src", currentSrc);
-                    $("#previewModal").modal("show");
+                    $("#imageViewerDisplay").attr("src", currentSrc);
+                    $("#imageViewerModal").modal("show");
                 }
             });
 
@@ -272,7 +272,7 @@
 
                 const editorText = articleEditor.getText().trim();
                 if (editorText.length === 0) {
-                    setInvalidEditor("Summary cannot be empty");
+                    setInvalidEditor("Content cannot be empty");
                     isValid = false;
                 }
 
@@ -398,52 +398,6 @@
                 })
             })
         </script>
-        <style>
-            #articleEditor.is-invalid .ql-toolbar,
-            #articleEditor.is-invalid .ql-editor {
-                border-color: #dc3545 !important;
-            }
-
-            .btn-delete-custom {
-                color: #dc3545; 
-                text-decoration: none;
-                width: 36px;
-                height: 36px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: all 0.2s ease; /* Transisi halus */
-            }
-
-            .btn-delete-custom:hover {
-                color: #a71d2a; 
-                background-color: rgba(220, 53, 69, 0.1); 
-            }
-
-            .btn-delete-custom:active {
-                background-color: rgba(220, 53, 69, 0.2); 
-            }
-
-            #featuredImage:has(~ #btnPreviewImage.d-none):has(~ #btnRemoveImage.d-none) {
-                border-top-right-radius: 0.375rem !important;
-                border-bottom-right-radius: 0.375rem !important;
-            }
-
-            .input-group > #featuredImage:last-child {
-                border-top-right-radius: 0.375rem !important;
-                border-bottom-right-radius: 0.375rem !important;
-            }
-
-            @media (max-width: 576px) {
-                .d-flex.gap-2 {
-                    flex-wrap: wrap;
-                }
-                
-                #featuredImage {
-                    flex: 1 1 100% !important;
-                }
-            }
-        </style>
     </th:block>
 </body>
 </html>

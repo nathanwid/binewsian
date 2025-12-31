@@ -702,17 +702,22 @@
                     method: "POST",
                     data: { name: name },
                     success: function () {
-                        Swal.fire({
-                            icon: "success",
-                            title: "Created!",
-                            text: "Category created successfully!",
-                            timer: 1600,
-                            showConfirmButton: false
-                        }).then(() => {
-                            resetCategoryForm();
-                            $("#createCategoryModal").modal("hide");
-                            location.reload();
-                        })
+                        $("#createCategoryModal").modal("hide");
+
+                        $("#createCategoryModal").one("hidden.bs.modal", function () {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Created!",
+                                text: "Category created successfully!",
+                                timer: 1600,
+                                showConfirmButton: false
+                            }).then(() => {
+                                resetCategoryForm();
+                                location.reload();
+                            });
+                        });
+
+                        location.reload();
                     },
                     error: function (xhr) {
                         if (xhr.status === 400) {
@@ -771,16 +776,19 @@
                         email: email
                     },
                     success: function () {
-                        Swal.fire({
-                            icon: "success",
-                            title: "Created!",
-                            text: "Contributor created successfully!",
-                            timer: 1600,
-                            showConfirmButton: false
-                        }).then(() => {
-                            resetContributorForm();
-                            $("#createContributorModal").modal("hide");
-                            location.reload();
+                        $("#createContributorModal").modal("hide");
+
+                        $("#createContributorModal").one("hidden.bs.modal", function () {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Created!",
+                                text: "Contributor created successfully!",
+                                timer: 1600,
+                                showConfirmButton: false
+                            }).then(() => {
+                                resetContributorForm();
+                                location.reload();
+                            });
                         });
                     },
                     error: function (xhr) {
@@ -828,16 +836,19 @@
                     method: "POST",
                     data: { id: id, name: name },
                     success: function () {
-                        Swal.fire({
-                            icon: "success",
-                            title: "Updated!",
-                            text: "Category updated successfully!",
-                            timer: 1600,
-                            showConfirmButton: false
-                        }).then(() => {
-                            resetCategoryForm();
-                            $("#editCategoryModal").modal("hide");
-                            location.reload();
+                        $("#editCategoryModal").modal("hide");
+
+                        $("#editCategoryModal").one("hidden.bs.modal", function () {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Updated!",
+                                text: "Category updated successfully!",
+                                timer: 1600,
+                                showConfirmButton: false
+                            }).then(() => {
+                                resetCategoryForm();
+                                location.reload();
+                            });
                         });
                     },
 

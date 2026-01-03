@@ -44,4 +44,18 @@ public class UserController {
         }
     }
 
+    @PostMapping("/edit-profile")
+    public ResponseEntity<?> editProfile(@RequestParam String username, @RequestParam String email, HttpSession session) {
+        try {
+            User user = (User) session.getAttribute("user");
+            User updatedUser = userService.updateProfile(user.getId(), username, email);
+            session.setAttribute("user", updatedUser);
+            return ResponseEntity.ok().build();
+        } catch (BiNewsianException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body(AppConstant.UNEXPECTED_SERVER_ERROR);
+        }
+    }
+
 }

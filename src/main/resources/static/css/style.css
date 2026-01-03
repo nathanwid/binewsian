@@ -340,22 +340,41 @@ body {
    DASHBOARD
    ======================================== */
 
-/* User Icon */
-.user-icon {
-    width: 40px;
-    height: 40px;
-    background: white;
+/* User Avatar */
+.user-avatar {
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--primary-color);
-    cursor: pointer;
-    transition: transform 0.3s ease;
+    flex-shrink: 0;
 }
 
-.user-icon:hover {
-    transform: scale(1.1);
+.user-initials {
+    color: white;
+    font-size: 24px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.user-avatar-small {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.user-initials-small {
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
 }
 
 /* Main Container */

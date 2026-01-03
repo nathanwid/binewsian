@@ -20,7 +20,9 @@
                     <div class="card card-custom animate-fade-in">
                         <div class="card-body text-center p-4">
                             <div class="d-flex">
-                                <i class="bi bi-person-circle" style="font-size: 4.5rem; color: var(--primary-color);"></i>
+                                <div class="user-avatar" th:style="'background-color: ' + ${@userAvatar.getAvatarColor(user.username)}">
+                                    <span class="user-initials" th:text="${@userAvatar.getUserInitials(user.username)}">-</span>
+                                </div>
                                 <div class="ms-3 text-start align-self-center">
                                     <h5 class="mb-2" th:text="${user.username}">-</h5>
                                     <span class="badge badge-custom role-badge-user"
@@ -53,7 +55,7 @@
                         <div class="card-body">
                             <h5 class="card-title mb-4">
                                 <i class="bi bi-info-circle-fill text-primary me-2"></i>
-                                Informasi Akun
+                                Account Information
                             </h5>
 
                             <div class="d-flex align-items-center mb-3">

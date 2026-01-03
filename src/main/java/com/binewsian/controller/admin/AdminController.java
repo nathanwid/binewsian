@@ -53,21 +53,29 @@ public class AdminController {
         model.addAttribute("news", news.getContent());
         model.addAttribute("newsCurrentPage", newsPage);
         model.addAttribute("newsTotalPages", news.getTotalPages());
+        model.addAttribute("newsTotalElements", news.getTotalElements());
+        model.addAttribute("newsPageSize", news.getSize());
 
         // Activity
         model.addAttribute("activities", activities.getContent());
         model.addAttribute("activitiesCurrentPage", activityPage);
         model.addAttribute("activitiesTotalPages", activities.getTotalPages());
+        model.addAttribute("activitiesTotalElements", activities.getTotalElements());
+        model.addAttribute("activitiesPageSize", activities.getSize());
 
         // Category
         model.addAttribute("categories", categories.getContent());
         model.addAttribute("categoryCurrentPage", categoryPage);
         model.addAttribute("categoryTotalPages", categories.getTotalPages());
+        model.addAttribute("categoryTotalElements", categories.getTotalElements());
+        model.addAttribute("categoryPageSize", categories.getSize());
 
         // Contributor
         model.addAttribute("contributors", contributors.getContent());
         model.addAttribute("contributorCurrentPage", contributorPage);
         model.addAttribute("contributorTotalPages", contributors.getTotalPages());
+        model.addAttribute("contributorTotalElements", contributors.getTotalElements());
+        model.addAttribute("contributorPageSize", contributors.getSize());
 
         // Active tab
         model.addAttribute("activeTab", tab);

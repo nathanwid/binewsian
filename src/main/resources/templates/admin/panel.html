@@ -137,25 +137,40 @@
                             </div>
 
                             <!-- Pagination -->
-                            <nav th:if="${newsTotalPages > 1}" class="mt-3">
-                                <ul class="pagination justify-content-center">
-                                    <li class="page-item" th:classappend="${newsCurrentPage == 0} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/admin/panel(newsPage=${newsCurrentPage - 1}, tab='news')}">
-                                            &laquo;
-                                        </a>
-                                    </li>
+                            <div th:if="${!#lists.isEmpty(news)}" class="pagination-info d-flex justify-content-between align-items-center mt-3">
+                                <div class="text-muted">
+                                    <span th:with="startItem=${newsCurrentPage * newsPageSize + 1},
+                                                   endItem=${(newsCurrentPage + 1) * newsPageSize > newsTotalElements ? newsTotalElements : (newsCurrentPage + 1) * newsPageSize}">
+                                        Showing
+                                        <span th:text="${startItem}">-</span>
+                                        to
+                                        <span th:text="${endItem}">-</span>
+                                        of
+                                        <span th:text="${newsTotalElements}">-</span>
+                                        categories
+                                    </span>
+                                </div>
 
-                                    <li class="page-item" th:each="i : ${#numbers.sequence(0, newsTotalPages - 1)}" th:classappend="${i == newsCurrentPage} ? 'active'">
-                                        <a class="page-link" th:text="${i + 1}" th:href="@{/admin/panel(newsPage=${i}, tab='news')}"></a>
-                                    </li>
+                                <nav>
+                                    <ul class="pagination mb-0">
+                                        <li class="page-item" th:classappend="${newsCurrentPage == 0} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/admin/panel(newsPage=${newsCurrentPage - 1}, tab='news')}">
+                                                &laquo;
+                                            </a>
+                                        </li>
 
-                                    <li class="page-item" th:classappend="${newsCurrentPage + 1 == newsTotalPages} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/admin/panel(newsPage=${newsCurrentPage + 1}, tab='news')}">
-                                            &raquo;
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
+                                        <li class="page-item" th:each="i : ${#numbers.sequence(0, newsTotalPages - 1)}" th:classappend="${i == newsCurrentPage} ? 'active'">
+                                            <a class="page-link" th:text="${i + 1}" th:href="@{/admin/panel(newsPage=${i}, tab='news')}"></a>
+                                        </li>
+
+                                        <li class="page-item" th:classappend="${newsCurrentPage + 1 == newsTotalPages} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/admin/panel(newsPage=${newsCurrentPage + 1}, tab='news')}">
+                                                &raquo;
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
                         </div>
 
                         <!-- Manage Activity  -->
@@ -205,25 +220,40 @@
                             </div>
 
                             <!-- Pagination -->
-                            <nav th:if="${activitiesTotalPages > 1}" class="mt-3">
-                                <ul class="pagination justify-content-center">
-                                    <li class="page-item" th:classappend="${activitiesCurrentPage == 0} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/admin/panel(activityPage=${activitiesCurrentPage - 1}, tab='activity')}">
-                                            &laquo;
-                                        </a>
-                                    </li>
+                            <div th:if="${!#lists.isEmpty(activities)}" class="pagination-info d-flex justify-content-between align-items-center mt-3">
+                                <div class="text-muted">
+                                    <span th:with="startItem=${activitiesCurrentPage * activitiesPageSize + 1},
+                                                   endItem=${(activitiesCurrentPage + 1) * activitiesPageSize > activitiesTotalElements ? activitiesTotalElements : (activitiesCurrentPage + 1) * activitiesPageSize}">
+                                        Showing
+                                        <span th:text="${startItem}">-</span>
+                                        to
+                                        <span th:text="${endItem}">-</span>
+                                        of
+                                        <span th:text="${activitiesTotalElements}">-</span>
+                                        categories
+                                    </span>
+                                </div>
 
-                                    <li class="page-item" th:each="i : ${#numbers.sequence(0, activitiesTotalPages - 1)}" th:classappend="${i == activitiesCurrentPage} ? 'active'">
-                                        <a class="page-link" th:text="${i + 1}" th:href="@{/admin/panel(activityPage=${i}, tab='activity')}"></a>
-                                    </li>
+                                <nav>
+                                    <ul class="pagination mb-0">
+                                        <li class="page-item" th:classappend="${activitiesCurrentPage == 0} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/admin/panel(activityPage=${activitiesCurrentPage - 1}, tab='activity')}">
+                                                &laquo;
+                                            </a>
+                                        </li>
 
-                                    <li class="page-item" th:classappend="${activitiesCurrentPage + 1 == activitiesTotalPages} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/admin/panel(activityPage=${activitiesCurrentPage + 1}, tab='activity')}">
-                                            &raquo;
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
+                                        <li class="page-item" th:each="i : ${#numbers.sequence(0, activitiesTotalPages - 1)}" th:classappend="${i == activitiesCurrentPage} ? 'active'">
+                                            <a class="page-link" th:text="${i + 1}" th:href="@{/admin/panel(activityPage=${i}, tab='activity')}"></a>
+                                        </li>
+
+                                        <li class="page-item" th:classappend="${activitiesCurrentPage + 1 == activitiesTotalPages} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/admin/panel(activityPage=${activitiesCurrentPage + 1}, tab='activity')}">
+                                                &raquo;
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
                         </div>
 
                         <!-- Manage Category -->
@@ -278,25 +308,40 @@
                             </div>
 
                             <!-- Pagination -->
-                            <nav th:if="${categoryTotalPages > 1}" class="mt-3">
-                                <ul class="pagination justify-content-center">
-                                    <li class="page-item" th:classappend="${categoryCurrentPage == 0} ? 'disabled'">
-                                        <a class="page-link"th:href="@{/admin/panel(categoryPage=${categoryCurrentPage - 1}, tab='category')}">
-                                            &laquo;
-                                        </a>
-                                    </li>
+                            <div th:if="${!#lists.isEmpty(categories)}" class="pagination-info d-flex justify-content-between align-items-center mt-3">
+                                <div class="text-muted">
+                                    <span th:with="startItem=${categoryCurrentPage * categoryPageSize + 1},
+                                                   endItem=${(categoryCurrentPage + 1) * categoryPageSize > categoryTotalElements ? categoryTotalElements : (categoryCurrentPage + 1) * categoryPageSize}">
+                                        Showing
+                                        <span th:text="${startItem}">-</span>
+                                        to
+                                        <span th:text="${endItem}">-</span>
+                                        of
+                                        <span th:text="${categoryTotalElements}">-</span>
+                                        categories
+                                    </span>
+                                </div>
 
-                                    <li class="page-item" th:each="i : ${#numbers.sequence(0, categoryTotalPages - 1)}" th:classappend="${i == categoryCurrentPage} ? 'active'">
-                                        <a class="page-link" th:text="${i + 1}" th:href="@{/admin/panel(categoryPage=${i}, tab='category')}"></a>
-                                    </li>
+                                <nav>
+                                    <ul class="pagination mb-0">
+                                        <li class="page-item" th:classappend="${categoryCurrentPage == 0} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/admin/panel(categoryPage=${categoryCurrentPage - 1}, tab='category')}">
+                                                &laquo;
+                                            </a>
+                                        </li>
 
-                                    <li class="page-item" th:classappend="${categoryCurrentPage + 1 == categoryTotalPages} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/admin/panel(categoryPage=${categoryCurrentPage + 1}, tab='category')}">
-                                            &raquo;
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
+                                        <li class="page-item" th:each="i : ${#numbers.sequence(0, categoryTotalPages - 1)}" th:classappend="${i == categoryCurrentPage} ? 'active'">
+                                            <a class="page-link" th:text="${i + 1}" th:href="@{/admin/panel(categoryPage=${i}, tab='category')}"></a>
+                                        </li>
+
+                                        <li class="page-item" th:classappend="${categoryCurrentPage + 1 == categoryTotalPages} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/admin/panel(categoryPage=${categoryCurrentPage + 1}, tab='category')}">
+                                                &raquo;
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
                         </div>
 
                         <!-- Manage Contributor  -->
@@ -349,25 +394,40 @@
                             </div>
 
                             <!-- Pagination -->
-                            <nav th:if="${contributorTotalPages > 1}" class="mt-3">
-                                <ul class="pagination justify-content-center">
-                                    <li class="page-item" th:classappend="${contributorCurrentPage == 0} ? 'disabled'">
-                                        <a class="page-link"th:href="@{/admin/panel(contributorPage=${contributorCurrentPage - 1}, tab='contributor')}">
-                                            &laquo;
-                                        </a>
-                                    </li>
+                            <div th:if="${!#lists.isEmpty(contributors)}" class="pagination-info d-flex justify-content-between align-items-center mt-3">
+                                <div class="text-muted">
+                                    <span th:with="startItem=${contributorCurrentPage * contributorPageSize + 1},
+                                                   endItem=${(contributorCurrentPage + 1) * contributorPageSize > contributorTotalElements ? contributorTotalElements : (contributorCurrentPage + 1) * contributorPageSize}">
+                                        Showing
+                                        <span th:text="${startItem}">-</span>
+                                        to
+                                        <span th:text="${endItem}">-</span>
+                                        of
+                                        <span th:text="${contributorTotalElements}">-</span>
+                                        categories
+                                    </span>
+                                </div>
 
-                                    <li class="page-item" th:each="i : ${#numbers.sequence(0, contributorTotalPages - 1)}" th:classappend="${i == contributorCurrentPage} ? 'active'">
-                                        <a class="page-link" th:text="${i + 1}" th:href="@{/admin/panel(contributorPage=${i}, tab='contributor')}"></a>
-                                    </li>
+                                <nav>
+                                    <ul class="pagination mb-0">
+                                        <li class="page-item" th:classappend="${contributorCurrentPage == 0} ? 'disabled'">
+                                            <a class="page-link"th:href="@{/admin/panel(contributorPage=${contributorCurrentPage - 1}, tab='contributor')}">
+                                                &laquo;
+                                            </a>
+                                        </li>
 
-                                    <li class="page-item" th:classappend="${contributorCurrentPage + 1 == contributorTotalPages} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/admin/panel(contributorPage=${contributorCurrentPage + 1}, tab='contributor')}">
-                                            &raquo;
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
+                                        <li class="page-item" th:each="i : ${#numbers.sequence(0, contributorTotalPages - 1)}" th:classappend="${i == contributorCurrentPage} ? 'active'">
+                                            <a class="page-link" th:text="${i + 1}" th:href="@{/admin/panel(contributorPage=${i}, tab='contributor')}"></a>
+                                        </li>
+
+                                        <li class="page-item" th:classappend="${contributorCurrentPage + 1 == contributorTotalPages} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/admin/panel(contributorPage=${contributorCurrentPage + 1}, tab='contributor')}">
+                                                &raquo;
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -469,7 +529,7 @@
                 const list = $(this).data("list");
                 const empty = $(this).data("empty");
                 const tabPane = $(this).closest('.tab-pane');
-                const pagination = tabPane.find('nav');
+                const pagination = tabPane.find('.pagination-info');
 
                 if (q.length === 0) {
                     location.reload();
@@ -481,7 +541,7 @@
                     return;
                 }
 
-                pagination.hide();
+                pagination.addClass('hidden-pagination');
 
                 $.ajax({
                     url: config.endpoint,
@@ -878,7 +938,7 @@
                 if (type === "activity") ajaxUrl = "/admin/activities/delete";
 
                 Swal.fire({
-                    title: "Delete category?",
+                    title: "Delete " + type + "?",
                     text: "This action cannot be undone.",
                     icon: "warning",
                     showCancelButton: true,
@@ -896,7 +956,7 @@
                             Swal.fire({
                                 icon: "success",
                                 title: "Deleted!",
-                                text: "Item has been deleted.",
+                                text: capitalizeFirstLetter(type) + " has been deleted.",
                                 timer: 1600,
                                 showConfirmButton: false
                             }).then(() => location.reload());
@@ -913,8 +973,12 @@
                             Swal.fire({
                                 icon: "error",
                                 title: "Delete failed",
-                                text: message
-                            })
+                                text: message,
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    location.reload();
+                                }
+                            });
                         }
                     })
                 })

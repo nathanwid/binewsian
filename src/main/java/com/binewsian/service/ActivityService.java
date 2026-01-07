@@ -1,5 +1,6 @@
 package com.binewsian.service;
 
+import com.binewsian.dto.ActivityFilterDto;
 import com.binewsian.dto.ActivityRequest;
 import com.binewsian.exception.BiNewsianException;
 import com.binewsian.model.Activity;
@@ -17,6 +18,6 @@ public interface ActivityService {
     Page<Activity> findPaginated(int page, int size);
     Page<Activity> findPaginatedByUserId(int page, int size, long user);
     List<Activity> findAllByStatus();
-    Page<Activity> getPublishedActivities(int page, int size);
+    Page<Activity> getFilteredActivities(ActivityFilterDto filterDTO, int page, int size);
     Activity getActivityById(Long id) throws BiNewsianException;
 }

@@ -175,24 +175,24 @@
         function applyFilters() {
             const filters = {
                 status: $('input[name="status"]:checked').val(),
-                locationType: [],
-                activityType: [],
-                dateFrom: $('#date-from').val(),
-                dateTo: $('#date-to').val(),
-                sortBy: $('input[name="sort"]:checked').val()
+                location: [],
+                type: [],
+                from: $('#date-from').val(),
+                to: $('#date-to').val(),
+                sort: $('input[name="sort"]:checked').val()
             };
 
             if ($('#location-online').is(':checked')) {
-                filters.locationType.push('online');
+                filters.location.push('online');
             }
             if ($('#location-onsite').is(':checked')) {
-                filters.locationType.push('onsite');
+                filters.location.push('onsite');
             }
             if ($('#type-sat').is(':checked')) {
-                filters.activityType.push('STUDENT_ACTIVITY_TRANSCRIPT');
+                filters.type.push('STUDENT_ACTIVITY_TRANSCRIPT');
             }
             if ($('#type-cs').is(':checked')) {
-                filters.activityType.push('COMMUNITY_SERVICE');
+                filters.type.push('COMMUNITY_SERVICE');
             }
 
             // Build query parameters
@@ -202,20 +202,20 @@
             if (filters.status !== 'all') {
                 params.append('status', filters.status);
             }
-            if (filters.locationType.length > 0) {
-                params.append('locationType', filters.locationType.join(','));
+            if (filters.location.length > 0) {
+                params.append('location', filters.location.join(','));
             }
-            if (filters.activityType.length > 0) {
-                params.append('type', filters.activityType.join(','));
+            if (filters.type.length > 0) {
+                params.append('type', filters.type.join(','));
             }
-            if (filters.dateFrom) {
-                params.append('dateFrom', filters.dateFrom);
+            if (filters.from) {
+                params.append('from', filters.from);
             }
-            if (filters.dateTo) {
-                params.append('dateTo', filters.dateTo);
+            if (filters.to) {
+                params.append('to', filters.to);
             }
-            if (filters.sortBy !== 'newest') {
-                params.append('sort', filters.sortBy);
+            if (filters.sort !== 'newest') {
+                params.append('sort', filters.sort);
             }
 
             window.location.href = '/activity?' + params.toString();

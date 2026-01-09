@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface NewsRepository extends JpaRepository<News, Long> {
+    boolean existsById(Long id);
     int countByStatus(NewsStatus status);
     int countByCreatedBy_Id(Long userId);
     int countByCreatedBy_IdAndStatus(Long userId, NewsStatus status);

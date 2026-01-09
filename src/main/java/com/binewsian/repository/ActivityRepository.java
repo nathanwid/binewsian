@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ActivityRepository extends JpaRepository<Activity, Long> {
+    boolean existsById(Long id);
     int countByStatus(ActivityStatus status);
     int countByCreatedBy_Id(Long userId);
     int countByCreatedBy_IdAndStatus(Long userId, ActivityStatus status);

@@ -71,7 +71,7 @@
                     <h3>Write a Comment</h3>
                     <form id="comment-form">
                         <textarea id="comment-content" name="content" placeholder="Share your thoughts on this news..." required></textarea>
-                        <button type="submit" class="btn-submit">📤 Send</button>
+                        <button type="submit" class="btn-submit" id="btnComment" disabled>📤 Send</button>
                     </form>
                 </div>
             </div>
@@ -88,6 +88,12 @@
             $(document).ready(function() {
                 loadComments(0);
                 loadCommentCount();
+            });
+
+            const $commentContent = $("#comment-content");
+            $commentContent.on("input", function() {
+                const hasValue = $commentContent.val().trim().length > 0;
+                $("#btnComment").prop("disabled", !hasValue);
             });
 
             // Load comments with pagination
@@ -345,10 +351,8 @@
                 $.ajax({
                     url: '/comments',
                     method: 'POST',
-                    data: {
-                        content: content,
-                        commentableType: "NEWS"
-                    },
+                    contentType: 'application/json',
+                    data: JSON.stringify({ content: content, commentableId: newsId, commentableType: "NEWS" }),
                     success: function(response) {
                         $('#comment-content').val('');
                         loadComments(0);

@@ -4,7 +4,6 @@ import com.binewsian.dto.NewsRequest;
 import com.binewsian.exception.BiNewsianException;
 import com.binewsian.model.News;
 import com.binewsian.model.User;
-
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,7 +15,7 @@ public interface NewsService {
     void delete(Long id) throws BiNewsianException;
     News findById(Long id) throws BiNewsianException;
     Page<News> findPaginated(int page, int size);
-    Page<News> findPaginatedByUserId(int page, int size, long userId);
+    Page<News> findPaginatedByUserId(int page, int size, Long userId);
     List<News> findAllByStatus();
     List<News> findLatestPublished();
 }

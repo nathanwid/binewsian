@@ -49,38 +49,29 @@
 
             <!-- Comments Section -->
             <div class="comments-section">
-                <h2>Comments</h2>
-                <!-- Comment List -->
-                <div class="comment-list">
-                    <div class="comment">
-                        <div class="comment-avatar">D</div>
-                        <div class="comment-content">
-                            <div class="comment-header">
-                                <strong>Dimas Utama</strong>
-                                <span class="comment-date">December 7, 2025 at 10:28 PM</span>
-                            </div>
-                            <p class="comment-text">Wow Binus Keren</p>
-                        </div>
-                    </div>
+                <h2><span id="comment-count">0</span> Comments</h2>
 
-                    <div class="comment">
-                        <div class="comment-avatar">D</div>
-                        <div class="comment-content">
-                            <div class="comment-header">
-                                <strong>Dimas Utama</strong>
-                                <span class="comment-date">December 7, 2025 at 10:28 PM</span>
-                            </div>
-                            <p class="comment-text">Wow Binus Keren</p>
-                        </div>
+                <!-- Comment List -->
+                <div id="comment-list" class="comment-list">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading comments...</p>
                     </div>
+                </div>
+
+                <!-- Pagination -->
+                <div id="comment-pagination" class="pagination" style="display: none;">
+                    <button id="prev-page" onclick="loadComments(currentPage - 1)">Previous</button>
+                    <span class="page-info">Page <span id="current-page">1</span> of <span id="total-pages">1</span></span>
+                    <button id="next-page" onclick="loadComments(currentPage + 1)">Next</button>
                 </div>
 
                 <!-- Comment Form -->
                 <div class="comment-form">
                     <h3>Write a Comment</h3>
-                    <form onsubmit="">
-                        <textarea name="content" placeholder="Share your thoughts on this news..." required></textarea>
-                        <button type="submit" class="btn-submit"><i class="bi bi-send me-2"></i>Send</button>
+                    <form id="comment-form">
+                        <textarea id="comment-content" name="content" placeholder="Share your thoughts on this news..." required></textarea>
+                        <button type="submit" class="btn-submit">📤 Send</button>
                     </form>
                 </div>
             </div>
@@ -88,10 +79,326 @@
     </div>
 
     <th:block layout:fragment="scripts">
-        <script>
-            
+        <script th:inline="javascript">
+            const newsId = /*[[${news.id}]]*/ 1;
+            const currentUser = /*[[${user}]]*/ 'John Doe';
+            let currentPage = 0;
+            const pageSize = 5;
+
+            $(document).ready(function() {
+                loadComments(0);
+                loadCommentCount();
+            });
+
+            // Load comments with pagination
+            function loadComments(page) {
+                currentPage = page;
+                
+                $.ajax({
+                    url: `/comments/news/${newsId}`,
+                    method: 'GET',
+                    data: {
+                        page: page,
+                        size: pageSize
+                    },
+                    success: function(response) {
+                        renderComments(response.comments);
+                        updatePagination(response);
+                    },
+                    error: function(error) {
+                        console.error('Error loading comments:', error);
+                        $('#comment-list').html('<p style="text-align:center;color:#a0aec0;">Failed to load comments</p>');
+                    }
+                });
+            }
+
+            // Render comments
+            function renderComments(comments) {
+                const $commentList = $('#comment-list');
+                
+                if (comments.length === 0) {
+                    $commentList.html('<p style="text-align:center;padding:40px;color:#a0aec0;">No comments yet. Be the first to comment!</p>');
+                    return;
+                }
+
+                $commentList.empty();
+                
+                comments.forEach(comment => {
+                    const commentHtml = createCommentHtml(comment);
+                    $commentList.append(commentHtml);
+                    
+                    // Load replies for this comment
+                    loadRepliesCount(comment.id);
+                });
+            }
+
+            // Create comment HTML
+            function createCommentHtml(comment) {
+                const avatar = comment.author.charAt(0).toUpperCase();
+                const date = formatDate(comment.createdAt);
+                
+                return `
+                    <div class="comment" data-comment-id="${comment.id}">
+                        <div class="comment-avatar">${avatar}</div>
+                        <div class="comment-content">
+                            <div class="comment-header">
+                                <strong>${comment.author}</strong>
+                                <span class="comment-date">${date}</span>
+                            </div>
+                            <p class="comment-text">${escapeHtml(comment.content)}</p>
+                            <div class="comment-actions">
+                                <button class="comment-action-btn" onclick="toggleReplyForm(${comment.id})">
+                                    💬 Reply
+                                </button>
+                                <span class="reply-count" id="reply-count-${comment.id}"></span>
+                                <button class="comment-action-btn" id="load-replies-${comment.id}" 
+                                        onclick="toggleReplies(${comment.id})" style="display:none;">
+                                    Show Replies
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="reply-form-${comment.id}" class="reply-form">
+                        <textarea placeholder="Write your reply..."></textarea>
+                        <div class="reply-form-actions">
+                            <button class="btn-cancel" onclick="toggleReplyForm(${comment.id})">Cancel</button>
+                            <button class="btn-reply" onclick="submitReply(${comment.id})">Reply</button>
+                        </div>
+                    </div>
+                    <div id="replies-${comment.id}" class="replies-container" style="display:none;">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Load replies count
+            function loadRepliesCount(commentId) {
+                $.ajax({
+                    url: `/comments/${commentId}/replies`,
+                    method: 'GET',
+                    data: { page: 0, size: 1 },
+                    success: function(response) {
+                        const count = response.totalElements;
+                        if (count > 0) {
+                            $(`#reply-count-${commentId}`).text(`${count} ${count === 1 ? 'reply' : 'replies'}`);
+                            $(`#load-replies-${commentId}`).show();
+                        }
+                    }
+                });
+            }
+
+            // Toggle replies visibility
+            function toggleReplies(commentId) {
+                const $repliesContainer = $(`#replies-${commentId}`);
+                const $button = $(`#load-replies-${commentId}`);
+                
+                if ($repliesContainer.is(':visible')) {
+                    $repliesContainer.slideUp();
+                    $button.text('Show Replies');
+                } else {
+                    loadReplies(commentId, 0);
+                    $repliesContainer.slideDown();
+                    $button.text('Hide Replies');
+                }
+            }
+
+            // Load replies
+            function loadReplies(commentId, page) {
+                $.ajax({
+                    url: `/comments/${commentId}/replies`,
+                    method: 'GET',
+                    data: {
+                        page: page,
+                        size: 3
+                    },
+                    success: function(response) {
+                        renderReplies(commentId, response.replies, response.hasNext, page);
+                    },
+                    error: function(error) {
+                        console.error('Error loading replies:', error);
+                    }
+                });
+            }
+
+            // Render replies
+            function renderReplies(commentId, replies, hasNext, page) {
+                const $repliesContainer = $(`#replies-${commentId}`);
+                
+                if (page === 0) {
+                    $repliesContainer.empty();
+                } else {
+                    $repliesContainer.find('.btn-load-more').remove();
+                }
+                
+                replies.forEach(reply => {
+                    const avatar = reply.author.charAt(0).toUpperCase();
+                    const date = formatDate(reply.createdAt);
+                    
+                    const replyHtml = `
+                        <div class="reply">
+                            <div class="comment-avatar">${avatar}</div>
+                            <div class="comment-content">
+                                <div class="comment-header">
+                                    <strong>${reply.author}</strong>
+                                    <span class="comment-date">${date}</span>
+                                </div>
+                                <p class="comment-text">${escapeHtml(reply.content)}</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    $repliesContainer.append(replyHtml);
+                });
+                
+                if (hasNext) {
+                    const loadMoreBtn = `
+                        <button class="btn-load-more" onclick="loadReplies(${commentId}, ${page + 1})">
+                            Load More Replies
+                        </button>
+                    `;
+                    repliesContainer.append(loadMoreBtn);
+                }
+            }
+
+            // Toggle reply form
+            function toggleReplyForm(commentId) {
+                const form = $(`#reply-form-${commentId}`);
+                form.toggleClass('active');
+                
+                if (form.hasClass('active')) {
+                    form.find('textarea').focus();
+                } else {
+                    form.find('textarea').val('');
+                }
+            }
+
+            // Submit reply
+            function submitReply(commentId) {
+                const $form = $(`#reply-form-${commentId}`);
+                const content = $form.find('textarea').val().trim();
+                
+                if (!content) {
+                    alert('Please enter your reply');
+                    return;
+                }
+                
+                $.ajax({
+                    url: `/api/comments/${commentId}/reply`,
+                    method: 'POST',
+                    data: {
+                        newsId: newsId,
+                        content: content,
+                        author: currentUser
+                    },
+                    success: function(response) {
+                        $form.find('textarea').val('');
+                        toggleReplyForm(commentId);
+                        
+                        // Reload replies
+                        loadReplies(commentId, 0);
+                        loadRepliesCount(commentId);
+                        loadCommentCount();
+                        
+                        // Show replies if hidden
+                        const $repliesContainer = $(`#replies-${commentId}`);
+                        if (!$repliesContainer.is(':visible')) {
+                            toggleReplies(commentId);
+                        }
+                    },
+                    error: function(error) {
+                        console.error('Error posting reply:', error);
+                        alert('Failed to post reply. Please try again.');
+                    }
+                });
+            }
+
+            // Update pagination
+            function updatePagination(response) {
+                const $pagination = $('#comment-pagination');
+                
+                if (response.totalPages <= 1) {
+                    $pagination.hide();
+                    return;
+                }
+                
+                $pagination.show();
+                $('#current-page').text(response.currentPage + 1);
+                $('#total-pages').text(response.totalPages);
+                
+                $('#prev-page').prop('disabled', !response.hasPrevious);
+                $('#next-page').prop('disabled', !response.hasNext);
+            }
+
+            // Submit comment
+            $('#comment-form').on('submit', function(e) {
+                e.preventDefault();
+                
+                const content = $('#comment-content').val().trim();
+                
+                if (!content) {
+                    alert('Please enter your comment');
+                    return;
+                }
+                
+                $.ajax({
+                    url: '/comments',
+                    method: 'POST',
+                    data: {
+                        content: content,
+                        commentableType: "NEWS"
+                    },
+                    success: function(response) {
+                        $('#comment-content').val('');
+                        loadComments(0);
+                        loadCommentCount();
+                        alert('Comment posted successfully!');
+                    },
+                    error: function(error) {
+                        console.error('Error posting comment:', error);
+                        alert('Failed to post comment. Please try again.');
+                    }
+                });
+            });
+
+            // Load comment count
+            function loadCommentCount() {
+                $.ajax({
+                    url: `/comments/news/${newsId}/count`,
+                    method: 'GET',
+                    success: function(response) {
+                        $('#comment-count').text(response.count);
+                    }
+                });
+            }
+
+            // Format date
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                const options = { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                };
+                return date.toLocaleDateString('en-US', options);
+            }
+
+            // Escape HTML to prevent XSS
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // Save news function
+            function saveNews() {
+                alert('News has been saved!');
+            }
+            /*]]>*/
         </script>
-        
     </th:block>
 </body>
 </html>

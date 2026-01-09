@@ -114,7 +114,7 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
-    public Page<News> findPaginatedByUserId(int page, int size, long userId) {
+    public Page<News> findPaginatedByUserId(int page, int size, Long userId) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         return newsRepository.findByCreatedBy_Id(userId, pageable);
     }

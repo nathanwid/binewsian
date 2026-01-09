@@ -82,7 +82,6 @@ public class NewsServiceImpl implements NewsService {
         news.setContent(request.content());
         news.setStatus(isDraft ? NewsStatus.DRAFT : NewsStatus.PUBLISHED);
         news.setPublishedAt(isDraft ? null : LocalDateTime.now());
-        news.setCreatedBy(user);
 
         processImage(news, featuredImage, isDraft, request.deleteImage());
 

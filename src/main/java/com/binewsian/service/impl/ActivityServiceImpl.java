@@ -92,7 +92,6 @@ public class ActivityServiceImpl implements ActivityService {
         activity.setDetails(request.details());
         activity.setStatus(isDraft ? ActivityStatus.DRAFT : ActivityStatus.PUBLISHED);
         activity.setPublishedAt(isDraft ? null : LocalDateTime.now());
-        activity.setCreatedBy(user);
 
         activityRepository.save(activity);
     }

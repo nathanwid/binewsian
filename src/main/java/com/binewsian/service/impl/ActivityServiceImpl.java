@@ -118,7 +118,7 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
-    public Page<Activity> findPaginatedByUserId(int page, int size, long userId) {
+    public Page<Activity> findPaginatedByUserId(int page, int size, Long userId) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         return activityRepository.findByCreatedBy_Id(userId, pageable);
     }

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/base}">
+<head>
+    <title th:text="${activity.title}">Activity Detail</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container pt-4 pb-5 activity">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}" class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/activity}" class="text-decoration-none">Activity</a></li>
+                <li class="breadcrumb-item active">Detail</li>
+            </ol>
+        </nav>
+
+        <div class="activity-title-section mb-4">
+            <span th:if="${#temporals.createNow().isAfter(activity.registrationDeadline)}" class="badge-closed">Closed</span>
+            <span th:unless="${#temporals.createNow().isAfter(activity.registrationDeadline)}" class="badge-available">Available</span>
+
+            <h2 th:text="${activity.title}">-</h2>
+
+            <p class="organizer-text">
+                Organized by <span th:text="${activity.createdBy.username}">-</span>
+            </p>
+        </div>
+
+        <div class="row">
+            <div class="col-12 col-lg-8 left-column">
+                <div class="detail-card">
+                    <h4>Activity Details</h4>
+                    <div th:utext="${activity.details}">-</div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-4 right-column">
+                <div class="detail-card" style="margin-bottom: 0;">
+                    <h4>Information</h4>
+
+                    <div class="info-row">
+                        <i class="bi bi-calendar info-icon"></i>
+                        <div class="info-content">
+                            <div class="info-label">Date</div>
+                            <div class="info-value" th:text="${#temporals.format(activity.activityDate, 'EEEE, MMMM d, yyyy')}">-</div>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <i class="bi bi-clock info-icon"></i>
+                        <div class="info-content">
+                            <div class="info-label">Time</div>
+                            <div class="info-value">
+                                <span th:text="${#temporals.format(activity.timeStart, 'HH:mm')}">-</span>
+                                -
+                                <span th:text="${#temporals.format(activity.timeEnd, 'HH:mm')}">-</span>
+                                WIB
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <i class="bi bi-geo-alt info-icon"></i>
+                        <div class="info-content">
+                            <div class="info-label">Location</div>
+                            <div class="info-value" th:text="${activity.location}">-</div>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <i class="bi bi-people info-icon"></i>
+                        <div class="info-content">
+                            <div class="info-label">Quota</div>
+                            <div class="info-value" th:text="${activity.quota} + ' Participant'">-</div>
+                        </div>
+                    </div>
+
+                    <div class="info-row" th:if="${activity.type.name() == 'STUDENT_ACTIVITY_TRANSCRIPT'}">
+                        <i class="bi bi-star info-icon"></i>
+                        <div class="info-content">
+                            <div class="info-label">SAT Points</div>
+                            <div class="info-value" style="color: #f59e0b;" th:text="${activity.rewardAmount} + ' Points'">-</div>
+                        </div>
+                    </div>
+
+                    <div class="info-row" th:if="${activity.type.name() == 'COMMUNITY_SERVICE'}">
+                        <i class="bi bi-clock info-icon"></i>
+                        <div class="info-content">
+                            <div class="info-label">Community Service</div>
+                            <div class="info-value" style="color: #3b82f6;" th:text="${activity.rewardAmount} + ' Hours'">-</div>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <i class="bi bi-link-45deg info-icon"></i>
+                        <div class="info-content">
+                            <div class="info-label">Registration Link</div>
+                            <div class="info-value">
+                                <a th:href="${activity.registrationLink}"
+                                   target="_blank"
+                                   style="color: #3b82f6; text-decoration: none; word-break: break-all;">
+                                    <span th:text="${activity.registrationLink}">-</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="save-btn" id="saveActivityBtn" th:data-id="${activity.id}" th:data-type="'ACTIVITY'">
+                    <i class="bi" th:classappend="${isBookmarked} ? 'bi-bookmark-fill' : 'bi-bookmark'"></i>
+                    <span class="save-text" th:text="${isBookmarked} ? 'Saved' : 'Save Activity'"></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="comments-section mt-4">
+            <h3 class="comments-header">2 Comments</h3>
+
+            <div class="comment-item">
+                <div class="comment-avatar">D</div>
+                <div class="comment-content">
+                    <div class="comment-author">Dimas Utama</div>
+                    <div class="comment-date">December 7, 2025 at 10:28 PM</div>
+                    <div class="comment-text">Wow Binus Keren</div>
+                </div>
+            </div>
+
+            <div class="comment-item">
+                <div class="comment-avatar">D</div>
+                <div class="comment-content">
+                    <div class="comment-author">Dimas Utama</div>
+                    <div class="comment-date">December 7, 2025 at 10:28 PM</div>
+                    <div class="comment-text">Wow Binus Keren</div>
+                </div>
+            </div>
+
+            <div class="comment-form">
+                <h5>Write a Comment</h5>
+                <textarea class="comment-input" id="commentInput" placeholder="Share your thoughts on this activity..."></textarea>
+                <button class="send-btn" id="sendCommentBtn">
+                    <i class="bi bi-send-fill"></i> Send
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="scripts">
+    <script>
+        $(document).ready(function () {
+            $('#saveActivityBtn').on('click', function () {
+                const $btn = $(this);
+                const contentId = $btn.data('id');
+                const contentType = $btn.data('type');
+
+                $.ajax({
+                    url: '/user/bookmarks/toggle',
+                    method: 'POST',
+                    data: {
+                        contentId: contentId,
+                        type: contentType
+                    },
+                    success: function (res) {
+                        const $icon = $btn.find('i');
+
+                        if (res.saved) {
+                            $icon.removeClass('bi-bookmark').addClass('bi-bookmark-fill');
+                            $btn.find('.save-text').text('Saved');
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Saved',
+                                text: 'Activity added to bookmarks',
+                                timer: 1500,
+                                showConfirmButton: false
+                            })
+                        } else {
+                            $icon.removeClass('bi-bookmark-fill').addClass('bi-bookmark');
+                            $btn.find('.save-text').text('Save Activity');
+
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Removed',
+                                text: 'Bookmark removed',
+                                timer: 1500,
+                                showConfirmButton: false
+                            })
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Unexpected server error.'
+                        })
+                    }
+                })
+            })
+
+            $('#sendCommentBtn').on('click', function () {
+                const $commentInput = $('#commentInput');
+                const commentText = $.trim($commentInput.val());
+
+                if (commentText) {
+                    console.log('comment:', commentText);
+
+                    $commentInput.val('');
+
+                    alert('Comment submitted successfully!');
+                } else {
+                    alert('Please write a comment before sending.');
+                }
+            })
+        })
+    </script>
+</th:block>
+</body>
+</html>

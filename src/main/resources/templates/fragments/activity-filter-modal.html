@@ -1,0 +1,136 @@
+<div th:fragment="filterModal" class="activity">
+    <div class="filter-backdrop" id="filterBackdrop"></div>
+
+    <div class="filter-modal" id="filterModal">
+        <!-- Header -->
+        <div class="filter-header">
+            <h4>
+                <i class="bi bi-sliders me-2"></i>
+                Filters
+            </h4>
+            <button class="close-btn" id="closeFilterBtn">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="filter-body">
+            <div class="filter-section">
+                <label class="filter-label">Status</label>
+                <div class="filter-options">
+                    <div class="filter-option">
+                        <input type="radio" id="status-all" name="status" value="all" th:checked="${status == null or status == 'all'}">
+                        <label for="status-all">All Activities</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" id="status-available" name="status" value="available" th:checked="${status == 'available'}">
+                        <label for="status-available">Available</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" id="status-closed" name="status" value="closed" th:checked="${status == 'closed'}">
+                        <label for="status-closed">Closed</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="filter-section">
+                <label class="filter-label">Location Type</label>
+                <div class="filter-options">
+                    <div class="filter-option">
+                        <input type="checkbox" id="location-online" value="online"
+                               th:checked="${location != null and #strings.contains(location, 'online')}">
+                        <label for="location-online">
+                            <i class="bi bi-laptop me-1"></i>
+                            Online
+                        </label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="location-onsite" value="onsite"
+                               th:checked="${location != null and #strings.contains(location, 'onsite')}">
+                        <label for="location-onsite">
+                            <i class="bi bi-geo-alt me-1"></i>
+                            Onsite
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="filter-section">
+                <label class="filter-label">Activity Type</label>
+                <div class="filter-options">
+                    <div class="filter-option">
+                        <input type="checkbox" id="type-sat" value="STUDENT_ACTIVITY_TRANSCRIPT"
+                               th:checked="${type != null and #strings.contains(type, 'STUDENT_ACTIVITY_TRANSCRIPT')}">
+                        <label for="type-sat">
+                            <i class="bi bi-star-fill me-1" style="color: #f59e0b;"></i>
+                            Student Activity Points (SAT)
+                        </label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="type-cs" value="COMMUNITY_SERVICE"
+                               th:checked="${type != null and #strings.contains(type, 'COMMUNITY_SERVICE')}">
+                        <label for="type-cs">
+                            <i class="bi bi-clock me-1" style="color: #3b82f6;"></i>
+                            Community Service Hours
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="filter-section">
+                <label class="filter-label">Date Range</label>
+                <div class="date-inputs">
+                    <div class="date-input-group">
+                        <label for="date-from">From</label>
+                        <input type="date" id="date-from" th:value="${from}">
+                    </div>
+                    <div class="date-input-group">
+                        <label for="date-to">To</label>
+                        <input type="date" id="date-to" th:value="${to}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="filter-section">
+                <label class="filter-label">Sort By</label>
+                <div class="filter-options">
+                    <div class="filter-option">
+                        <input type="radio" id="sort-newest" name="sort" value="newest" th:checked="${sort == null or sort == 'newest'}">
+                        <label for="sort-newest">
+                            <i class="bi bi-arrow-down me-1"></i>
+                            Newest
+                        </label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" id="sort-oldest" name="sort" value="oldest" th:checked="${sort == 'oldest'}">
+                        <label for="sort-oldest">
+                            <i class="bi bi-arrow-up me-1"></i>
+                            Oldest
+                        </label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" id="sort-reward" name="sort" value="reward" th:checked="${sort == 'reward'}">
+                        <label for="sort-reward">
+                            <i class="bi bi-trophy me-1"></i>
+                            Highest Reward
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="filter-footer">
+            <button class="btn-reset" id="resetFiltersBtn">Reset</button>
+            <button class="btn-apply" id="applyFiltersBtn">Apply Filters</button>
+        </div>
+    </div>
+</div>

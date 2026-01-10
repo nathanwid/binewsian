@@ -23,6 +23,10 @@
             min-height:100vh;
             padding-top: 73px;
         }
+
+        .hidden-pagination {
+            display: none !important;
+        }
     </style>
 
     <!-- Page specific styles -->
@@ -43,8 +47,10 @@
                 <div class="d-flex align-items-center gap-2">
                     <div class="dropdown">
                         <button class="nav-link dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle me-2"></i>
-                            <span th:text="${session.user.username}">User</span>
+                            <div class="user-avatar-small" th:style="'background-color: ' + ${@userAvatar.getAvatarColor(session.user.username)}">
+                                <span class="user-initials-small" th:text="${@userAvatar.getUserInitials(session.user.username)}">-</span>
+                            </div>
+                            <span class="ms-2" th:text="${session.user.username}">-</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
@@ -104,6 +110,10 @@
                     ['clean']
                 ]
             }
+        }
+
+        function capitalizeFirstLetter(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
         }
 
         $(document).ready(function() {

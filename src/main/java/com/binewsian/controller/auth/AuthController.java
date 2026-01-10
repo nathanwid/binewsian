@@ -124,7 +124,7 @@ public class AuthController {
         try {
             authService.register(username, password, email);
             model.addAttribute("success", "Registration successful!");
-            return "login";
+            return "redirect:/login";
         } catch (BiNewsianException e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("username", username);

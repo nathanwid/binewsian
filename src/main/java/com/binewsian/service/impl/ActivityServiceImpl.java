@@ -1,8 +1,10 @@
 package com.binewsian.service.impl;
 
 import com.binewsian.constant.AppConstant;
+import com.binewsian.dto.ActivityFilterDto;
 import com.binewsian.dto.ActivityRequest;
 import com.binewsian.enums.ActivityStatus;
+import com.binewsian.enums.ActivityType;
 import com.binewsian.exception.BiNewsianException;
 import com.binewsian.model.Activity;
 import com.binewsian.model.User;
@@ -125,6 +127,69 @@ public class ActivityServiceImpl implements ActivityService {
     @Override
     public List<Activity> findAllByStatus() {
         return activityRepository.findByStatusOrderByPublishedAtDesc(ActivityStatus.PUBLISHED);
+    }
+
+    @Override
+    public Page<Activity> getFilteredActivities(ActivityFilterDto filterDto, int page, int size) {
+        LocalDateTime now = LocalDateTime.now();
+
+        LocalDateTime registrationDeadlineStart = null;
+        LocalDateTime registrationDeadlineEnd = null;
+
+        if (filterDto.getStatus() != null) {
+            if (filterDto.getStatus().equals("available")) {
+                registrationDeadlineStart = now;
+            } else if (filterDto.getStatus().equals("closed")) {
+                registrationDeadlineEnd = now;
+            }
+        }
+
+        boolean includeOnline;
+        boolean includeOnsite;
+
+        if (filterDto.getLocationType() != null && !filterDto.getLocationType().isEmpty()) {
+            includeOnline = filterDto.getLocationType().contains("online");
+            includeOnsite = filterDto.getLocationType().contains("onsite");
+        } else {
+            includeOnline = true;
+            includeOnsite = true;
+        }
+
+        boolean hasTypeFilter = filterDto.getType() != null && !filterDto.getType().isEmpty();
+        List<ActivityType> types = hasTypeFilter ? filterDto.getType() : List.of(ActivityType.STUDENT_ACTIVITY_TRANSCRIPT);
+
+        Sort sort = getSort(filterDto.getSort());
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        return activityRepository.findActivitiesWithFilters(
+                ActivityStatus.PUBLISHED,
+                registrationDeadlineStart,
+                registrationDeadlineEnd,
+                includeOnline,
+                includeOnsite,
+                hasTypeFilter,
+                types,
+                filterDto.getDateFrom(),
+                filterDto.getDateTo(),
+                pageable
+        );
+    }
+
+    @Override
+    public Activity getActivityById(Long id) throws BiNewsianException {
+        return activityRepository.findByIdAndStatus(id, ActivityStatus.PUBLISHED)
+                .orElseThrow(() -> new BiNewsianException(AppConstant.ACTIVITY_NOT_FOUND));
+    }
+
+    private Sort getSort(String sortBy) {
+        if (sortBy == null || sortBy.equals("newest")) {
+            return Sort.by(Sort.Direction.DESC, "activityDate");
+        } else if (sortBy.equals("oldest")) {
+            return Sort.by(Sort.Direction.ASC, "activityDate");
+        } else if (sortBy.equals("reward")) {
+            return Sort.by(Sort.Direction.DESC, "rewardAmount");
+        }
+        return Sort.by(Sort.Direction.DESC, "activityDate");
     }
 
     private String normalizeUrl(String url) {

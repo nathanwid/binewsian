@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/base}">
+<head>
+    <title>Activity</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container pt-4 pb-5 activity">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-2">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}" class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item active">Activity</li>
+            </ol>
+        </nav>
+
+        <h3>Activities Available</h3>
+        <p style="color: #6b7280;">Find activities to earn SAT points and Community Service hours.</p>
+
+        <!-- Search and Filter -->
+        <div class="d-flex gap-2 mb-3 mt-4">
+            <div class="search-wrapper">
+                <i class="bi bi-search"></i>
+                <input type="text" id="searchInput" class="form-control" placeholder="Search for an activity...">
+            </div>
+            <button class="filter-btn" id="filterBtn">
+                <i class="bi bi-sliders"></i>
+                Filter
+            </button>
+        </div>
+
+        <!-- Activities Grid -->
+        <div class="row g-3" id="activitiesGrid">
+            <th:block th:if="${activities != null and !activities.isEmpty()}">
+                <div class="col-12 col-md-6 col-lg-4" th:each="activity : ${activities}">
+                    <div class="activity-card" th:onclick="'window.location.href=\'/activity/' + ${activity.id} + '\''">
+                        <span th:if="${#temporals.createNow().isAfter(activity.registrationDeadline)}" class="badge-closed">Closed</span>
+                        <span th:unless="${#temporals.createNow().isAfter(activity.registrationDeadline)}" class="badge-available">Available</span>
+
+                        <h5 class="activity-title" th:text="${activity.title}">Activity Title</h5>
+
+                        <div class="activity-info">
+                            <i class="bi bi-calendar"></i>
+                            <span th:text="${#temporals.format(activity.activityDate, 'd MMMM yyyy')}">-</span>
+                        </div>
+
+                        <div class="activity-info">
+                            <i class="bi bi-geo-alt"></i>
+                            <span th:text="${activity.location}">-</span>
+                        </div>
+
+                        <div class="activity-info">
+                            <i class="bi bi-people"></i>
+                            <span th:text="${activity.quota} + ' Participant'">-</span>
+                        </div>
+
+                        <div class="activity-footer">
+                            <span th:if="${activity.type.name() == 'STUDENT_ACTIVITY_TRANSCRIPT'}" class="sat-points">
+                                <i class="bi bi-star-fill"></i>
+                                <span th:text="${activity.rewardAmount} + ' SAT'">-</span>
+                            </span>
+
+                            <span th:if="${activity.type.name() == 'COMMUNITY_SERVICE'}" class="hours">
+                                <i class="bi bi-clock"></i>
+                                <span th:text="${activity.rewardAmount} + ' Hours'">-</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </th:block>
+
+            <div th:if="${activities == null or activities.isEmpty()}" class="col-12">
+                <div class="no-activities">
+                    <i class="bi bi-inbox" style="font-size: 3rem; color: #d1d5db;"></i>
+                    <p class="mt-3 mb-0">No activities found</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between align-items-center mt-3" th:if="${activities != null and !activities.isEmpty()}">
+            <p class="text-muted mb-0">
+                Showing <span id="startCount" th:text="${currentPage * 9 + 1}">-</span> to
+                <span id="endCount" th:text="${currentPage * 9 + activities.size()}">-</span> of
+                <span th:text="${totalActivities}">-</span> activities
+            </p>
+
+            <nav aria-label="Activity pagination" th:if="${totalPages > 1}">
+                <ul class="pagination mb-0">
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link" th:href="@{/activity(page=${currentPage - 1})}" tabindex="-1">&laquo;</a>
+                    </li>
+
+                    <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                        <li class="page-item"
+                            th:if="${i == 0 or i == totalPages - 1 or (i >= currentPage - 1 and i <= currentPage + 1)}"
+                            th:classappend="${i == currentPage} ? 'active'">
+                            <a class="page-link" th:href="@{/activity(page=${i})}" th:text="${i + 1}"></a>
+                        </li>
+                        <li class="page-item disabled"
+                            th:if="${(i == 1 and currentPage > 2) or (i == totalPages - 2 and currentPage < totalPages - 3)}">
+                            <span class="page-link">...</span>
+                        </li>
+                    </th:block>
+
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/activity(page=${currentPage + 1})}">&raquo;</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div th:replace="fragments/activity-filter-modal :: filterModal"></div>
+</div>
+
+<th:block layout:fragment="scripts">
+    <script>
+        $('#searchInput').on('input', function () {
+            const searchTerm = $(this).val().toLowerCase();
+            const cards = $('.col-12');
+            let visibleCount = 0;
+            let firstVisible = 0;
+            let lastVisible = 0;
+
+            cards.each(function (index) {
+                const title = $(this).find('.activity-title');
+
+                if (title.length) {
+                    const titleText = title.text().toLowerCase();
+
+                    if (titleText.includes(searchTerm)) {
+                        $(this).show();
+                        visibleCount++;
+
+                        if (firstVisible === 0) {
+                            firstVisible = index + 1;
+                        }
+                        lastVisible = index + 1;
+                    } else {
+                        $(this).hide();
+                    }
+                }
+            })
+
+            if (visibleCount > 0) {
+                $('#startCount').text(firstVisible);
+                $('#endCount').text(lastVisible);
+            } else {
+                $('#startCount').text('0');
+                $('#endCount').text('0');
+            }
+        })
+
+        function openFilter() {
+            $('#filterModal').addClass('show');
+            $('#filterBackdrop').addClass('show');
+            $('body').css('overflow', 'hidden');
+        }
+
+        function closeFilter() {
+            $('#filterModal').removeClass('show');
+            $('#filterBackdrop').removeClass('show');
+            $('body').css('overflow', '');
+        }
+
+        function resetFilters() {
+            $('#status-all').prop('checked', true);
+            $('#sort-newest').prop('checked', true);
+            $('input[type="checkbox"]').prop('checked', false);
+            $('#date-from').val('');
+            $('#date-to').val('');
+        }
+
+        function applyFilters() {
+            const filters = {
+                status: $('input[name="status"]:checked').val(),
+                location: [],
+                type: [],
+                from: $('#date-from').val(),
+                to: $('#date-to').val(),
+                sort: $('input[name="sort"]:checked').val()
+            };
+
+            if ($('#location-online').is(':checked')) {
+                filters.location.push('online');
+            }
+            if ($('#location-onsite').is(':checked')) {
+                filters.location.push('onsite');
+            }
+            if ($('#type-sat').is(':checked')) {
+                filters.type.push('STUDENT_ACTIVITY_TRANSCRIPT');
+            }
+            if ($('#type-cs').is(':checked')) {
+                filters.type.push('COMMUNITY_SERVICE');
+            }
+
+            // Build query parameters
+            const params = new URLSearchParams();
+            params.append('page', '0'); // Reset to first page when filtering
+
+            if (filters.status !== 'all') {
+                params.append('status', filters.status);
+            }
+            if (filters.location.length > 0) {
+                params.append('location', filters.location.join(','));
+            }
+            if (filters.type.length > 0) {
+                params.append('type', filters.type.join(','));
+            }
+            if (filters.from) {
+                params.append('from', filters.from);
+            }
+            if (filters.to) {
+                params.append('to', filters.to);
+            }
+            if (filters.sort !== 'newest') {
+                params.append('sort', filters.sort);
+            }
+
+            window.location.href = '/activity?' + params.toString();
+        }
+
+        $('#filterBtn').on('click', openFilter);
+        $('#closeFilterBtn').on('click', closeFilter);
+        $('#filterBackdrop').on('click', closeFilter);
+        $('#resetFiltersBtn').on('click', resetFilters);
+        $('#applyFiltersBtn').on('click', applyFilters);
+
+        $(document).on('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeFilter();
+            }
+        });
+    </script>
+</th:block>
+</body>
+</html>

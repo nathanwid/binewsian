@@ -5,6 +5,7 @@ import com.binewsian.constant.AppConstant;
 import com.binewsian.enums.Role;
 import com.binewsian.exception.BiNewsianException;
 import com.binewsian.model.User;
+import com.binewsian.service.BookmarkService;
 import com.binewsian.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Map;
+
 @Controller
 @RequestMapping("/user")
 @RequireRole({Role.USER, Role.CONTRIBUTOR, Role.ADMIN})
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class UserController {
 
     private final UserService userService;
+    private final BookmarkService bookmarkService;
 
     @GetMapping("/profile")
     public String showUserProfilePage(HttpSession session, Model model) {
@@ -42,6 +46,27 @@ public class UserController {
         } catch (Exception ex) {
             return ResponseEntity.status(500).body(AppConstant.UNEXPECTED_SERVER_ERROR);
         }
+    }
+
+    @PostMapping("/edit-profile")
+    public ResponseEntity<?> editProfile(@RequestParam String username, @RequestParam String email, HttpSession session) {
+        try {
+            User user = (User) session.getAttribute("user");
+            User updatedUser = userService.updateProfile(user.getId(), username, email);
+            session.setAttribute("user", updatedUser);
+            return ResponseEntity.ok().build();
+        } catch (BiNewsianException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body(AppConstant.UNEXPECTED_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/bookmarks/toggle")
+    public ResponseEntity<?> toggleBookmark(@RequestParam String type, @RequestParam Long contentId, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        boolean saved = bookmarkService.toggle(user, type, contentId);
+        return ResponseEntity.ok(Map.of("saved", saved));
     }
 
 }

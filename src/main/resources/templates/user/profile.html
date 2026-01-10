@@ -20,7 +20,9 @@
                     <div class="card card-custom animate-fade-in">
                         <div class="card-body text-center p-4">
                             <div class="d-flex">
-                                <i class="bi bi-person-circle" style="font-size: 4.5rem; color: var(--primary-color);"></i>
+                                <div class="user-avatar" th:style="'background-color: ' + ${@userAvatar.getAvatarColor(user.username)}">
+                                    <span class="user-initials" th:text="${@userAvatar.getUserInitials(user.username)}">-</span>
+                                </div>
                                 <div class="ms-3 text-start align-self-center">
                                     <h5 class="mb-2" th:text="${user.username}">-</h5>
                                     <span class="badge badge-custom role-badge-user"
@@ -33,10 +35,10 @@
                                 <div id="bookmarkBtn">
                                     <div th:insert="~{fragments/profile-menu-btn :: iconButton('bi-bookmark', 'Bookmark')}"></div>
                                 </div>
-                                <div id="editProfileBtn">
+                                <div data-bs-toggle="modal" data-bs-target="#editProfileModal">
                                     <div th:insert="~{fragments/profile-menu-btn :: iconButton('bi-pencil-square', 'Edit Profile')}"></div>
                                 </div>
-                                <div id="changePasswordBtn" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                                <div data-bs-toggle="modal" data-bs-target="#changePasswordModal">
                                     <div th:insert="~{fragments/profile-menu-btn :: iconButton('bi-key', 'Change Password')}"></div>
                                 </div>
                                 <a th:href="@{/logout}" style="text-decoration: none;">
@@ -53,7 +55,7 @@
                         <div class="card-body">
                             <h5 class="card-title mb-4">
                                 <i class="bi bi-info-circle-fill text-primary me-2"></i>
-                                Informasi Akun
+                                Account Information
                             </h5>
 
                             <div class="d-flex align-items-center mb-3">
@@ -92,7 +94,7 @@
         </div>
 
         <!-- Change Password Modal -->
-        <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModal" aria-hidden="true">
+        <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModal" aria-hidden="true" data-bs-backdrop="static">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -126,10 +128,44 @@
                 </div>
             </div>
         </div>
+
+        <!-- Edit Profile Modal -->
+        <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModal" aria-hidden="true" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="editProfileLabel">Edit Profile</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" th:value="${user.username}">
+                            <div id="usernameError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" th:value="${user.email}">
+                            <div id="emailError" class="invalid-feedback"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button id="btnEditProfile" class="btn btn-purple">
+                            <span class="btn-text">Edit</span>
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <th:block layout:fragment="scripts">
         <script>
+            let originalUsername = $("#username").val();
+            let originalEmail = $("#email").val();
+
             $("#btnChangePassword").on("click", function () {
                 const $btn = $("#btnChangePassword");
                 const $btnText = $btn.find(".btn-text");
@@ -235,6 +271,91 @@
                 })
             })
 
+            $("#btnEditProfile").on("click", function () {
+                const $btn = $(this);
+                const $btnText = $btn.find(".btn-text");
+                const $spinner = $btn.find(".spinner-border");
+
+                const username = $("#username").val().trim();
+                const email = $("#email").val().trim();
+
+                let hasError = false;
+
+                $("#username, #email").removeClass("is-invalid");
+                $("#usernameError, #emailError").text("");
+
+                if (!username) {
+                    $("#username").addClass("is-invalid");
+                    $("#usernameError").text("Username is required");
+                    hasError = true;
+                } else if (username.length < 3) {
+                    $("#username").addClass("is-invalid");
+                    $("#usernameError").text("Username must be at least 3 characters");
+                    hasError = true;
+                }
+
+                if (!email) {
+                    $("#email").addClass("is-invalid");
+                    $("#emailError").text("Email is required");
+                    hasError = true;
+                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    $("#email").addClass("is-invalid");
+                    $("#emailError").text("Invalid email format");
+                    hasError = true;
+                }
+
+                if (hasError) return;
+
+                $btn.prop("disabled", true);
+                $btnText.addClass("d-none");
+                $spinner.removeClass("d-none");
+
+                $.ajax({
+                    url: "/user/edit-profile",
+                    type: "POST",
+                    data: {
+                        username: username,
+                        email: email
+                    },
+                    success: function () {
+                        $("#editProfileModal").modal("hide");
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Profile updated successfully',
+                            timer: 1600,
+                            showConfirmButton: false
+                        }).then(() => {
+                            location.reload();
+                        });
+                    },
+                    error: function (xhr) {
+                        const errorMessage = xhr.responseText || "Failed to update profile";
+
+                        if (errorMessage.toLowerCase().includes("username")) {
+                            $("#username").addClass("is-invalid");
+                            $("#usernameError").text(errorMessage);
+                        } else if (errorMessage.toLowerCase().includes("email")) {
+                            $("#email").addClass("is-invalid");
+                            $("#emailError").text(errorMessage);
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: errorMessage,
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    },
+                    complete: function () {
+                        $btn.prop("disabled", false);
+                        $btnText.removeClass("d-none");
+                        $spinner.addClass("d-none");
+                    }
+                });
+            });
+
             $("#oldPassword, #newPassword, #confirmPassword").on("input", function () {
                 $(this).removeClass("is-invalid");
 
@@ -243,8 +364,28 @@
                 if (this.id === "confirmPassword") $("#confirmPasswordError").text("");
             })
 
+            $("#username, #email").on("input", function () {
+                $(this).removeClass("is-invalid");
+
+                if (this.id === "username") $("#usernameError").text("");
+                if (this.id === "email") $("#emailError").text("");
+            });
+
             $("#changePasswordModal").on("hidden.bs.modal", function () {
                 resetChangePasswordForm();
+            })
+
+            $("#editProfileModal").on("hidden.bs.modal", function () {
+                $("#username").val(originalUsername);
+                $("#email").val(originalEmail);
+
+                $("#username, #email").removeClass("is-invalid");
+                $("#usernameError, #emailError").text("");
+            })
+
+            $("#editProfileModal").on("show.bs.modal", function () {
+                originalUsername = $("#username").val();
+                originalEmail = $("#email").val();
             })
 
             function resetChangePasswordForm() {

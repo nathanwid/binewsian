@@ -16,6 +16,12 @@
     <!-- Custom CSS -->
     <link th:href="@{/css/style.css}" rel="stylesheet" />
 
+    <style>
+        .nav-link.dropdown-toggle::after {
+            display: none;
+        }
+    </style>
+
     <!-- Page specific styles -->
     <th:block layout:fragment="styles"></th:block>
 </head>
@@ -61,8 +67,9 @@
                 <ul class="navbar-nav align-items-center">
                     <li class="nav-item dropdown">
                         <button class="nav-link dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle me-2"></i>
-                            <span th:text="${session.user.username}">User</span>
+                            <div class="user-avatar-small" th:style="'background-color: ' + ${@userAvatar.getAvatarColor(session.user.username)}">
+                                <span class="user-initials-small" th:text="${@userAvatar.getUserInitials(session.user.username)}">-</span>
+                            </div>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>

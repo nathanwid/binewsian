@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/base}">
+<head>
+    <title>News Detail</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container mb-4">
+            <a th:href="@{/news}" class="back-link">← Back to News</a>
+
+            <div class="news-detail">
+                <div class="news-detail__image">
+                    <img th:src="${news.featuredImageUrl}" th:alt="${news.title}">
+                    <span class="news-detail__category-badge" th:text="${news.category.name}"></span>
+                </div>
+
+                <div class="news-detail__content">
+                    <h1 class="news-detail__title" th:text="${news.title}"></h1>
+                    <div class="news-detail__meta">
+                        <span class="date">
+                            <i class="bi bi-calendar-event"></i> 
+                            <span th:text="${#temporals.format(news.publishedAt, 'dd MMMM yyyy')}"></span>
+                        </span>
+                        <span class="author">
+                            <i class="bi bi-pencil-square"></i>
+                            <span th:text="${news.createdBy.username}"></span>
+                        </span>
+                    </div>
+
+                    <div class="news-detail__highlight">
+                        <p th:text="${news.summary}"></p>
+                    </div>
+
+                    <div class="news-detail__body" th:utext="${news.content}"></div>
+
+                    <div class="news-detail__tags">
+                        <span class="news-detail__tag-label"><i class="bi bi-tag"></i>Tags:</span>
+                        <span class="news-detail__tag" th:text="${news.category.name}">Tag</span>
+                    </div>
+
+                    <div class="news-detail__action-buttons">
+                        <button class="news-detail__btn-outline btn-light">
+                            <i class="bi bi-bookmark me-1"></i>Save News
+                        </button>
+                        <a th:href="@{/news}" class="news-detail__btn-primary">See Other News</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="comments-section">
+                <h2>Comments</h2>
+                <!-- Comment List -->
+                <div class="comment-list">
+                    <div class="comment">
+                        <div class="comment-avatar">D</div>
+                        <div class="comment-content">
+                            <div class="comment-header">
+                                <strong>Dimas Utama</strong>
+                                <span class="comment-date">December 7, 2025 at 10:28 PM</span>
+                            </div>
+                            <p class="comment-text">Wow Binus Keren</p>
+                        </div>
+                    </div>
+
+                    <div class="comment">
+                        <div class="comment-avatar">D</div>
+                        <div class="comment-content">
+                            <div class="comment-header">
+                                <strong>Dimas Utama</strong>
+                                <span class="comment-date">December 7, 2025 at 10:28 PM</span>
+                            </div>
+                            <p class="comment-text">Wow Binus Keren</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comment Form -->
+                <div class="comment-form">
+                    <h3>Write a Comment</h3>
+                    <form onsubmit="">
+                        <textarea name="content" placeholder="Share your thoughts on this news..." required></textarea>
+                        <button type="submit" class="btn-submit"><i class="bi bi-send me-2"></i>Send</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script>
+            
+        </script>
+        
+    </th:block>
+</body>
+</html>

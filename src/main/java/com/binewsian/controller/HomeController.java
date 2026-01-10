@@ -6,9 +6,11 @@ import com.binewsian.enums.ActivityType;
 import com.binewsian.enums.Role;
 import com.binewsian.exception.BiNewsianException;
 import com.binewsian.model.Activity;
-import com.binewsian.model.User;
 import com.binewsian.service.ActivityService;
 import com.binewsian.service.BookmarkService;
+import com.binewsian.model.News;
+import com.binewsian.model.User;
+import com.binewsian.service.NewsService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,8 +23,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
+
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -30,6 +33,7 @@ public class HomeController {
 
     private final ActivityService activityService;
     private final BookmarkService bookmarkService;
+    private final NewsService newsService;
 
     @GetMapping("/")
     public String home() {
@@ -40,7 +44,11 @@ public class HomeController {
     @RequireRole({Role.USER, Role.CONTRIBUTOR, Role.ADMIN})
     public String dashboard(HttpSession session, Model model) {
         User user = (User) session.getAttribute("user");
+        List<News> news = newsService.findLatestPublished();
+
         model.addAttribute("user", user);
+        model.addAttribute("news",  news);
+
         return "dashboard";
     }
 
@@ -107,6 +115,22 @@ public class HomeController {
         model.addAttribute("isBookmarked", bookmarkService.isBookmarked(user, "ACTIVITY", id));
 
         return "activity-detail";
+    }  
+      
+    @GetMapping("/news/{id}")
+    @RequireRole({Role.USER, Role.CONTRIBUTOR, Role.ADMIN})
+    public String showNewsDetailPage(@PathVariable Long id, HttpSession session, Model model) {
+        try {
+            User user = (User) session.getAttribute("user");
+            News news = newsService.findById(id);
+
+            model.addAttribute("user", user);
+            model.addAttribute("news",  news);
+
+            return "news-detail";
+        } catch (BiNewsianException e) {
+            return "redirect:/dashboard";
+        }
     }
 
 }

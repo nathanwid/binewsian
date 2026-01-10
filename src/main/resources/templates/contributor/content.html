@@ -69,7 +69,7 @@
 
                             <!-- News List -->
                             <div id="newsList" th:if="${!#lists.isEmpty(news)}">
-                                <div class="news-item" th:each="news : ${news}" th:attr="data-name=${news.title}">
+                                <div class="news-item" th:each="news : ${news}" th:attr="data-name=${news.title}, data-url=@{/news/{id}(id=${news.id})}">
                                     <div class="d-flex align-items-start">
                                         <div class="thumb me-3 d-flex align-items-center justify-content-center bg-light rounded">
                                             <!-- Image -->
@@ -242,6 +242,23 @@
 
     <th:block layout:fragment="scripts">
         <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('.news-item').forEach(item => {
+                    item.addEventListener('click', function (e) {
+
+                        // Cegah redirect kalau klik element interaktif
+                        if (e.target.closest('a, button, .dropdown, .ellipsis-btn')) {
+                            return;
+                        }
+
+                        const url = this.dataset.url;
+                        if (url) {
+                            window.location.href = url;
+                        }
+                    });
+                });
+            });
+
             $("#searchNews").on("input", function () {
                 const q = $(this).val().toLowerCase();
                 let matches = 0;

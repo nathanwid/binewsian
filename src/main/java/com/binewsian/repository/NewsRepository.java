@@ -15,4 +15,5 @@ public interface NewsRepository extends JpaRepository<News, Long> {
     Page<News> findByStatus(NewsStatus status, Pageable pageable);
     Page<News> findByCreatedBy_Id(Long userId, Pageable pageable);
     List<News> findByStatusOrderByPublishedAtDesc(NewsStatus status);
+    List<News> findTop5ByPublishedAtNotNullOrderByPublishedAtDesc();
 }

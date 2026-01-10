@@ -103,7 +103,7 @@
 
                                 <div class="mb-3">
                                     <label class="form-label">Activity Details<span class="text-danger">*</span></label>
-                                    <div id="activityEditor" style="height: 400px;"></div>
+                                    <div id="activityEditor" class="rich-text-editor"></div>
                                     <input type="hidden" id="activityDetails">
                                     <div id="activityEditorError" class="invalid-feedback"></div>
                                 </div>
@@ -435,12 +435,6 @@
                 })
             })
         </script>
-        <style>
-            #activityEditor.is-invalid .ql-toolbar,
-            #activityEditor.is-invalid .ql-editor {
-                border-color: #dc3545 !important;
-            }
-        </style>
     </th:block>
 </body>
 </html>

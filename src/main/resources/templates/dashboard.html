@@ -64,100 +64,32 @@
                 </div>
 
                 <div class="news-carousel">
-                    <button class="carousel-btn prev" onclick="previousSlide()">
+                    <div th:if="${news.size() > 1}">
+                        <button class="carousel-btn prev" onclick="previousSlide()">
                         <i class="bi bi-chevron-left"></i>
-                    </button>
-                    <button class="carousel-btn next" onclick="nextSlide()">
-                        <i class="bi bi-chevron-right"></i>
-                    </button>
+                        </button>
+                        <button class="carousel-btn next" onclick="nextSlide()">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
 
-                    <div class="news-card-wrapper" id="newsCarousel">
-                        <!-- News Card 1 -->
-                        <div class="news-card">
+                    <div class="news-card-wrapper" id="newsCarousel" th:if="${not #lists.isEmpty(news)}">
+                        <!-- News Card -->
+                        <div class="news-card" th:each="news : ${news}">
                             <div class="news-image">
-                                <div>Binus University Campus</div>
+                                <img th:src="${news.featuredImageUrl}" alt="News Image">
                             </div>
                             <div class="news-content">
                                 <div class="news-meta">
                                     <i class="bi bi-calendar3"></i>
-                                    <span class="ms-1">14 November 2025 • Tim IT Binus</span>
+                                    <span class="ms-1" th:text="${#temporals.format(news.publishedAt, 'dd MMMM yyyy')} + ' • ' + ${news.createdBy.username}">14 November 2025 • Tim IT Binus</span>
                                 </div>
-                                <h3>Binus University Ranked 1st in Indonesia's Best Campus 2025</h3>
-                                <p class="description">Binus University has once again achieved a brilliant achievement by achieving first place as the best campus in Indonesia according to the QS World University Rankings 2025.</p>
+                                <h3 th:text="${news.title}"></h3>
+                                <p class="description" th:text="${news.summary}"></p>
                                 <div class="news-tags">
-                                    <span class="tag">Achievement</span>
-                                    <span class="tag">Academic</span>
+                                    <span class="tag" th:text="${news.category.name}"></span>
                                 </div>
-                                <a th:href="@{/news/1}" class="btn-read-more">
-                                    Read More
-                                    <i class="bi bi-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- News Card 2 -->
-                        <div class="news-card">
-                            <div class="news-image">
-                                <div>Campus Event 2025</div>
-                            </div>
-                            <div class="news-content">
-                                <div class="news-meta">
-                                    <i class="bi bi-calendar3"></i>
-                                    <span class="ms-1">10 November 2025 • Student Affairs</span>
-                                </div>
-                                <h3>Annual Tech Festival: Innovation Showcase 2025</h3>
-                                <p class="description">Join us for the biggest tech festival of the year featuring innovative projects, workshops, and networking opportunities with industry leaders.</p>
-                                <div class="news-tags">
-                                    <span class="tag">Event</span>
-                                    <span class="tag">Technology</span>
-                                </div>
-                                <a th:href="@{/news/2}" class="btn-read-more">
-                                    Read More
-                                    <i class="bi bi-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- News Card 3 -->
-                        <div class="news-card">
-                            <div class="news-image">
-                                <div>Research Excellence</div>
-                            </div>
-                            <div class="news-content">
-                                <div class="news-meta">
-                                    <i class="bi bi-calendar3"></i>
-                                    <span class="ms-1">5 November 2025 • Research Center</span>
-                                </div>
-                                <h3>Breakthrough in AI Research by Binus Students</h3>
-                                <p class="description">Our students have published groundbreaking research in artificial intelligence that has been recognized internationally.</p>
-                                <div class="news-tags">
-                                    <span class="tag">Research</span>
-                                    <span class="tag">Innovation</span>
-                                </div>
-                                <a th:href="@{/news/3}" class="btn-read-more">
-                                    Read More
-                                    <i class="bi bi-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- News Card 4 -->
-                        <div class="news-card">
-                            <div class="news-image">
-                                <div>Community Service</div>
-                            </div>
-                            <div class="news-content">
-                                <div class="news-meta">
-                                    <i class="bi bi-calendar3"></i>
-                                    <span class="ms-1">1 November 2025 • Community Outreach</span>
-                                </div>
-                                <h3>Students Lead Community Development Program</h3>
-                                <p class="description">Binus students are making a difference through community service initiatives that benefit local neighborhoods.</p>
-                                <div class="news-tags">
-                                    <span class="tag">Community</span>
-                                    <span class="tag">Service</span>
-                                </div>
-                                <a th:href="@{/news/4}" class="btn-read-more">
+                                <a th:href="@{/news/{id}(id=${news.id})}" class="btn-read-more">
                                     Read More
                                     <i class="bi bi-arrow-right"></i>
                                 </a>
@@ -165,11 +97,21 @@
                         </div>
                     </div>
 
-                    <div class="carousel-indicators">
-                        <button class="indicator active" onclick="goToSlide(0)"></button>
-                        <button class="indicator" onclick="goToSlide(1)"></button>
-                        <button class="indicator" onclick="goToSlide(2)"></button>
-                        <button class="indicator" onclick="goToSlide(3)"></button>
+                    <!-- Empty State -->
+                    <div th:if="${#lists.isEmpty(news)}" class="empty-state">
+                        <div class="empty-state-content">
+                            <i class="bi bi-newspaper"></i>
+                            <p>No news available at the moment.</p>
+                            <small>Please check back later for more campus updates.</small>
+                        </div>
+                    </div>
+
+                    <div class="carousel-indicators" th:if="${not #lists.isEmpty(news)}">
+                        <button th:each="news, iterStat : ${news}" 
+                                th:classappend="${iterStat.first} ? 'active' : ''" 
+                                class="indicator"
+                                th:onclick="|goToSlide(${iterStat.index})|">
+                        </button>
                     </div>
                 </div>
             </div>
@@ -201,6 +143,8 @@
             function updateCarousel() {
                 const carousel = document.getElementById('newsCarousel');
                 const indicators = document.querySelectorAll('.indicator');
+
+                if (indicators.length === 0) return;
 
                 carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
 

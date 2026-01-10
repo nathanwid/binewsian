@@ -44,17 +44,25 @@
                                     </div>
 
                                     <div class="col-md-8 mb-3">
-                                        <label for="featuredImage" class="form-label">Featured Image (5MB)</label>
-                                        <div class="input-group">
-                                            <input class="form-control" type="file" id="featuredImage" accept="image/png,image/jpeg,image/jpg,image/webp">
-                                            <button class="btn btn-outline-primary d-none" type="button" id="btnPreview">
-                                                <i class="bi bi-eye"></i> Preview
-                                            </button>
-                                            <button class="btn btn-outline-danger d-none" type="button" id="btnDelete">
-                                                <i class="bi bi-trash"></i> Delete
-                                            </button>
-                                        </div>
+                                        <label for="featuredImage" class="form-label">Featured Image (5MB)<span class="text-danger">*</span></label>
+                                        <input class="form-control" type="file" id="featuredImage" accept="image/png,image/jpeg,image/jpg,image/webp">
                                         <div id="featuredImageError" class="invalid-feedback"></div>
+
+                                        <!-- Image Preview Container -->
+                                        <div id="previewContainer" class="upload-preview d-none">
+                                            <div id="previewCard" class="upload-preview__card">
+                                                <div class="upload-preview__content">
+                                                    <img id="previewThumbnail" src="" alt="Preview" class="upload-preview__thumb">
+                                                    <div class="upload-preview__info">
+                                                        <div id="previewFileName" class="fw-medium upload-preview__name"></div>
+                                                        <small id="previewFileSize" class="upload-preview__size"></small>
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="btn btn-link p-0 upload-preview__btn-delete" id="btnRemoveImage">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -66,7 +74,7 @@
 
                                 <div class="mb-3">
                                     <label class="form-label">Article Content<span class="text-danger">*</span></label>
-                                    <div id="articleEditor" style="height: 400px;"></div>
+                                    <div id="articleEditor" class="rich-text-editor"></div>
                                     <input type="hidden" id="article-content">
                                     <div id="articleEditorError" class="invalid-feedback"></div>
                                 </div>
@@ -87,12 +95,12 @@
             </div>
         </div>
 
-        <!-- Image Preview Modal -->
-        <div class="modal fade" id="imagePreviewModal" tabindex="-1">
+        <!-- Image Viewer Modal -->
+        <div class="modal fade" id="imageViewerModal" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
                     <div class="modal-body text-center">
-                        <img id="imagePreview" src="" alt="Image Preview" class="img-fluid">
+                        <img id="imageViewerDisplay" src="" alt="Image Preview" class="img-fluid">
                     </div>
                 </div>
             </div>
@@ -103,10 +111,43 @@
         <script>
             const MAX_FILE_SIZE = 5 * 1024 * 1024;
             const articleEditor = new Quill("#articleEditor", quillConfig);
-            const fileInput = $("#featuredImage").get(0);
+
+            const $featuredImage = $("#featuredImage");
+
+            const $previewContainer = $("#previewContainer");
+            const $previewThumbnail = $("#previewThumbnail");
+            const $previewFileName = $("#previewFileName");
+            const $previewFileSize = $("#previewFileSize");
+
+            const $imageViewerModal = $("#imageViewerModal");
+            const $imageViewerDisplay = $("#imageViewerDisplay");
+
             let imageUrl = null;
 
-            $("#featuredImage").on("change", function () {
+            $("#btnPreviewImage").on("click", function () {
+                const currentSrc = $previewThumbnail.attr("src");
+
+                if (currentSrc) {
+                    $imageViewerDisplay.attr("src", currentSrc);
+                    $imageViewerModal.modal("show");
+                }
+            });
+            
+            $("#btnRemoveImage").on("click", function () {
+                if (imageUrl) {
+                    URL.revokeObjectURL(imageUrl);
+                }
+
+                imageUrl = null;
+                $featuredImage.val("");
+
+                $previewThumbnail.attr("src", "");
+                $previewFileName.text("");
+                $previewFileSize.text("")
+                $previewContainer.addClass("d-none");
+            });
+            
+            $featuredImage.on("change", function () {
                 const file = this.files[0];
                 if (file) {
                     const isValid = validateFile(file);
@@ -118,26 +159,13 @@
                     clearInvalid("featuredImage");
 
                     imageUrl = URL.createObjectURL(file);
-                    $("#imagePreview").attr("src", imageUrl);
-                    $("#btnPreview").removeClass("d-none");
-                    $("#btnDelete").removeClass("d-none");
+                    const fileSize = (file.size / (1024 * 1024)).toFixed(2);
+
+                    $previewThumbnail.attr("src", imageUrl);
+                    $previewFileName.text(file.name);
+                    $previewFileSize.text(`${fileSize}MB`);
+                    $previewContainer.removeClass("d-none");
                 }
-            });
-
-            $("#btnPreview").on("click", function () {
-                $("#imagePreviewModal").modal("show");
-            });
-
-            $("#btnDelete").on("click", function () {
-                const file = fileInput.files[0];
-                if (file) {
-                    URL.revokeObjectURL(imageUrl);
-                }
-
-                fileInput.value = "";
-                $("#imagePreview").attr("src", "");
-                $(this).addClass("d-none");
-                $("#btnPreview").addClass("d-none");
             });
 
             function setInvalid(id, message) {
@@ -150,14 +178,17 @@
                 $(`#${id}Error`).text("");
             }
 
+            const $articleEditor = $("#articleEditor");
+            const $articleEditorError = $("#articleEditorError");
+
             function setInvalidEditor(message) {
-                $("#articleEditor").addClass("is-invalid form-control").css("border", "1px solid #dc3545");
-                $("#articleEditorError").text(message).addClass("d-block");
+                $articleEditor.addClass("is-invalid form-control").css("border", "1px solid #dc3545");
+                $articleEditorError.text(message).addClass("d-block");
             }
 
             function clearInvalidEditor() {
-                $("#articleEditor").removeClass("is-invalid form-control").css("border", "");
-                $("#articleEditorError").text("").removeClass("d-block");
+                $articleEditor.removeClass("is-invalid form-control").css("border", "");
+                $articleEditorError.text("").removeClass("d-block");
             }
 
             function clearValidation() {
@@ -167,17 +198,15 @@
             }
 
             function validateFile(file) {
-                let isValid = true;
-
                 if (!file.type.startsWith("image/")) {
                     setInvalid("featuredImage", "Allowed formats: JPG, PNG, WebP");
-                    isValid = false;
+                    return false;
                 } else if (file.size > MAX_FILE_SIZE) {
                     setInvalid("featuredImage", "Image size must be less than 5MB");
-                    isValid = false;
+                    return false;
                 }
 
-                return isValid;
+                return true;
             }
 
             function validatePublish() {
@@ -203,33 +232,31 @@
 
                 const editorText = articleEditor.getText().trim();
                 if (editorText.length === 0) {
-                    setInvalidEditor("Summary cannot be empty");
+                    setInvalidEditor("Content cannot be empty");
                     isValid = false;
                 }
 
-                const file = fileInput.files[0];
+                const file = $featuredImage.get(0).files[0];
                 if (!file) {
                     setInvalid("featuredImage", "Featured image is required");
                     isValid = false;
-                } else {
-                    if (!file.type.startsWith("image")) {
-                        setInvalid("featuredImage", "Allowed formats: JPG, PNG, WebP");
-                        isValid = false;
-                    } else if (file.size > MAX_FILE_SIZE) {
-                        setInvalid("featuredImage", "Image size must be less than 5MB");
-                        isValid = false;
-                    }
-                }
+                } 
 
-                return isValid && validateFile(file);
+                return isValid && file && validateFile(file);
             }
 
             function validateDraft() {
-                const file = fileInput.files[0];
-                if (file) {
-                    return validateFile(file);
+                let isValid = true;
+
+                const summary = $("#summary").val();
+                if (summary && summary.length > 200) {
+                    setInvalid("summary", "Summary cannot exceed 200 characters");
+                    isValid = false;
                 }
-                return true;
+
+                const file = $featuredImage.get(0).files[0];
+
+                return isValid && (file ? validateFile(file) : true);
             }
 
             function emptyToNull(value) {
@@ -245,13 +272,14 @@
                     categoryId: $("#category").val(),
                     summary: emptyToNull($("#summary").val().trim()),
                     content: editorText.length === 0 ? null : editorHtml,
-                    isDraft: isDraft
+                    isDraft: isDraft,
+                    deleteImage: false
                 }
 
                 const formData = new FormData();
                 formData.append("data", new Blob([JSON.stringify(data)], { type: "application/json" }))
 
-                const file = fileInput.files[0];
+                const file = $featuredImage.get(0).files[0];
                 if (file) {
                     formData.append("featuredImage", file)
                 }
@@ -329,62 +357,6 @@
                 })
             })
         </script>
-        <style>
-            #articleEditor.is-invalid .ql-toolbar,
-            #articleEditor.is-invalid .ql-editor {
-                border-color: #dc3545 !important;
-            }
-
-            #btnPreview, #btnDelete {
-                height: 38px;
-                padding: 6px 12px;
-                font-size: 14px;
-                border: 1px solid #ced4da;
-                background-color: #f8f9fa;
-                color: #000;
-                cursor: pointer;
-                transition: all 0.15s ease-in-out;
-            }
-
-            #btnPreview:hover {
-                background-color: #e9ecef;
-                border-color: #adb5bd;
-            }
-
-            #btnDelete {
-                color: #000;
-                background-color: #f8f9fa;
-            }
-
-            #btnDelete:hover {
-                background-color: #dc3545;
-                color: #fff;
-            }
-
-            #featuredImage:has(~ #btnPreview.d-none):has(~ #btnDelete.d-none) {
-                border-top-right-radius: 0.375rem !important;
-                border-bottom-right-radius: 0.375rem !important;
-            }
-
-            .input-group > #featuredImage:last-child {
-                border-top-right-radius: 0.375rem !important;
-                border-bottom-right-radius: 0.375rem !important;
-            }
-
-            @media (max-width: 576px) {
-                .d-flex.gap-2 {
-                    flex-wrap: wrap;
-                }
-                
-                #featuredImage {
-                    flex: 1 1 100% !important;
-                }
-                
-                #btnPreview, #btnDelete {
-                    flex: 1;
-                }
-            }
-        </style>
     </th:block>
 </body>
 </html>

@@ -24,6 +24,7 @@ public class News {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @Column(length = 200)
     private String summary;
 
     @Column(columnDefinition = "TEXT")

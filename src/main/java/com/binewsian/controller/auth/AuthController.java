@@ -67,11 +67,12 @@ public class AuthController {
     public String login(@RequestParam String email, @RequestParam String password,
                         @RequestParam(required = false) String rememberMe, HttpSession session,
                         HttpServletResponse response, Model model) {
+        User user;
 
-        User user = authService.authenticate(email, password);
-
-        if (user == null) {
-            model.addAttribute("error", AppConstant.INCORRECT_EMAIL_PASSWORD);
+        try {
+            user = authService.authenticate(email, password);
+        } catch (BiNewsianException e) {
+            model.addAttribute("error", e.getMessage());
             model.addAttribute("email", email);
             return "login";
         }

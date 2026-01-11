@@ -38,24 +38,18 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public User authenticate(String email, String password) {
-        Optional<User> userOpt = userRepository.findByEmail(email.toLowerCase());
-        User user = null;
+    public User authenticate(String email, String password) throws BiNewsianException {
+        User user = userRepository.findByEmail(email.toLowerCase()).orElseThrow(() -> new BiNewsianException(AppConstant.USER_NOT_FOUND));
 
-        if (userOpt.isPresent()) {
-            user = userOpt.get();
+        if (!user.isEnabled()) {
+            throw new BiNewsianException(AppConstant.USER_HAS_BEEN_DEACTIVATED);
         }
 
-        if (user != null) {
-            if (!user.isEnabled()) {
-                return null;
-            }
-            if (passwordEncoder.matches(password, user.getPassword())) {
-                return user;
-            }
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new BiNewsianException(AppConstant.INCORRECT_EMAIL_PASSWORD);
         }
 
-        return null;
+        return user;
     }
 
 }

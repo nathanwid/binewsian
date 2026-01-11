@@ -30,7 +30,7 @@ public class HomeServiceImpl implements HomeService {
         summary.put("totalActivity", activityRepository.countByStatus(ActivityStatus.PUBLISHED));
         summary.put("totalNews", newsRepository.countByStatus(NewsStatus.PUBLISHED));
         summary.put("totalCategory", categoryRepository.count());
-        summary.put("totalContributor", userRepository.countByRole(Role.CONTRIBUTOR));
+        summary.put("totalContributor", userRepository.countByRoleAndEnabled(Role.CONTRIBUTOR, true));
 
         return summary;
     }

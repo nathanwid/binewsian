@@ -20,7 +20,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByEmailAllIgnoreCase(String email);
 
-    int countByRole(Role role);
+    int countByRoleAndEnabled(Role role, boolean enabled);
 
     Page<User> findByRole(Role role, Pageable pageable);
 

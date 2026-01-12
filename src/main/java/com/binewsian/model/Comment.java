@@ -1,12 +1,13 @@
 package com.binewsian.model;
 
-import com.binewsian.enums.CommentableType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Formula;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -24,16 +25,21 @@ public class Comment {
     @JoinColumn(name = "parent_id")
     private Comment parent;
 
-    @Column(nullable = false)
-    private Long commentableId;
+    @OneToMany(mappedBy = "parent")
+    private List<Comment> replies;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private CommentableType commentableType;
+    @Formula("(SELECT COUNT(*) FROM comments r WHERE r.parent_id = id)")
+    private int replyCount;
+
+    @Column(name = "content_type", nullable = false)
+    private String contentType;
+
+    @Column(name = "content_id", nullable = false)
+    private Long contentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by_id", nullable = false, updatable = false)
-    private User createdBy;
+    @JoinColumn(name = "user_id", nullable = false, updatable = false)
+    private User user;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

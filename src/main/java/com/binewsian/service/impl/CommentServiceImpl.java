@@ -2,7 +2,6 @@ package com.binewsian.service.impl;
 
 import com.binewsian.constant.AppConstant;
 import com.binewsian.dto.CommentRequest;
-import com.binewsian.enums.CommentableType;
 import com.binewsian.exception.BiNewsianException;
 import com.binewsian.model.Comment;
 import com.binewsian.model.User;
@@ -58,10 +57,10 @@ public class CommentServiceImpl implements CommentService {
 
         Comment comment = new Comment();
 
-        comment.setCommentableId(request.commentableId());
-        comment.setCommentableType(request.commentableType());
+        comment.setContentId(request.commentableId());
+        comment.setContentType(request.commentableType().getDisplayName());
         comment.setContent(request.content());
-        comment.setCreatedBy(user);
+        comment.setUser(user);
 
         commentRepository.save(comment);
     }
@@ -77,8 +76,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Page<Comment> findPaginated(int page, int size, Long commentableId, CommentableType commentableType) {
+    public Page<Comment> findPaginated(int page, int size, Long contentId, String contentType) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return commentRepository.findByCommentableIdAndCommentableType(commentableId, commentableType, pageable);
+        return commentRepository.findByContentIdAndContentTypeAndParentNull(contentId, contentType, pageable);
     }
 }

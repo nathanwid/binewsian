@@ -51,20 +51,13 @@
             <div class="comments-section">
                 <h2><span id="comment-count">0</span> Comments</h2>
 
-                <!-- Comment List -->
-                <div id="comment-list" class="comment-list">
-                    <div class="loading">
-                        <div class="spinner"></div>
-                        <p>Loading comments...</p>
-                    </div>
-                </div>
+                <!-- Comment Container -->
+                <div id="comments-container"></div>
 
                 <!-- Pagination -->
-                <div id="comment-pagination" class="pagination" style="display: none;">
-                    <button id="prev-page" onclick="loadComments(currentPage - 1)">Previous</button>
-                    <span class="page-info">Page <span id="current-page">1</span> of <span id="total-pages">1</span></span>
-                    <button id="next-page" onclick="loadComments(currentPage + 1)">Next</button>
-                </div>
+                <nav id="comment-pagination" class="mt-4" style="display: none;">
+                    <ul class="pagination justify-content-center" id="pagination-list"></ul>
+                </nav>
 
                 <!-- Comment Form -->
                 <div class="comment-form">
@@ -98,12 +91,12 @@
 
             // Load comments with pagination
             function loadComments(page) {
-                currentPage = page;
-                
                 $.ajax({
-                    url: `/comments/news/${newsId}`,
+                    url: "/comments",
                     method: 'GET',
                     data: {
+                        contentId: newsId,
+                        contentType: "News",
                         page: page,
                         size: pageSize
                     },
@@ -120,35 +113,35 @@
 
             // Render comments
             function renderComments(comments) {
-                const $commentList = $('#comment-list');
+                const $commentsContainer = $('#comments-container');
                 
                 if (comments.length === 0) {
-                    $commentList.html('<p style="text-align:center;padding:40px;color:#a0aec0;">No comments yet. Be the first to comment!</p>');
+                    $commentsContainer.html('<p style="text-align:center;padding:40px;color:#a0aec0;">No comments yet. Be the first to comment!</p>');
                     return;
                 }
 
-                $commentList.empty();
+                $commentsContainer.empty();
                 
                 comments.forEach(comment => {
                     const commentHtml = createCommentHtml(comment);
-                    $commentList.append(commentHtml);
-                    
-                    // Load replies for this comment
-                    loadRepliesCount(comment.id);
+                    $commentsContainer.append(commentHtml);
                 });
             }
 
             // Create comment HTML
             function createCommentHtml(comment) {
-                const avatar = comment.author.charAt(0).toUpperCase();
+                const avatar = comment.user.username.charAt(0).toUpperCase();
                 const date = formatDate(comment.createdAt);
+                const replyCountText = comment.replies && comment.replies.length > 0 
+                    ? `${comment.replies.length} ${comment.replies.length === 1 ? 'reply' : 'replies'}`
+                    : '';
                 
                 return `
                     <div class="comment" data-comment-id="${comment.id}">
                         <div class="comment-avatar">${avatar}</div>
                         <div class="comment-content">
                             <div class="comment-header">
-                                <strong>${comment.author}</strong>
+                                <strong>${comment.user.username}</strong>
                                 <span class="comment-date">${date}</span>
                             </div>
                             <p class="comment-text">${escapeHtml(comment.content)}</p>
@@ -156,57 +149,57 @@
                                 <button class="comment-action-btn" onclick="toggleReplyForm(${comment.id})">
                                     💬 Reply
                                 </button>
-                                <span class="reply-count" id="reply-count-${comment.id}"></span>
-                                <button class="comment-action-btn" id="load-replies-${comment.id}" 
-                                        onclick="toggleReplies(${comment.id})" style="display:none;">
-                                    Show Replies
-                                </button>
+                                <span class="reply-count" id="reply-count-${comment.id}">${replyCountText}</span>
+                                ${comment.replies && comment.replies.length > 0 ? `
+                                    <button class="comment-action-btn" id="load-replies-${comment.id}" 
+                                            onclick="toggleReplies(${comment.id})">
+                                        View replies (${comment.replies.length})
+                                    </button>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
                     <div id="reply-form-${comment.id}" class="reply-form">
-                        <textarea placeholder="Write your reply..."></textarea>
+                        <textarea id="reply-text-${comment.id}" placeholder="Write your reply..."></textarea>
                         <div class="reply-form-actions">
                             <button class="btn-cancel" onclick="toggleReplyForm(${comment.id})">Cancel</button>
                             <button class="btn-reply" onclick="submitReply(${comment.id})">Reply</button>
                         </div>
                     </div>
-                    <div id="replies-${comment.id}" class="replies-container" style="display:none;">
-                        <div class="loading">
-                            <div class="spinner"></div>
-                        </div>
+                    <div id="replies-${comment.id}" class="replies-container">
+                        ${comment.replies ? comment.replies.map(reply => createReplyHtml(reply)).join('') : ''}
                     </div>
                 `;
             }
 
-            // Load replies count
-            function loadRepliesCount(commentId) {
-                $.ajax({
-                    url: `/comments/${commentId}/replies`,
-                    method: 'GET',
-                    data: { page: 0, size: 1 },
-                    success: function(response) {
-                        const count = response.totalElements;
-                        if (count > 0) {
-                            $(`#reply-count-${commentId}`).text(`${count} ${count === 1 ? 'reply' : 'replies'}`);
-                            $(`#load-replies-${commentId}`).show();
-                        }
-                    }
+            // Toggle reply form
+            function toggleReplyForm(commentId) {
+                const form = document.getElementById(`reply-form-${commentId}`);
+                const isActive = form.classList.contains('active');
+                
+                // Close all other reply forms
+                document.querySelectorAll('.reply-form.active').forEach(f => {
+                    f.classList.remove('active');
                 });
+                
+                if (!isActive) {
+                    form.classList.add('active');
+                    document.getElementById(`reply-text-${commentId}`).focus();
+                }
             }
 
             // Toggle replies visibility
             function toggleReplies(commentId) {
-                const $repliesContainer = $(`#replies-${commentId}`);
-                const $button = $(`#load-replies-${commentId}`);
+                const repliesContainer = document.getElementById(`replies-${commentId}`);
+                const button = document.getElementById(`load-replies-${commentId}`);
                 
-                if ($repliesContainer.is(':visible')) {
-                    $repliesContainer.slideUp();
-                    $button.text('Show Replies');
+                if (repliesContainer.classList.contains('active')) {
+                    repliesContainer.classList.remove('active');
+                    const comment = commentsData.find(c => c.id === commentId);
+                    button.textContent = `View replies (${comment.replies.length})`;
                 } else {
-                    loadReplies(commentId, 0);
-                    $repliesContainer.slideDown();
-                    $button.text('Hide Replies');
+                    repliesContainer.classList.add('active');
+                    button.textContent = 'Hide replies';
                 }
             }
 
@@ -226,58 +219,6 @@
                         console.error('Error loading replies:', error);
                     }
                 });
-            }
-
-            // Render replies
-            function renderReplies(commentId, replies, hasNext, page) {
-                const $repliesContainer = $(`#replies-${commentId}`);
-                
-                if (page === 0) {
-                    $repliesContainer.empty();
-                } else {
-                    $repliesContainer.find('.btn-load-more').remove();
-                }
-                
-                replies.forEach(reply => {
-                    const avatar = reply.author.charAt(0).toUpperCase();
-                    const date = formatDate(reply.createdAt);
-                    
-                    const replyHtml = `
-                        <div class="reply">
-                            <div class="comment-avatar">${avatar}</div>
-                            <div class="comment-content">
-                                <div class="comment-header">
-                                    <strong>${reply.author}</strong>
-                                    <span class="comment-date">${date}</span>
-                                </div>
-                                <p class="comment-text">${escapeHtml(reply.content)}</p>
-                            </div>
-                        </div>
-                    `;
-                    
-                    $repliesContainer.append(replyHtml);
-                });
-                
-                if (hasNext) {
-                    const loadMoreBtn = `
-                        <button class="btn-load-more" onclick="loadReplies(${commentId}, ${page + 1})">
-                            Load More Replies
-                        </button>
-                    `;
-                    repliesContainer.append(loadMoreBtn);
-                }
-            }
-
-            // Toggle reply form
-            function toggleReplyForm(commentId) {
-                const form = $(`#reply-form-${commentId}`);
-                form.toggleClass('active');
-                
-                if (form.hasClass('active')) {
-                    form.find('textarea').focus();
-                } else {
-                    form.find('textarea').val('');
-                }
             }
 
             // Submit reply
@@ -322,19 +263,50 @@
 
             // Update pagination
             function updatePagination(response) {
-                const $pagination = $('#comment-pagination');
+                const $paginationNav = $('#comment-pagination');
+                const $paginationList = $('#pagination-list');
                 
+                $paginationList.empty();
+
                 if (response.totalPages <= 1) {
-                    $pagination.hide();
+                    $paginationNav.hide();
                     return;
                 }
-                
-                $pagination.show();
-                $('#current-page').text(response.currentPage + 1);
-                $('#total-pages').text(response.totalPages);
-                
-                $('#prev-page').prop('disabled', !response.hasPrevious);
-                $('#next-page').prop('disabled', !response.hasNext);
+
+                $paginationNav.show();
+                const currentPage = response.currentPage; 
+                const totalPages = response.totalPages;
+
+                const prevDisabled = !response.hasPrevious ? 'disabled' : '';
+                $paginationList.append(`
+                    <li class="page-item ${prevDisabled}">
+                        <a class="page-link" href="javascript:void(0)" 
+                        onclick="${response.hasPrevious ? `loadComments(${currentPage - 1})` : ''}">
+                        &laquo;
+                        </a>
+                    </li>
+                `);
+
+                for (let i = 0; i < totalPages; i++) {
+                    const activeClass = (i === currentPage) ? 'active' : '';
+                    $paginationList.append(`
+                        <li class="page-item ${activeClass}">
+                            <a class="page-link" href="javascript:void(0)" onclick="loadComments(${i})">
+                                ${i + 1}
+                            </a>
+                        </li>
+                    `);
+                }
+
+                const nextDisabled = !response.hasNext ? 'disabled' : '';
+                $paginationList.append(`
+                    <li class="page-item ${nextDisabled}">
+                        <a class="page-link" href="javascript:void(0)" 
+                        onclick="${response.hasNext ? `loadComments(${currentPage + 1})` : ''}">
+                        &raquo;
+                        </a>
+                    </li>
+                `);
             }
 
             // Submit comment
@@ -366,17 +338,6 @@
                 });
             });
 
-            // Load comment count
-            function loadCommentCount() {
-                $.ajax({
-                    url: `/comments/news/${newsId}/count`,
-                    method: 'GET',
-                    success: function(response) {
-                        $('#comment-count').text(response.count);
-                    }
-                });
-            }
-
             // Format date
             function formatDate(dateString) {
                 const date = new Date(dateString);
@@ -403,6 +364,284 @@
             }
             /*]]>*/
         </script>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                background-color: #f5f5f5;
+                padding: 20px;
+            }
+
+            .comment-section {
+                max-width: 900px;
+                margin: 0 auto;
+                background-color: white;
+                border-radius: 8px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+
+            .comment {
+                padding: 20px;
+                border-bottom: 1px solid #e5e5e5;
+                display: flex;
+                gap: 12px;
+            }
+
+            .comment-avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 600;
+                font-size: 16px;
+                flex-shrink: 0;
+            }
+
+            .comment-content {
+                flex: 1;
+            }
+
+            .comment-header {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 8px;
+            }
+
+            .comment-header strong {
+                font-size: 14px;
+                color: #1a1a1a;
+            }
+
+            .comment-date {
+                font-size: 12px;
+                color: #666;
+            }
+
+            .comment-text {
+                color: #333;
+                font-size: 14px;
+                line-height: 1.6;
+                margin-bottom: 12px;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            }
+
+            .comment-text a {
+                color: #0ea5e9;
+                text-decoration: none;
+                word-break: break-all;
+            }
+
+            .comment-text a:hover {
+                text-decoration: underline;
+            }
+
+            .comment-actions {
+                display: flex;
+                gap: 16px;
+                align-items: center;
+            }
+
+            .comment-action-btn {
+                background: none;
+                border: none;
+                color: #666;
+                font-size: 13px;
+                cursor: pointer;
+                padding: 4px 8px;
+                border-radius: 4px;
+                transition: background-color 0.2s;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+            }
+
+            .comment-action-btn:hover {
+                background-color: #f5f5f5;
+            }
+
+            .reply-count {
+                font-size: 13px;
+                color: #666;
+            }
+
+            .reply-form {
+                margin-left: 52px;
+                margin-top: 12px;
+                margin-bottom: 12px;
+                display: none;
+                background-color: #f9f9f9;
+                border-radius: 6px;
+                padding: 12px;
+            }
+
+            .reply-form.active {
+                display: block;
+            }
+
+            .reply-form textarea {
+                width: 100%;
+                min-height: 80px;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-family: inherit;
+                font-size: 14px;
+                resize: vertical;
+                margin-bottom: 10px;
+            }
+
+            .reply-form textarea:focus {
+                outline: none;
+                border-color: #0ea5e9;
+            }
+
+            .reply-form-actions {
+                display: flex;
+                gap: 8px;
+                justify-content: flex-end;
+            }
+
+            .btn-cancel, .btn-reply {
+                padding: 8px 16px;
+                border-radius: 4px;
+                font-size: 13px;
+                font-weight: 500;
+                cursor: pointer;
+                border: none;
+                transition: all 0.2s;
+            }
+
+            .btn-cancel {
+                background-color: white;
+                color: #666;
+                border: 1px solid #ddd;
+            }
+
+            .btn-cancel:hover {
+                background-color: #f5f5f5;
+            }
+
+            .btn-reply {
+                background-color: #0ea5e9;
+                color: white;
+            }
+
+            .btn-reply:hover {
+                background-color: #0284c7;
+            }
+
+            .replies-container {
+                margin-left: 52px;
+                border-left: 2px solid #e5e5e5;
+                padding-left: 20px;
+                display: none;
+                margin-bottom: 12px;
+            }
+
+            .replies-container.active {
+                display: block;
+            }
+
+            .reply-item {
+                padding: 12px 0;
+                display: flex;
+                gap: 12px;
+            }
+
+            .reply-avatar {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 600;
+                font-size: 14px;
+                flex-shrink: 0;
+            }
+
+            .loading {
+                display: flex;
+                justify-content: center;
+                padding: 20px;
+            }
+
+            .spinner {
+                width: 24px;
+                height: 24px;
+                border: 3px solid #f3f3f3;
+                border-top: 3px solid #0ea5e9;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            }
+
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+
+            .add-comment-section {
+                padding: 20px;
+                border-top: 1px solid #e5e5e5;
+            }
+
+            .add-comment-form {
+                display: flex;
+                gap: 12px;
+            }
+
+            .add-comment-form textarea {
+                flex: 1;
+                min-height: 60px;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-family: inherit;
+                font-size: 14px;
+                resize: vertical;
+            }
+
+            .add-comment-form textarea:focus {
+                outline: none;
+                border-color: #0ea5e9;
+            }
+
+            .btn-submit-comment {
+                padding: 10px 20px;
+                background-color: #0ea5e9;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: background-color 0.2s;
+                align-self: flex-start;
+            }
+
+            .btn-submit-comment:hover {
+                background-color: #0284c7;
+            }
+
+            .empty-state {
+                padding: 40px 20px;
+                text-align: center;
+                color: #666;
+            }
+        </style>
     </th:block>
 </body>
 </html>

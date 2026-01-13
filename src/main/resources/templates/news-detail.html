@@ -209,15 +209,18 @@
                 const $container = $(`#replies-container-${commentId}`);
                 const $button = $(`#load-replies-${commentId}`);
 
+                const count = parseInt($button.data('count')) || 0;
+
                 if ($container.is(':visible')) {
                     $container.slideUp();
-                    $button.text(`View replies`);
+                    $button.text(`View replies (${count})`);
                 } else {
                     $container.slideDown();
-                    // Jika kontainer masih kosong, ambil data dari BE
+
                     if ($(`#replies-container-${commentId} .replies-list`).is(':empty')) {
                         loadReplies(commentId, 0);
                     }
+
                     $button.text('Hide replies');
                 }
             }
@@ -232,9 +235,7 @@
                     url: `/comments/${commentId}/replies`,
                     data: { page: page, size: 5 },
                     success: function(response) {
-                        if (!isAppend) {
-                            $list.empty();
-                        }
+                        if (!isAppend) $list.empty();
 
                         // Render setiap reply
                         response.replies.forEach(reply => {
@@ -269,10 +270,15 @@
                     data: JSON.stringify({ content: content, contentId: newsId, contentType: "News", parentId: commentId }),
                     success: function(response) {
                         $form.find('textarea').val('');
+
                         toggleReplyForm(commentId);
-                        
-                        // Reload replies
                         loadReplies(commentId, 0, false);
+
+                        const $button = $(`#load-replies-${commentId}`);
+                        const count = parseInt($button.data('count')) || 0; 
+
+                        const newCount = count + 1;
+                        $button.data('count', newCount);
                     },
                     error: function(error) {
                         console.error('Error posting reply:', error);

@@ -8,7 +8,7 @@
         <div class="container mb-4">
             <a th:href="@{/news}" class="back-link">← Back to News</a>
 
-            <div class="news-detail">
+            <div class="news-detail" id="news-detail" th:data-news-id="${news.id}" th:data-user-id="${user.id}">
                 <div class="news-detail__image">
                     <img th:src="${news.featuredImageUrl}" th:alt="${news.title}">
                     <span class="news-detail__category-badge" th:text="${news.category.name}"></span>
@@ -73,8 +73,10 @@
 
     <th:block layout:fragment="scripts">
         <script th:inline="javascript">
-            const newsId = /*[[${news.id}]]*/ 1;
-            const currentUser = /*[[${user}]]*/ 'John Doe';
+            const $newsDetail = $("#news-detail");
+            const newsId = $newsDetail.data('news-id');
+            const userId = $newsDetail.data('user-id');
+
             let currentPage = 0;
             const pageSize = 5;
 
@@ -95,7 +97,7 @@
                     method: 'GET',
                     data: {
                         contentId: newsId,
-                        contentType: "News",
+                        contentType: "NEWS",
                         page: page,
                         size: pageSize
                     },
@@ -132,8 +134,8 @@
                 const avatar = reply.user.username.charAt(0).toUpperCase();
                 const date = formatDate(reply.createdAt);
                 const isEdited = reply.createdAt != reply.updatedAt;
-                const isOwner = reply.user.id === currentUser.id;
-                
+                const isOwner = reply.user.id === userId;
+
                 return `
                     <div class="reply-item" data-item-id="${reply.id}" data-item-type="reply">
                         <div class="reply-avatar">${avatar}</div>
@@ -156,7 +158,7 @@
                 const avatar = isDeleted ? '?' : username.charAt(0).toUpperCase();
                 const date = formatDate(comment.createdAt);
                 const isEdited = !isDeleted && (comment.createdAt != comment.updatedAt);
-                const isOwner = !isDeleted && (comment.user?.id === currentUser.id);
+                const isOwner = !isDeleted && (comment.user?.id === userId);
                 
                 return `
                     <div class="comment" data-item-id="${comment.id}" data-item-type="comment">
@@ -403,7 +405,7 @@
                     url: '/comments',
                     method: 'POST',
                     contentType: 'application/json',
-                    data: JSON.stringify({ content: content, contentId: newsId, contentType: "News", parentId: commentId }),
+                    data: JSON.stringify({ content: content, contentId: newsId, contentType: "NEWS", parentId: commentId }),
                     success: function(response) {
                         $form.find('textarea').val('');
                         toggleReplyForm(commentId);
@@ -513,7 +515,6 @@
                     success: function(response) {
                         $('#comment-content').val('');
                         loadComments(0);
-                        alert('Comment posted successfully!');
                     },
                     error: function(error) {
                         console.error('Error posting comment:', error);

@@ -14,7 +14,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Controller
@@ -46,8 +48,28 @@ public class CommentController {
     ) {
         Page<Comment> comments = commentService.findPaginated(page, size, contentId, contentType);
 
+        List<Map<String, Object>> mappedComments = comments.getContent().stream()
+                .map(c -> {
+                    Map<String, Object> commentMap = new HashMap<>();
+
+                    commentMap.put("id", c.getId());
+                    commentMap.put("userId", c.getUser().getId());
+                    commentMap.put("username", c.getUser().getUsername());
+                    commentMap.put("contentId", c.getContentId());
+                    commentMap.put("contentType", c.getContentType());
+                    commentMap.put("content", c.getContent());
+                    commentMap.put("replyCount", c.getReplyCount());
+                    commentMap.put("deleted", c.getDeleted());
+                    commentMap.put("deletedAt", c.getDeletedAt());
+                    commentMap.put("updatedAt", c.getUpdatedAt());
+                    commentMap.put("createdAt", c.getCreatedAt());
+
+                    return commentMap;
+                })
+                .collect(Collectors.toList());
+
         Map<String, Object> response = new HashMap<>();
-        response.put("comments", comments.getContent());
+        response.put("comments", mappedComments);
         response.put("currentPage", comments.getNumber());
         response.put("totalItems", comments.getTotalElements());
         response.put("totalPages", comments.getTotalPages());
@@ -62,13 +84,34 @@ public class CommentController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size
     ) {
-        Page<Comment> comments = commentService.findReplies(page, size, id);
+        Page<Comment> replies = commentService.findReplies(page, size, id);
+
+        List<Map<String, Object>> mappedReplies = replies.getContent().stream()
+                .map(r -> {
+                    Map<String, Object> replyMap = new HashMap<>();
+
+                    replyMap.put("id", r.getId());
+                    replyMap.put("parentId", r.getParent().getId());
+                    replyMap.put("userId", r.getUser().getId());
+                    replyMap.put("username", r.getUser().getUsername());
+                    replyMap.put("contentId", r.getContentId());
+                    replyMap.put("contentType", r.getContentType());
+                    replyMap.put("content", r.getContent());
+                    replyMap.put("replyCount", r.getReplyCount());
+                    replyMap.put("deleted", r.getDeleted());
+                    replyMap.put("deletedAt", r.getDeletedAt());
+                    replyMap.put("updatedAt", r.getUpdatedAt());
+                    replyMap.put("createdAt", r.getCreatedAt());
+
+                    return replyMap;
+                })
+                .collect(Collectors.toList());
 
         Map<String, Object> response = new HashMap<>();
-        response.put("replies", comments.getContent());
-        response.put("currentPage", comments.getNumber());
-        response.put("totalItems", comments.getTotalElements());
-        response.put("totalPages", comments.getTotalPages());
+        response.put("replies", mappedReplies);
+        response.put("currentPage", replies.getNumber());
+        response.put("totalItems", replies.getTotalElements());
+        response.put("totalPages", replies.getTotalPages());
 
         return ResponseEntity.ok(response);
     }

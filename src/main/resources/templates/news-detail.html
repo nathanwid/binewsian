@@ -197,17 +197,17 @@
 
             // Create reply HTML
             function createReplyHtml(reply, parentId) {
-                const avatar = reply.user.username.charAt(0).toUpperCase();
+                const avatar = reply.username.charAt(0).toUpperCase();
                 const date = formatDate(reply.createdAt);
                 const isEdited = reply.createdAt != reply.updatedAt;
-                const isOwner = reply.user.id === userId;
+                const isOwner = reply.userId === userId;
 
                 return `
                     <div class="reply-item" data-parent-id="${parentId}" data-item-id="${reply.id}" data-item-type="reply">
                         <div class="reply-avatar">${avatar}</div>
                         <div class="comment-content">
                             <div class="comment-header">
-                                <strong class="comment-author">${reply.user.username}</strong>
+                                <strong class="comment-author">${reply.username}</strong>
                                 <span class="comment-date">${date} ${isEdited ? '(edited)' : ''}</span>
                                 ${isOwner ? createDropdownMenu(reply.id, 'reply') : ''}
                             </div>
@@ -219,12 +219,12 @@
 
             // Create comment HTML
             function createCommentHtml(comment) {
-                const isDeleted = comment.deleted || comment.user === null;
-                const username = isDeleted ? '[Deleted User]' : comment.user.username;
+                const isDeleted = comment.deleted;
+                const username = isDeleted ? '[Deleted User]' : comment.username;
                 const avatar = isDeleted ? '?' : username.charAt(0).toUpperCase();
                 const date = formatDate(comment.createdAt);
                 const isEdited = !isDeleted && (comment.createdAt != comment.updatedAt);
-                const isOwner = !isDeleted && (comment.user?.id === userId);
+                const isOwner = !isDeleted && (comment.userId === userId);
                 
                 return `
                     <div class="comment" data-item-id="${comment.id}" data-item-type="comment">
@@ -294,7 +294,7 @@
             // Helper function untuk membuat editable content
             function createEditableContent(content, id, type, isDeleted = false) {
                 const displayContent = isDeleted ? 'This comment has been deleted.' : escapeHtml(content);
-                const textClass = isDeleted ? 'comment-text text-muted italic' : 'comment-text';
+                const textClass = isDeleted ? 'comment-text text-muted fst-italic' : 'comment-text';
 
                 return `
                     <div class="comment-text-container">
@@ -412,7 +412,7 @@
                             const hasReplies = $btnReplies.length > 0;
 
                             if (hasReplies) {
-                                $itemEl.find('.comment-text').text('This comment has been deleted.').addClass('text-muted italic');
+                                $itemEl.find('.comment-text').text('This comment has been deleted.').addClass('text-muted fst-italic');
                                 $itemEl.find('.comment-avatar').text('?').css('background', '#ccc');
                                 $itemEl.find('strong').text('[Deleted User]');
                                 

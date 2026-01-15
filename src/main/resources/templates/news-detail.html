@@ -130,14 +130,14 @@
             }
 
             // Create reply HTML
-            function createReplyHtml(reply) {
+            function createReplyHtml(reply, parentId) {
                 const avatar = reply.user.username.charAt(0).toUpperCase();
                 const date = formatDate(reply.createdAt);
                 const isEdited = reply.createdAt != reply.updatedAt;
                 const isOwner = reply.user.id === userId;
 
                 return `
-                    <div class="reply-item" data-item-id="${reply.id}" data-item-type="reply">
+                    <div class="reply-item" data-parent-id="${parentId}" data-item-id="${reply.id}" data-item-type="reply">
                         <div class="reply-avatar">${avatar}</div>
                         <div class="comment-content">
                             <div class="comment-header">
@@ -295,6 +295,45 @@
                 });
             }
 
+            function updateReplyUI(parentId, delta) {
+                let $btn = $(`#load-replies-${parentId}`);
+                let $container = $(`#replies-container-${parentId}`);
+
+                if (!$container.length) {
+                    $(`[data-item-id="${parentId}"]`)
+                        .append(`<div id="replies-container-${parentId}" class="replies-wrapper" style="display:none;">
+                                    <div class="replies-list"></div>
+                                </div>`);
+                    $container = $(`#replies-container-${parentId}`);
+                }
+
+                if (!$btn.length) {
+                    $(`[data-item-id="${parentId}"] .comment-actions`).append(`
+                        <button class="comment-action-btn"
+                                id="load-replies-${parentId}"
+                                data-count="0"
+                                onclick="toggleReplies(${parentId})">
+                            View replies
+                        </button>
+                    `);
+                    $btn = $(`#load-replies-${parentId}`);
+                }
+
+                let count = $btn.data('count') ?? 0;
+                count = Math.max(0, count + delta);
+
+                $btn.data('count', count);
+
+                if (count === 0) {
+                    $btn.remove();
+                    $container.slideUp();
+                    return;
+                }
+
+                $container.slideDown();
+                $btn.text('Hide replies');
+            }
+
             function deleteItem(id, type) {
                 const $itemEl = $(`[data-item-id="${id}"][data-item-type="${type}"]`);
 
@@ -319,9 +358,11 @@
                                 $itemEl.fadeOut(300, function() { $(this).remove(); });
                             }
                         } else {
-                            $itemEl.fadeOut(300, function() { 
-                                $(this).remove(); 
-                                updateParentReplyCount(id, -1);
+                            const parentId = $itemEl.data('parent-id');
+
+                            $itemEl.fadeOut(300, function () {
+                                $(this).remove();
+                                updateReplyUI(parentId, -1);
                             });
                         }
                     },
@@ -378,7 +419,7 @@
                         if (!isAppend) $list.empty();
 
                         response.replies.forEach(reply => {
-                            $list.append(createReplyHtml(reply));
+                            $list.append(createReplyHtml(reply, commentId));
                         });
 
                         if (response.currentPage < response.totalPages - 1) {
@@ -409,31 +450,7 @@
                     success: function(response) {
                         $form.find('textarea').val('');
                         toggleReplyForm(commentId);
-
-                        const $container = $(`#replies-container-${commentId}`);
-                        $container.show(); 
-
-                        let $button = $(`#load-replies-${commentId}`);
-                        
-                        if ($button.length === 0) {
-                            const newButtonHtml = `
-                                <button class="comment-action-btn" id="load-replies-${commentId}" 
-                                        onclick="toggleReplies(${commentId})"
-                                        data-count="1">
-                                    Hide replies
-                                </button>`;
-                            $(`[data-item-id="${commentId}"] .comment-actions`).append(newButtonHtml);
-                        } else {
-                            const count = parseInt($button.data('count')) || 0;
-                            const newCount = count + 1;
-                            $button.data('count', newCount);
-
-                            if (!$container.is(':visible')) {
-                                $button.text(`View replies (${newCount})`);
-                            }
-                        }
-                        
-                        $container.slideDown();
+                        updateReplyUI(commentId, +1);
                         loadReplies(commentId, 0, false);
                     },
                     error: function(error) {
@@ -542,7 +559,6 @@
                 div.textContent = text;
                 return div.innerHTML;
             }
-            /*]]>*/
         </script>
     </th:block>
 </body>

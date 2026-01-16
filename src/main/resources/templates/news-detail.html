@@ -10,7 +10,7 @@
                 <i class="bi bi-arrow-left"></i>  Back to News
             </a>
 
-            <div class="news-detail" id="news-detail" th:data-news-id="${news.id}" th:data-user-id="${user.id}">
+            <div class="news-detail" id="news-detail" th:data-news-id="${news.id}" th:data-user-id="${user.id}" th:data-user-role="${user.role}">
                 <div class="news-detail__image">
                     <img th:src="${news.featuredImageUrl}" th:alt="${news.title}">
                     <span class="news-detail__category-badge" th:text="${news.category.name}"></span>
@@ -126,6 +126,7 @@
             const $newsDetail = $("#news-detail");
             const newsId = $newsDetail.data('news-id');
             const userId = $newsDetail.data('user-id');
+            const userRole = $newsDetail.data('user-role');
 
             let currentPage = 0;
             const pageSize = 5;
@@ -163,7 +164,6 @@
                         toggleLoadMoreButton(response);
                     },
                     error: function(error) {
-                        console.error('Error loading comments:', error);
                         $('#comment-list').html('<p style="text-align:center;color:#a0aec0;">Failed to load comments</p>');
                     }
                 });
@@ -201,6 +201,7 @@
                 const date = formatDate(reply.createdAt);
                 const isEdited = reply.createdAt != reply.updatedAt;
                 const isOwner = reply.userId === userId;
+                const isAdmin = userRole === 'ADMIN';
 
                 return `
                     <div class="reply-item" data-parent-id="${parentId}" data-item-id="${reply.id}" data-item-type="reply">
@@ -209,7 +210,7 @@
                             <div class="comment-header">
                                 <strong class="comment-author">${reply.username}</strong>
                                 <span class="comment-date">${date} ${isEdited ? '(edited)' : ''}</span>
-                                ${isOwner ? createDropdownMenu(reply.id, 'reply') : ''}
+                                ${isOwner || isAdmin ? createDropdownMenu(reply.id, 'reply', isOwner, isAdmin) : ''}
                             </div>
                             ${createEditableContent(reply.content, reply.id, 'reply')}
                         </div>
@@ -225,7 +226,8 @@
                 const date = formatDate(comment.createdAt);
                 const isEdited = !isDeleted && (comment.createdAt != comment.updatedAt);
                 const isOwner = !isDeleted && (comment.userId === userId);
-                
+                const isAdmin = userRole === 'ADMIN';
+
                 return `
                     <div class="comment" data-item-id="${comment.id}" data-item-type="comment">
                         <div class="comment-avatar" style="${isDeleted ? 'background: #ccc;' : ''}">${avatar}</div>
@@ -233,7 +235,7 @@
                             <div class="comment-header">
                                 <strong class="comment-author">${username}</strong>
                                 <span class="comment-date">${date} ${isEdited ? '(edited)' : ''}</span>
-                                ${isOwner ? createDropdownMenu(comment.id, 'comment') : ''}
+                                ${isOwner || isAdmin ? createDropdownMenu(comment.id, 'comment', isOwner, isAdmin) : ''}
                             </div>
                             ${createEditableContent(comment.content, comment.id, 'comment', isDeleted)}
                             <div class="comment-actions">
@@ -269,23 +271,27 @@
             }
 
             // Helper function untuk membuat dropdown menu
-            function createDropdownMenu(id, type) {
+            function createDropdownMenu(id, type, isOwner, isAdmin) {
                 return `
                     <div class="dropdown ms-auto">
                         <button class="btn btn-link p-1 ellipsis-btn" data-bs-toggle="dropdown">
                             <i class="bi bi-three-dots-vertical"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <button class="dropdown-item" onclick="editItem(${id}, '${type}')">
-                                    <i class="bi bi-pencil me-2"></i> Edit
-                                </button>
-                            </li>
-                            <li>
-                                <button class="dropdown-item text-danger" onclick="deleteItem(${id}, '${type}')">
-                                    <i class="bi bi-trash me-2"></i> Delete
-                                </button>
-                            </li>
+                            ${isOwner ? `
+                                <li>
+                                    <button class="dropdown-item" onclick="editItem(${id}, '${type}')">
+                                        <i class="bi bi-pencil me-2"></i> Edit
+                                    </button>
+                                </li>
+                            ` : ''}
+                            ${isOwner || isAdmin ? `
+                                <li>
+                                    <button class="dropdown-item text-danger" onclick="deleteItem(${id}, '${type}')">
+                                        <i class="bi bi-trash me-2"></i> Delete
+                                    </button>
+                                </li>
+                            ` : ''}
                         </ul>
                     </div>
                 `;
@@ -355,7 +361,6 @@
                         $editForm.hide();
                     },
                     error: function(xhr, status, error) {
-                        console.error(`Error updating ${type}:`, error);
                         alert(`Failed to update ${type}`);
                     }
                 });
@@ -366,10 +371,11 @@
                 let $container = $(`#replies-container-${parentId}`);
 
                 if (!$container.length) {
-                    $(`[data-item-id="${parentId}"]`)
-                        .append(`<div id="replies-container-${parentId}" class="replies-wrapper" style="display:none;">
-                                    <div class="replies-list"></div>
-                                </div>`);
+                    $(`[data-item-id="${parentId}"]`).append(`
+                        <div id="replies-container-${parentId}" class="replies-wrapper" style="display:none;">
+                            <div class="replies-list"></div>
+                        </div>
+                    `);
                     $container = $(`#replies-container-${parentId}`);
                 }
 
@@ -473,7 +479,7 @@
             }
 
             // Load replies
-           function loadReplies(commentId, page = 0, isAppend = true) {
+            function loadReplies(commentId, page = 0, isAppend = true) {
                 const $container = $(`#replies-container-${commentId}`);
                 const $list = $container.find('.replies-list');
                 const $btnMore = $container.find('.load-more-replies');
@@ -502,12 +508,12 @@
             function submitReply(commentId) {
                 const $form = $(`#reply-form-${commentId}`);
                 const content = $form.find('textarea').val().trim();
-                
+
                 if (!content) {
                     alert('Please enter your reply');
                     return;
                 }
-                
+
                 $.ajax({
                     url: '/comments',
                     method: 'POST',
@@ -520,63 +526,9 @@
                         loadReplies(commentId, 0, false);
                     },
                     error: function(error) {
-                        console.error('Error posting reply:', error);
                         alert('Failed to post reply. Please try again.');
                     }
                 });
-            }
-
-            // Update pagination
-            function updatePagination(response) {
-                const $paginationNav = $('#comment-pagination');
-                const $paginationList = $('#pagination-list');
-                
-                $paginationList.empty();
-
-                if (response.totalPages <= 1) {
-                    $paginationNav.hide();
-                    return;
-                }
-
-                $paginationNav.show();
-                const currentPage = response.currentPage; 
-                const totalPages = response.totalPages;
-
-                const hasPrevious = currentPage > 0;
-                const prevDisabled = !hasPrevious ? 'disabled' : '';
-                
-                $paginationList.append(`
-                    <li class="page-item ${prevDisabled}">
-                        <a class="page-link" href="javascript:void(0)" 
-                        onclick="${hasPrevious ? `loadComments(${currentPage - 1})` : ''}">
-                        &laquo;
-                        </a>
-                    </li>
-                `);
-
-                for (let i = 0; i < totalPages; i++) {
-                    const activeClass = (i === currentPage) ? 'active' : '';
-
-                    $paginationList.append(`
-                        <li class="page-item ${activeClass}">
-                            <a class="page-link" href="javascript:void(0)" onclick="loadComments(${i})">
-                                ${i + 1}
-                            </a>
-                        </li>
-                    `);
-                }
-
-                const hasNext = currentPage < totalPages - 1;
-                const nextDisabled = !hasNext ? 'disabled' : '';
-
-                $paginationList.append(`
-                    <li class="page-item ${nextDisabled}">
-                        <a class="page-link" href="javascript:void(0)" 
-                        onclick="${hasNext ? `loadComments(${currentPage + 1})` : ''}">
-                        &raquo;
-                        </a>
-                    </li>
-                `);
             }
 
             // Submit comment
@@ -600,7 +552,6 @@
                         loadComments(0);
                     },
                     error: function(error) {
-                        console.error('Error posting comment:', error);
                         alert('Failed to post comment. Please try again.');
                     }
                 });

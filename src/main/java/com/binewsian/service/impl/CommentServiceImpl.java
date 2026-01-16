@@ -32,26 +32,23 @@ public class CommentServiceImpl implements CommentService {
 
     public void create(CommentRequest request, User user) throws BiNewsianException {
         if (request.contentType() == null) {
-            throw new BiNewsianException("Commentable ID is required.");
+            throw new BiNewsianException("Content type is required.");
         }
 
         if (request.contentId() == null) {
-            throw new BiNewsianException("Commentable type is required.");
+            throw new BiNewsianException("Content ID is required.");
         }
 
         switch (request.contentType()) {
-            case "News" -> {
+            case "NEWS" -> {
                 if (!newsRepository.existsById(request.contentId())) {
                     throw new BiNewsianException(AppConstant.NEWS_NOT_FOUND);
                 }
             }
-            case "Activity" -> {
+            case "ACTIVITY" -> {
                 if (!activityRepository.existsById(request.contentId())) {
                     throw new BiNewsianException(AppConstant.ACTIVITY_NOT_FOUND);
                 }
-            }
-            case "Forum" -> {
-                
             }
         }
 
@@ -66,13 +63,13 @@ public class CommentServiceImpl implements CommentService {
         comment.setContent(request.content());
         comment.setUser(user);
 
-        Long parentCommentId = request.parentId();
+        Long parentId = request.parentId();
 
-        if (parentCommentId != null) {
-            Comment parentComment = commentRepository.findById(parentCommentId)
-                    .orElseThrow(() -> new BiNewsianException("Parent comment not found."));
+        if (parentId != null) {
+            Comment parent = commentRepository.findById(parentId)
+                    .orElseThrow(() -> new BiNewsianException(AppConstant.PARENT_COMMENT_NOT_FOUND));
 
-            comment.setParent(parentComment);
+            comment.setParent(parent);
         }
 
         commentRepository.save(comment);
@@ -81,7 +78,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public void update(Long id, CommentRequest request, User user) throws BiNewsianException {
         Comment comment = commentRepository.findById(id)
-                .orElseThrow(() -> new BiNewsianException("Comment not found."));
+                .orElseThrow(() -> new BiNewsianException(AppConstant.COMMENT_NOT_FOUND));
 
         if (!comment.getUser().getId().equals(user.getId())) {
             throw new BiNewsianException("You are not authorized to edit this comment.");
@@ -95,9 +92,9 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public void delete(Long id, User user) throws BiNewsianException {
         Comment comment = commentRepository.findById(id)
-                .orElseThrow(() -> new BiNewsianException("Comment not found."));
+                .orElseThrow(() -> new BiNewsianException(AppConstant.COMMENT_NOT_FOUND));
         
-        if (!comment.getUser().getId().equals(user.getId())) {
+        if (!comment.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
             throw new BiNewsianException("You are not authorized to delete this comment.");
         }
 

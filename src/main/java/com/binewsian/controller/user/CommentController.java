@@ -1,4 +1,4 @@
-package com.binewsian.controller;
+package com.binewsian.controller.user;
 
 import com.binewsian.constant.AppConstant;
 import com.binewsian.dto.CommentRequest;

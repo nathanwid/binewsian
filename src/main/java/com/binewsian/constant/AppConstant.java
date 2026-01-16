@@ -8,6 +8,9 @@ public class AppConstant {
 
     public final static String ACTIVITY_NOT_FOUND = "Activity not found.";
 
+    public final static String COMMENT_NOT_FOUND = "Comment not found.";
+    public final static String PARENT_COMMENT_NOT_FOUND = "Parent comment not found.";
+
     public final static String USER_NOT_FOUND = "User not found.";
     public final static String USER_HAS_BEEN_DEACTIVATED = "User has been deactivated.";
     public final static String USERNAME_ALREADY_EXISTS = "Username already exists.";

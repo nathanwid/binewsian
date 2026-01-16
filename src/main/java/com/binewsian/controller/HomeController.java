@@ -126,6 +126,7 @@ public class HomeController {
 
             model.addAttribute("user", user);
             model.addAttribute("news",  news);
+            model.addAttribute("isBookmarked", bookmarkService.isBookmarked(user, "NEWS", id));
 
             return "news-detail";
         } catch (BiNewsianException e) {

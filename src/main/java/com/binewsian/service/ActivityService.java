@@ -16,7 +16,7 @@ public interface ActivityService {
     void delete(Long id) throws BiNewsianException;
     Activity findById(Long id) throws BiNewsianException;
     Page<Activity> findPaginated(int page, int size);
-    Page<Activity> findPaginatedByUserId(int page, int size, long user);
+    Page<Activity> findPaginatedByUserId(int page, int size, Long userId);
     List<Activity> findAllByStatus();
     Page<Activity> getFilteredActivities(ActivityFilterDto filterDTO, int page, int size);
     Activity getActivityById(Long id) throws BiNewsianException;

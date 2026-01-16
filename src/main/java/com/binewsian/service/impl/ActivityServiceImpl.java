@@ -94,7 +94,6 @@ public class ActivityServiceImpl implements ActivityService {
         activity.setDetails(request.details());
         activity.setStatus(isDraft ? ActivityStatus.DRAFT : ActivityStatus.PUBLISHED);
         activity.setPublishedAt(isDraft ? null : LocalDateTime.now());
-        activity.setCreatedBy(user);
 
         activityRepository.save(activity);
     }
@@ -120,7 +119,7 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
-    public Page<Activity> findPaginatedByUserId(int page, int size, long userId) {
+    public Page<Activity> findPaginatedByUserId(int page, int size, Long userId) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         return activityRepository.findByCreatedBy_Id(userId, pageable);
     }

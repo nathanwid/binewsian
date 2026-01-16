@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ActivityRepository extends JpaRepository<Activity, Long> {
+    boolean existsById(Long id);
     int countByStatus(ActivityStatus status);
     int countByCreatedBy_Id(Long userId);
     int countByCreatedBy_IdAndStatus(Long userId, ActivityStatus status);

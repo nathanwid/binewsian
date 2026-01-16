@@ -133,7 +133,7 @@
             let isLastPage = false;
 
             $(document).ready(function() {
-                loadComments(0);
+                loadComments();
             });
 
             const $commentContent = $("#comment-content");
@@ -143,7 +143,7 @@
             });
 
             // Load comments with pagination
-            function loadComments(page) {
+            function loadComments() {
                 if (isLastPage) return;
 
                 $.ajax({
@@ -156,10 +156,10 @@
                         size: pageSize
                     },
                     success: function (response) {
-                        renderComments(response.comments, true); 
+                        renderComments(response.comments, currentPage !== 0); 
 
                         currentPage++;
-                        isLastPage = response.last;
+                        isLastPage = response.currentPage === response.totalPages - 1;
 
                         toggleLoadMoreButton(response);
                     },
@@ -549,7 +549,11 @@
                     data: JSON.stringify({ content: content, contentId: newsId, contentType: "NEWS", parentId: null }),
                     success: function(response) {
                         $('#comment-content').val('');
-                        loadComments(0);
+
+                        currentPage = 0;
+                        isLastPage = false;
+
+                        loadComments();
                     },
                     error: function(error) {
                         alert('Failed to post comment. Please try again.');

@@ -34,7 +34,7 @@
                 <div th:replace="fragments/stat-card :: statCard('bi-newspaper', 'Total News', ${summary.totalNews}, 'icon-news')"></div>
                 <div th:replace="fragments/stat-card :: statCard('bi-activity', 'Total Activity', ${summary.totalActivity}, 'icon-activity')"></div>
                 <div th:replace="fragments/stat-card :: statCard('bi-tags', 'Total Category', ${summary.totalCategory}, 'icon-published')"></div>
-                <div th:replace="fragments/stat-card :: statCard('bi-file-earmark', 'Total Contributor', ${summary.totalContributor}, 'icon-draft')"></div>
+                <div th:replace="fragments/stat-card :: statCard('bi-file-earmark', 'Active Contributors', ${summary.totalContributor}, 'icon-draft')"></div>
             </div>
         </div>
 
@@ -80,51 +80,8 @@
 
                             <!-- News List -->
                             <div id="newsList" th:if="${!#lists.isEmpty(news)}">
-                                <div class="news-item" th:each="news : ${news}" th:attr="data-name=${news.title}">
-                                    <div class="d-flex align-items-start">
-                                        <div class="thumb me-3 d-flex align-items-center justify-content-center bg-light rounded">
-                                            <!-- Image -->
-                                            <img th:if="${news.featuredImageUrl != null}" th:src="${news.featuredImageUrl}"
-                                                 class="w-100 h-100 object-fit-cover rounded" alt="Thumbnail">
-
-                                            <!-- Placeholder -->
-                                            <i th:if="${news.featuredImageUrl == null}" class="bi bi-image text-muted fs-4"></i>
-                                        </div>
-
-                                        <div class="flex-grow-1">
-                                            <div class="d-flex align-items-start justify-content-between">
-                                                <h6 class="news-title mb-1" th:text="${news.title}"></h6>
-
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <span class="status-pill status-published" th:text="${news.status.getDisplayName()}">-</span>
-
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-link p-1 ellipsis-btn" type="button" data-bs-toggle="dropdown">
-                                                            <i class="bi bi-three-dots-vertical"></i>
-                                                        </button>
-
-                                                        <ul class="dropdown-menu dropdown-menu-end">
-                                                            <li>
-                                                                <button class="dropdown-item text-danger action-delete" th:data-id="${news.id}" th:data-type="news">
-                                                                    <i class="bi bi-trash me-2"></i> Delete
-                                                                </button>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="d-flex flex-wrap gap-2 mb-1">
-                                                <span class="badge badge-soft">
-                                                    <i class="bi bi-tag"></i>
-                                                    <span th:text="${news.category.name}">-</span>
-                                                </span>
-                                                <span class="text-muted small">
-                                                    • <span th:text="${#temporals.format(news.createdAt, 'dd MMMM yyyy')}">-</span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="news-item" th:each="news : ${news}" th:attr="data-name=${news.title}, data-url=@{/news/{id}(id=${news.id})}">
+                                    <div th:replace="fragments/panel-news-item :: newsItem"></div>
                                 </div>
                             </div>
 
@@ -147,7 +104,7 @@
                                         <span th:text="${endItem}">-</span>
                                         of
                                         <span th:text="${newsTotalElements}">-</span>
-                                        categories
+                                        news
                                     </span>
                                 </div>
 
@@ -184,30 +141,7 @@
                             <!-- Activity List -->
                             <div id="activityList" th:if="${!#lists.isEmpty(activities)}">
                                 <div class="news-item" th:each="activity : ${activities}" th:attr="data-name=${activity.title}">
-                                    <div class="d-flex align-items-start">
-                                        <div class="flex-grow-1">
-                                            <div class="d-flex justify-content-between align-items-start">
-                                                <h6 class="mb-1" th:text="${activity.title}"></h6>
-
-                                                <div class="dropdown">
-                                                    <button class="btn btn-link p-1 ellipsis-btn" data-bs-toggle="dropdown">
-                                                        <i class="bi bi-three-dots-vertical"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li>
-                                                            <button class="dropdown-item text-danger action-delete" th:data-id="${activity.id}" th:data-type="activity">
-                                                                <i class="bi bi-trash me-2"></i> Delete
-                                                            </button>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-
-                                            <span class="badge badge-soft">
-                                                <span th:text="${activity.type.getDisplayName()}">-</span>
-                                            </span>
-                                        </div>
-                                    </div>
+                                    <div th:replace="fragments/panel-activity-item :: activityItem"></div>
                                 </div>
                             </div>
 
@@ -230,7 +164,7 @@
                                         <span th:text="${endItem}">-</span>
                                         of
                                         <span th:text="${activitiesTotalElements}">-</span>
-                                        categories
+                                        activities
                                     </span>
                                 </div>
 
@@ -367,18 +301,25 @@
                                                     </small>
                                                 </div>
 
-<!--                                                <div class="dropdown">-->
-<!--                                                    <button class="btn btn-link p-1 ellipsis-btn" data-bs-toggle="dropdown">-->
-<!--                                                        <i class="bi bi-three-dots-vertical"></i>-->
-<!--                                                    </button>-->
-<!--                                                    <ul class="dropdown-menu dropdown-menu-end">-->
-<!--                                                        <li>-->
-<!--                                                            <button class="dropdown-item text-danger action-delete" th:data-id="${contributor.id}" th:data-type="contributor">-->
-<!--                                                                <i class="bi bi-trash me-2"></i> Delete-->
-<!--                                                            </button>-->
-<!--                                                        </li>-->
-<!--                                                    </ul>-->
-<!--                                                </div>-->
+                                                <div class="dropdown">
+                                                    <span class="status-pill status-published" th:if="${contributor.enabled}">Active</span>
+                                                    <span class="status-pill status-draft" th:if="${!contributor.enabled}">Deactivated</span>
+                                                    <button class="btn btn-link p-1 ellipsis-btn" data-bs-toggle="dropdown">
+                                                        <i class="bi bi-three-dots-vertical"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                        <li th:if="${contributor.enabled}">
+                                                            <button class="dropdown-item text-danger action-enable" th:data-id="${contributor.id}" th:data-status="deactivate">
+                                                                <i class="bi bi-slash-circle me-2"></i> Deactivate
+                                                            </button>
+                                                        </li>
+                                                        <li th:if="${!contributor.enabled}">
+                                                            <button class="dropdown-item text-dark action-enable" th:data-id="${contributor.id}" th:data-status="activate">
+                                                                <i class="bi bi-check-circle me-2"></i> Activate
+                                                            </button>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -404,7 +345,7 @@
                                         <span th:text="${endItem}">-</span>
                                         of
                                         <span th:text="${contributorTotalElements}">-</span>
-                                        categories
+                                        contributors
                                     </span>
                                 </div>
 
@@ -516,6 +457,17 @@
 
     <th:block layout:fragment="scripts">
         <script th:inline="javascript">
+            $(document).on('click', '.news-item', function (e) {
+                if ($(e.target).closest('a, button, .dropdown, .ellipsis-btn').length) {
+                    return;
+                }
+
+                const url = $(this).data('url');
+                if (url) {
+                    window.location.href = url;
+                }
+            });
+
             const searchConfig = {
                 'searchNews': { endpoint: '/admin/news/search', type: 'news' },
                 'searchCategory': { endpoint: '/admin/categories/search', type: 'category' },
@@ -584,20 +536,29 @@
             }
 
             function renderNewsItem(item) {
+                const thumbnail = item.featuredImageUrl
+                    ? `<img src="${item.featuredImageUrl}" class="w-100 h-100 object-fit-cover rounded" alt="Thumbnail">`
+                    : `<i class="bi bi-image text-muted fs-4"></i>`;
+
+                let publishedAt = '';
+                if (item.publishedAt) {
+                    publishedAt = `
+                        <span class="text-muted small">
+                            • ${item.publishedAt}
+                        </span>
+                    `;
+                }
+
                 return `
-                    <div class="news-item" data-name="${item.title || ''}">
+                    <div class="news-item" data-name="${item.title || ''}"  data-url="/news/${item.id}">
                         <div class="d-flex align-items-start">
                             <div class="thumb me-3 d-flex align-items-center justify-content-center bg-light rounded">
-                                ${item.featuredImageUrl
-                                    ? `<img src="${item.featuredImageUrl}" class="w-100 h-100 object-fit-cover rounded" alt="Thumbnail">`
-                                    : `<i class="bi bi-image text-muted fs-4"></i>`
-                                }
+                                ${thumbnail}
                             </div>
                             <div class="flex-grow-1">
                                 <div class="d-flex align-items-start justify-content-between">
                                     <h6 class="news-title mb-1">${item.title || ''}</h6>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="status-pill status-published">${item.status || '-'}</span>
+                                    <div class="d-flex align-items-center">
                                         <div class="dropdown">
                                             <button class="btn btn-link p-1 ellipsis-btn" type="button" data-bs-toggle="dropdown">
                                                 <i class="bi bi-three-dots-vertical"></i>
@@ -612,12 +573,12 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="d-flex flex-wrap gap-2 mb-1">
+                                <div class="d-flex flex-wrap gap-1 mb-1">
                                     <span class="badge badge-soft">
                                         <i class="bi bi-tag"></i>
                                         <span>${item.category || '-'}</span>
                                     </span>
-                                    <span class="text-muted small">• <span>${item.createdAt || ''}</span></span>
+                                    ${publishedAt}
                                 </div>
                             </div>
                         </div>
@@ -660,28 +621,46 @@
             }
 
             function renderActivityItem(item) {
+                const type = item.type || '-';
+
+                let icon = '';
+                if (type === 'Student Activity Transcript') {
+                    icon = `<i class="bi bi-star-fill me-1" style="color:#f59e0b;"></i>`;
+                } else if (type === 'Community Service') {
+                    icon = `<i class="bi bi-clock me-1" style="color:#3b82f6;"></i>`;
+                }
+
+                let reward = '';
+                if (type === 'Student Activity Transcript') {
+                    reward = `• ${item.reward || 0} Points`;
+                } else if (type === 'Community Service') {
+                    reward = `• ${item.reward || 0} Hours`;
+                }
+
                 return `
                     <div class="news-item" data-name="${item.title || ''}">
-                        <div class="d-flex align-items-start">
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <h6 class="mb-1">${item.title || ''}</h6>
-                                    <div class="dropdown">
-                                        <button class="btn btn-link p-1 ellipsis-btn" data-bs-toggle="dropdown">
-                                            <i class="bi bi-three-dots-vertical"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li>
-                                                <button class="dropdown-item text-danger action-delete" data-id="${item.id}" data-type="activity">
-                                                    <i class="bi bi-trash me-2"></i> Delete
-                                                </button>
-                                            </li>
-                                        </ul>
-                                    </div>
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-2">${item.title || ''}</h6>
+                                <small class="text-muted d-flex align-items-center gap-1">
+                                    ${icon}
+                                    <span>${type}</span>
+                                    <span>${reward}</span>
+                                </small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <div class="dropdown">
+                                    <button class="btn btn-link p-1 ellipsis-btn" data-bs-toggle="dropdown">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <button class="dropdown-item text-danger action-delete" data-id="${item.id}" data-type="activity">
+                                                <i class="bi bi-trash me-2"></i> Delete
+                                            </button>
+                                        </li>
+                                    </ul>
                                 </div>
-                                <span class="badge badge-soft">
-                                    <span>${item.type || '-'}</span>
-                                </span>
                             </div>
                         </div>
                     </div>
@@ -938,7 +917,7 @@
                 if (type === "activity") ajaxUrl = "/admin/activities/delete";
 
                 Swal.fire({
-                    title: "Delete " + type + "?",
+                    title: "Are you sure?",
                     text: "This action cannot be undone.",
                     icon: "warning",
                     showCancelButton: true,
@@ -973,6 +952,57 @@
                             Swal.fire({
                                 icon: "error",
                                 title: "Delete failed",
+                                text: message,
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    location.reload();
+                                }
+                            });
+                        }
+                    })
+                })
+            })
+
+            $(document).on("click", ".action-enable", function () {
+                const id = $(this).data("id");
+                const status = $(this).data("status");
+
+                Swal.fire({
+                    title: capitalizeFirstLetter(status) + " this contributor?",
+                    text: "This action cannot be undone.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "Cancel"
+                }).then(result => {
+                    if (!result.isConfirmed) return;
+
+                    $.ajax({
+                        url: "/admin/contributors/update",
+                        method: "POST",
+                        data: { id: id },
+
+                        success: function () {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Success!",
+                                text: "Contributor account has been " + status + "d.",
+                                timer: 1600,
+                                showConfirmButton: false
+                            }).then(() => location.reload());
+                        },
+                        error: function (xhr) {
+                            let message = "Unexpected server error.";
+
+                            if (xhr.status === 400 && xhr.responseText) {
+                                message = xhr.responseText;
+                            } else if (xhr.status === 500) {
+                                message = xhr.responseText || "Unexpected server error.";
+                            }
+
+                            Swal.fire({
+                                icon: "error",
+                                title: "Update failed",
                                 text: message,
                             }).then((result) => {
                                 if (result.isConfirmed) {

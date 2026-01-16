@@ -1,0 +1,49 @@
+<div th:fragment="activityItem">
+    <div class="d-flex justify-content-between align-items-start">
+        <div>
+            <h6 class="mb-2" th:text="${activity.title}"></h6>
+
+            <small class="text-muted d-flex align-items-center gap-1">
+                <!-- Icon -->
+                <i th:if="${activity.type != null and activity.type.displayName == 'Student Activity Transcript'}"
+                   class="bi bi-star-fill me-1" style="color: #f59e0b;"></i>
+                <i th:if="${activity.type != null and activity.type.displayName == 'Community Service'}"
+                   class="bi bi-clock me-1" style="color: #3b82f6;"></i>
+
+                <!-- Text -->
+                <span th:text="${activity.type != null ? activity.type.displayName : '-'}">-</span>
+
+                <!-- Reward -->
+                <span th:if="${activity.rewardAmount != null and activity.type.displayName == 'Student Activity Transcript'}"
+                      th:text="|• ${activity.rewardAmount} Points|">
+                </span>
+                <span th:if="${activity.rewardAmount != null and activity.type.displayName == 'Community Service'}"
+                      th:text="|• ${activity.rewardAmount} Hours|">
+                </span>
+            </small>
+        </div>
+
+        <div class="d-flex align-items-center">
+            <h6 class="status-pill m-0" th:if="${user.role.name == 'CONTRIBUTOR'}"
+                  th:classappend="${activity.status.getCssClass()}" th:text="${activity.status.getDisplayName()}">-</h6>
+
+            <div class="dropdown">
+                <button class="btn btn-link p-1 ellipsis-btn" data-bs-toggle="dropdown">
+                    <i class="bi bi-three-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li th:if="${user.role.name == 'CONTRIBUTOR'}">
+                        <a class="dropdown-item" th:href="@{/contributor/edit-activity/{id}(id=${activity.id})}">
+                            <i class="bi bi-pencil me-2"></i> Edit
+                        </a>
+                    </li>
+                    <li>
+                        <button class="dropdown-item text-danger action-delete" th:data-id="${activity.id}" th:data-type="activity">
+                            <i class="bi bi-trash me-2"></i> Delete
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

@@ -54,6 +54,13 @@ public class ContributorServiceImpl implements ContributorService {
     }
 
     @Override
+    public void update(Long id) throws BiNewsianException {
+        User user = userRepository.findById(id).orElseThrow(() -> new BiNewsianException(AppConstant.USER_NOT_FOUND));
+        user.setEnabled(user.isEnabled() ? false : true);
+        userRepository.save(user);
+    }
+
+    @Override
     public Page<User> findContributorPaginated(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         return userRepository.findByRole(Role.CONTRIBUTOR, pageable);

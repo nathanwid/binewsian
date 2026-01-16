@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface ContributorService {
     void create(String username, String email) throws BiNewsianException;
+    void update(Long id) throws BiNewsianException;
     Page<User> findContributorPaginated(int page, int size);
     List<User> findAll();
 }

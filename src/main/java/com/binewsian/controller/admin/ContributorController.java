@@ -35,6 +35,18 @@ public class ContributorController {
         }
     }
 
+    @PostMapping("/contributors/update")
+    public ResponseEntity<?> updateContributor(@RequestParam Long id) {
+        try {
+            contributorService.update(id);
+            return ResponseEntity.ok().build();
+        } catch (BiNewsianException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body(AppConstant.UNEXPECTED_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/contributors/search")
     @ResponseBody
     public List<Map<String, Object>> searchContributor(@RequestParam String query) {

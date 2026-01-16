@@ -48,7 +48,7 @@ public class NewsController {
                     map.put("status", n.getStatus().getDisplayName());
                     map.put("category", n.getCategory().getName());
                     map.put("featuredImageUrl", n.getFeaturedImageUrl());
-                    map.put("createdAt", n.getCreatedAt().format(DateTimeFormatter.ofPattern("dd MMMM yyyy")));
+                    map.put("publishedAt", n.getPublishedAt().format(DateTimeFormatter.ofPattern("dd MMMM yyyy")));
                     return map;
                 })
                 .collect(Collectors.toList());

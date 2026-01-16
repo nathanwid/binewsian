@@ -1,0 +1,53 @@
+<div th:fragment="newsItem">
+    <div class="d-flex align-items-start">
+        <div class="thumb me-3 d-flex align-items-center justify-content-center bg-light rounded">
+            <!-- Image -->
+            <img th:if="${news.featuredImageUrl != null}" th:src="${news.featuredImageUrl}"
+                 class="w-100 h-100 object-fit-cover rounded" alt="Thumbnail">
+
+            <!-- Placeholder -->
+            <i th:if="${news.featuredImageUrl == null}" class="bi bi-image text-muted fs-4"></i>
+        </div>
+
+        <div class="flex-grow-1">
+            <div class="d-flex align-items-start justify-content-between">
+                <h6 class="news-title mb-1" th:text="${news.title}"></h6>
+
+                <div class="d-flex align-items-center">
+                    <h6 class="status-pill m-0" th:if="${user.role.name == 'CONTRIBUTOR'}"
+                          th:classappend="${news.status.getCssClass()}" th:text="${news.status.getDisplayName()}">-</h6>
+
+                    <div class="dropdown">
+                        <button class="btn btn-link p-1 ellipsis-btn" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li th:if="${user.role.name == 'CONTRIBUTOR'}">
+                                <a class="dropdown-item" th:href="@{/contributor/edit-news/{id}(id=${news.id})}">
+                                    <i class="bi bi-pencil me-2"></i> Edit
+                                </a>
+                            </li>
+                            <li>
+                                <button class="dropdown-item text-danger action-delete" th:data-id="${news.id}" th:data-type="news">
+                                    <i class="bi bi-trash me-2"></i> Delete
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-1 mb-1">
+                <span class="badge badge-soft">
+                    <i class="bi bi-tag"></i>
+                    <span th:text="${news.category != null ? news.category.name : '-'}">-</span>
+                </span>
+
+                <span class="text-muted small" th:if="${news.publishedAt != null}">
+                    <span th:text="|• ${#temporals.format(news.publishedAt, 'dd MMMM yyyy')}|">-</span>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>

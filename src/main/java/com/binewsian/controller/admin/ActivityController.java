@@ -45,6 +45,7 @@ public class ActivityController {
                     map.put("id", a.getId());
                     map.put("title", a.getTitle());
                     map.put("type", a.getType().getDisplayName());
+                    map.put("reward", a.getRewardAmount());
                     return map;
                 })
                 .collect(Collectors.toList());

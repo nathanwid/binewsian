@@ -1,6 +1,7 @@
 package com.binewsian.service.impl;
 
 import com.binewsian.constant.AppConstant;
+import com.binewsian.dto.NewsFilterDto;
 import com.binewsian.dto.NewsRequest;
 import com.binewsian.enums.NewsStatus;
 import com.binewsian.exception.BiNewsianException;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -126,6 +128,30 @@ public class NewsServiceImpl implements NewsService {
     @Override
     public List<News> findLatestPublished() {
         return newsRepository.findTop5ByPublishedAtNotNullOrderByPublishedAtDesc();
+    }
+
+    @Override
+    public Page<News> getFilteredNews(NewsFilterDto filterDto, int page, int size) {        
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "publishedAt");
+
+        String categoryName = filterDto.getCategory();
+        Long categoryId = null;
+        
+        if (categoryName != null && !categoryName.isEmpty()) {
+            Optional<Category> categoryOpt = categoryRepository.findByNameIgnoreCase(categoryName);
+
+            if (categoryOpt.isEmpty()) {
+                return Page.empty(pageable);
+            }
+
+            categoryId = categoryOpt.get().getId();
+        }
+
+        return newsRepository.findNewsWithFilters(
+                NewsStatus.PUBLISHED,
+                categoryId,
+                pageable
+        );
     }
 
     private void validateOwnerAndStatus(News news, User user) throws BiNewsianException {

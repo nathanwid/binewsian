@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/base}">
+<head>
+    <title>News</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container pt-4 pb-5 activity">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-2">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}" class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item active">News</li>
+            </ol>
+        </nav>
+
+        <h3>News & Updates</h3>
+        <p style="color: #6b7280;">The latest information about campus activities, achievements and announcements.</p>
+
+        <!-- Search -->
+        <div class="d-flex gap-2 mb-3 mt-4">
+            <div class="search-wrapper">
+                <i class="bi bi-search"></i>
+                <input type="text" id="searchInput" class="form-control" placeholder="Search for news, announcements, or events...">
+            </div>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="d-flex gap-2 mb-4 flex-wrap" th:if="${categories != null and !categories.isEmpty()}">
+            <a th:href="@{/news}"
+               class="category-btn"
+               th:classappend="${category == null or category == ''} ? 'active' : ''">
+                All
+            </a>
+            <a th:each="cat : ${categories}"
+               th:href="@{/news(category=${cat.name})}"
+               class="category-btn"
+               th:classappend="${category == cat.name} ? 'active' : ''"
+               th:text="${cat.name}">
+                Category Name
+            </a>
+        </div>
+
+        <!-- News Grid -->
+        <div class="row g-3" id="newsGrid">
+            <th:block th:if="${news != null and !news.isEmpty()}">
+                <div class="col-12 col-md-6 col-lg-4" th:each="newsItem : ${news}">
+                    <div class="news-card" th:onclick="'window.location.href=\'/news/' + ${newsItem.id} + '\''">
+                        <!-- News Image -->
+                        <div class="news-image">
+                            <img th:src="${newsItem.featuredImageUrl}"
+                                 th:alt="${newsItem.title}"
+                                 onerror="this.src='/images/default-news.jpg'">
+                            <span class="news-category-badge" th:text="${newsItem.category.name}"></span>
+                        </div>
+
+                        <!-- News Content -->
+                        <div class="news-content">
+                            <h5 class="news-title" th:text="${newsItem.title}"></h5>
+                            <p class="news-description"
+                               th:text="${#strings.length(newsItem.summary) > 120 ? #strings.substring(newsItem.summary, 0, 120) + '...' : newsItem.summary}">
+                            </p>
+
+                            <!-- News Meta -->
+                            <div class="news-meta">
+                                <div class="meta-item">
+                                    <i class="bi bi-calendar"></i>
+                                    <span th:text="${#temporals.format(newsItem.publishedAt, 'd MMMM yyyy')}"></span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="bi bi-person"></i>
+                                    <span th:text="${newsItem.createdBy.username}"></span>
+                                </div>
+                            </div>
+
+                            <!-- Tags -->
+                            <div class="news-tags">
+                                <span class="tag" th:text="${newsItem.category.name}"></span>
+                            </div>
+
+                            <!-- Read More -->
+                            <a th:href="@{'/news/' + ${newsItem.id}}" class="read-more-link">
+                                Read More
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </th:block>
+
+            <div th:if="${news == null or news.isEmpty()}" class="col-12">
+                <div class="no-activities">
+                    <i class="bi bi-inbox" style="font-size: 3rem; color: #d1d5db;"></i>
+                    <p class="mt-3 mb-0">No news found</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between align-items-center mt-3" th:if="${news != null and !news.isEmpty()}">
+            <p class="text-muted mb-0">
+                Showing <span id="startCount" th:text="${currentPage * 9 + 1}">-</span> to
+                <span id="endCount" th:text="${currentPage * 9 + news.size()}">-</span> of
+                <span th:text="${totalNews}">-</span> news
+            </p>
+
+            <nav aria-label="News pagination" th:if="${totalPages > 1}">
+                <ul class="pagination mb-0">
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link" th:href="@{/news(page=${currentPage - 1})}" tabindex="-1">&laquo;</a>
+                    </li>
+
+                    <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                        <li class="page-item"
+                            th:if="${i == 0 or i == totalPages - 1 or (i >= currentPage - 1 and i <= currentPage + 1)}"
+                            th:classappend="${i == currentPage} ? 'active'">
+                            <a class="page-link" th:href="@{/news(page=${i})}" th:text="${i + 1}"></a>
+                        </li>
+                        <li class="page-item disabled"
+                            th:if="${(i == 1 and currentPage > 2) or (i == totalPages - 2 and currentPage < totalPages - 3)}">
+                            <span class="page-link">...</span>
+                        </li>
+                    </th:block>
+
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/news(page=${currentPage + 1})}">&raquo;</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="scripts">
+    <script>
+        $('#searchInput').on('input', function () {
+            const searchTerm = $(this).val().toLowerCase();
+            const cards = $('.col-12');
+            let visibleCount = 0;
+            let firstVisible = 0;
+            let lastVisible = 0;
+
+            cards.each(function (index) {
+                const title = $(this).find('.news-title');
+
+                if (title.length) {
+                    const titleText = title.text().toLowerCase();
+
+                    if (titleText.includes(searchTerm)) {
+                        $(this).show();
+                        visibleCount++;
+
+                        if (firstVisible === 0) {
+                            firstVisible = index + 1;
+                        }
+                        lastVisible = index + 1;
+                    } else {
+                        $(this).hide();
+                    }
+                }
+            })
+
+            if (visibleCount > 0) {
+                $('#startCount').text(firstVisible);
+                $('#endCount').text(lastVisible);
+            } else {
+                $('#startCount').text('0');
+                $('#endCount').text('0');
+            }
+        })
+
+        $(document).on('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeFilter();
+            }
+        });
+    </script>
+    <style>
+        /* Category Filter Buttons */
+        .category-btn {
+            padding: 8px 20px;
+            border-radius: 20px;
+            background-color: #fff;
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .category-btn:hover {
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+
+        .category-btn.active {
+            background-color: #8b5cf6;
+            color: white;
+            border-color: #8b5cf6;
+        }
+
+        /* News Card */
+        .news-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .news-card:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            transform: translateY(-5px);
+        }
+
+        /* News Image */
+        .news-image {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .news-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .news-card:hover .news-image img {
+            transform: scale(1.05);
+        }
+
+        .news-category-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background-color: #8b5cf6;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        /* News Content */
+        .news-content {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .news-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 12px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .news-description {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 16px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        /* News Meta */
+        .news-meta {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #9ca3af;
+        }
+
+        .meta-item i {
+            font-size: 14px;
+        }
+
+        /* News Tags */
+        .news-tags {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .news-tags .tag {
+            padding: 4px 10px;
+            background-color: #f3f4f6;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        /* Read More Link */
+        .read-more-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #8b5cf6;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            transition: gap 0.3s ease;
+            margin-top: auto;
+        }
+
+        .read-more-link:hover {
+            gap: 10px;
+        }
+    </style>
+</th:block>
+</body>
+</html>

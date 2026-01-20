@@ -18,6 +18,6 @@ public interface ActivityService {
     Page<Activity> findPaginated(int page, int size);
     Page<Activity> findPaginatedByUserId(int page, int size, Long userId);
     List<Activity> findAllByStatus();
-    Page<Activity> getFilteredActivities(ActivityFilterDto filterDTO, int page, int size);
+    Page<Activity> getFilteredActivities(ActivityFilterDto filterDto, int page, int size);
     Activity getActivityById(Long id) throws BiNewsianException;
 }

@@ -2,14 +2,17 @@ package com.binewsian.controller;
 
 import com.binewsian.annotation.RequireRole;
 import com.binewsian.dto.ActivityFilterDto;
+import com.binewsian.dto.NewsFilterDto;
 import com.binewsian.enums.ActivityType;
 import com.binewsian.enums.Role;
 import com.binewsian.exception.BiNewsianException;
 import com.binewsian.model.Activity;
+import com.binewsian.model.Category;
 import com.binewsian.service.ActivityService;
 import com.binewsian.service.BookmarkService;
 import com.binewsian.model.News;
 import com.binewsian.model.User;
+import com.binewsian.service.CategoryService;
 import com.binewsian.service.NewsService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +36,7 @@ public class HomeController {
 
     private final ActivityService activityService;
     private final BookmarkService bookmarkService;
+    private final CategoryService categoryService;
     private final NewsService newsService;
 
     @GetMapping("/")
@@ -64,8 +68,8 @@ public class HomeController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(required = false) String sort,
             HttpSession session,
-            Model model) {
-
+            Model model
+    ) {
         User user = (User) session.getAttribute("user");
         model.addAttribute("user", user);
 
@@ -81,6 +85,7 @@ public class HomeController {
             List<ActivityType> activityTypes = Arrays.stream(type.split(","))
                     .map(ActivityType::valueOf)
                     .collect(Collectors.toList());
+
             filterDto.setType(activityTypes);
         }
 
@@ -116,6 +121,39 @@ public class HomeController {
 
         return "activity-detail";
     }  
+
+    @GetMapping("/news")
+    @RequireRole({Role.USER, Role.CONTRIBUTOR, Role.ADMIN})
+    public String showNewsPage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "9") int size,
+            @RequestParam(required = false) String category,
+            HttpSession session,
+            Model model
+    ) {
+        User user = (User) session.getAttribute("user");
+        List<Category> categories = categoryService.findAll();
+
+        model.addAttribute("user", user);
+        model.addAttribute("categories", categories);
+
+        NewsFilterDto filterDto = new NewsFilterDto();
+
+        if (category != null && !category.isEmpty()) {
+            filterDto.setCategory(category);
+        }
+
+        Page<News> newsPage = newsService.getFilteredNews(filterDto, page, size);
+
+        model.addAttribute("news", newsPage.getContent());
+        model.addAttribute("currentPage", newsPage.getNumber());
+        model.addAttribute("totalPages", newsPage.getTotalPages());
+        model.addAttribute("totalNews", newsPage.getTotalElements());
+
+        model.addAttribute("category", category);
+
+        return "news";
+    }
       
     @GetMapping("/news/{id}")
     @RequireRole({Role.USER, Role.CONTRIBUTOR, Role.ADMIN})

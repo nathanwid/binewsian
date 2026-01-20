@@ -1,7 +1,9 @@
 package com.binewsian.service;
 
+import com.binewsian.dto.NewsFilterDto;
 import com.binewsian.dto.NewsRequest;
 import com.binewsian.exception.BiNewsianException;
+
 import com.binewsian.model.News;
 import com.binewsian.model.User;
 import org.springframework.data.domain.Page;
@@ -18,4 +20,5 @@ public interface NewsService {
     Page<News> findPaginatedByUserId(int page, int size, Long userId);
     List<News> findAllByStatus();
     List<News> findLatestPublished();
+    Page<News> getFilteredNews(NewsFilterDto filterDto, int page, int size);
 }

@@ -48,9 +48,7 @@
                     <div class="news-card" th:onclick="'window.location.href=\'/news/' + ${newsItem.id} + '\''">
                         <!-- News Image -->
                         <div class="news-image">
-                            <img th:src="${newsItem.featuredImageUrl}"
-                                 th:alt="${newsItem.title}"
-                                 onerror="this.src='/images/default-news.jpg'">
+                            <img th:src="${newsItem.featuredImageUrl}">
                             <span class="news-category-badge" th:text="${newsItem.category.name}"></span>
                         </div>
 

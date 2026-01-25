@@ -2141,6 +2141,31 @@ body {
    NEWS
    ======================================== */
 
+.news .search-wrapper {
+    position: relative;
+    flex-grow: 1;
+}
+
+.news .search-wrapper input {
+    width: 100%;
+    padding: 0.625rem 1rem 0.625rem 2.5rem;
+    font-size: 0.9375rem;
+}
+
+.news .search-wrapper .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+    outline: none;
+}
+
+.news .search-wrapper i {
+    position: absolute;
+    left: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+}
+
 .news .category-btn {
     padding: 0.5rem 1.25rem;
     border-radius: 20px;

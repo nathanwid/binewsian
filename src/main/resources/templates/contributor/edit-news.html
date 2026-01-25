@@ -7,11 +7,11 @@
     <div layout:fragment="content">
         <div class="container mb-4">
             <div class="d-flex flex-wrap gap-2">
-                <a th:href="@{/contributor/content}" class="btn btn-gradient" style="border:1px solid #c3c4c7;">
+                <a th:href="@{/contributor/content}" class="btn btn-light" style="border:1px solid #c3c4c7;">
                     <i class="bi bi-grid-1x2"></i> Dashboard
                 </a>
-                <a th:href="@{/contributor/create-news}" class="btn btn-light" style="border:1px solid #c3c4c7;">
-                    <i class="bi bi-plus-lg"></i> Create News
+                <a th:href="@{/contributor/edit-news/{id}(id=${news.id})}" class="btn btn-gradient" style="border:1px solid #c3c4c7;">
+                    <i class="bi bi-plus-lg"></i> Edit News
                 </a>
                 <a th:href="@{/contributor/create-activity}" class="btn btn-light" style="border:1px solid #c3c4c7;">
                     <i class="bi bi-plus-lg"></i> Create Activity

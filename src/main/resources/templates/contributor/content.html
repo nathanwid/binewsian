@@ -62,9 +62,9 @@
                     <div class="tab-content">
                         <!-- My News -->
                         <div class="tab-pane fade" id="panel-news" role="tabpanel" aria-labelledby="tab-news">
-                            <div class="search-wrap mb-3 d-flex align-items-center gap-2">
+                            <div th:if="${!#lists.isEmpty(news)}" class="search-wrap mb-3 d-flex align-items-center gap-2">
                                 <i class="bi bi-search text-muted"></i>
-                                <input id="searchNews" type="text" class="form-control" placeholder="Search News">
+                                <input id="searchNews" data-list="#newsList" data-empty="#noNews" type="text" class="form-control" placeholder="Search News">
                             </div>
 
                             <!-- News List -->
@@ -83,33 +83,48 @@
                             </div>
 
                             <!-- Pagination -->
-                            <nav th:if="${newsTotalPages > 1}" class="mt-3">
-                                <ul class="pagination justify-content-center">
-                                    <li class="page-item" th:classappend="${newsCurrentPage == 0} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/admin/panel(newsPage=${newsCurrentPage - 1}, tab='news')}">
-                                            &laquo;
-                                        </a>
-                                    </li>
+                            <div th:if="${!#lists.isEmpty(news)}" class="pagination-info d-flex justify-content-between align-items-center mt-3">
+                                <div class="text-muted">
+                                    <span th:with="startItem=${newsCurrentPage * newsPageSize + 1},
+                                                   endItem=${(newsCurrentPage + 1) * newsPageSize > newsTotalElements ? newsTotalElements : (newsCurrentPage + 1) * newsPageSize}">
+                                        Showing
+                                        <span th:text="${startItem}">-</span>
+                                        to
+                                        <span th:text="${endItem}">-</span>
+                                        of
+                                        <span th:text="${newsTotalElements}">-</span>
+                                        news
+                                    </span>
+                                </div>
 
-                                    <li class="page-item" th:each="i : ${#numbers.sequence(0, newsTotalPages - 1)}" th:classappend="${i == newsCurrentPage} ? 'active'">
-                                        <a class="page-link" th:text="${i + 1}" th:href="@{/contributor/content(newsPage=${i}, tab='news')}"></a>
-                                    </li>
+                                <nav>
+                                    <ul class="pagination mb-0">
+                                        <li class="page-item" th:classappend="${newsCurrentPage == 0} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/contributor/content(newsPage=${newsCurrentPage - 1}, tab='news')}">
+                                                &laquo;
+                                            </a>
+                                        </li>
 
-                                    <li class="page-item" th:classappend="${newsCurrentPage + 1 == newsTotalPages} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/admin/panel(newsPage=${newsCurrentPage + 1}, tab='news')}">
-                                            &raquo;
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
+                                        <li class="page-item" th:each="i : ${#numbers.sequence(0, newsTotalPages - 1)}" th:classappend="${i == newsCurrentPage} ? 'active'">
+                                            <a class="page-link" th:text="${i + 1}" th:href="@{/contributor/content(newsPage=${i}, tab='news')}"></a>
+                                        </li>
+
+                                        <li class="page-item" th:classappend="${newsCurrentPage + 1 == newsTotalPages} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/contributor/content(newsPage=${newsCurrentPage + 1}, tab='news')}">
+                                                &raquo;
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
                         </div>
 
                         <!-- Manage Activity  -->
                         <div class="tab-pane fade" id="panel-activity" role="tabpanel" aria-labelledby="tab-activity">
                             <!-- Search -->
-                            <div class="search-wrap mb-3 d-flex align-items-center gap-2">
+                            <div th:if="${!#lists.isEmpty(activities)}" class="search-wrap mb-3 d-flex align-items-center gap-2">
                                 <i class="bi bi-search text-muted"></i>
-                                <input id="searchActivity" type="text" class="form-control" placeholder="Search Activity" aria-label="Search Activity">
+                                <input id="searchActivity" data-list="#activityList" data-empty="#noActivities" type="text" class="form-control" placeholder="Search Activity" aria-label="Search Activity">
                             </div>
 
                             <!-- Activity List -->
@@ -128,25 +143,40 @@
                             </div>
 
                             <!-- Pagination -->
-                            <nav th:if="${activitiesTotalPages > 1}" class="mt-3">
-                                <ul class="pagination justify-content-center">
-                                    <li class="page-item" th:classappend="${activitiesCurrentPage == 0} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/contributor/content(activityPage=${activitiesCurrentPage - 1}, tab='activity')}">
-                                            &laquo;
-                                        </a>
-                                    </li>
+                            <div th:if="${!#lists.isEmpty(activities)}" class="pagination-info d-flex justify-content-between align-items-center mt-3">
+                                <div class="text-muted">
+                                    <span th:with="startItem=${activitiesCurrentPage * activitiesPageSize + 1},
+                                                   endItem=${(activitiesCurrentPage + 1) * activitiesPageSize > activitiesTotalElements ? activitiesTotalElements : (activitiesCurrentPage + 1) * activitiesPageSize}">
+                                        Showing
+                                        <span th:text="${startItem}">-</span>
+                                        to
+                                        <span th:text="${endItem}">-</span>
+                                        of
+                                        <span th:text="${activitiesTotalElements}">-</span>
+                                        activities
+                                    </span>
+                                </div>
 
-                                    <li class="page-item" th:each="i : ${#numbers.sequence(0, activitiesTotalPages - 1)}" th:classappend="${i == activitiesCurrentPage} ? 'active'">
-                                        <a class="page-link" th:text="${i + 1}" th:href="@{/contributor/content(activityPage=${i}, tab='activity')}"></a>
-                                    </li>
+                                <nav>
+                                    <ul class="pagination mb-0">
+                                        <li class="page-item" th:classappend="${activitiesCurrentPage == 0} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/contributor/content(activityPage=${activitiesCurrentPage - 1}, tab='activity')}">
+                                                &laquo;
+                                            </a>
+                                        </li>
 
-                                    <li class="page-item" th:classappend="${activitiesCurrentPage + 1 == activitiesTotalPages} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/contributor/content(activityPage=${activitiesCurrentPage + 1}, tab='activity')}">
-                                            &raquo;
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
+                                        <li class="page-item" th:each="i : ${#numbers.sequence(0, activitiesTotalPages - 1)}" th:classappend="${i == activitiesCurrentPage} ? 'active'">
+                                            <a class="page-link" th:text="${i + 1}" th:href="@{/contributor/content(activityPage=${i}, tab='activity')}"></a>
+                                        </li>
+
+                                        <li class="page-item" th:classappend="${activitiesCurrentPage + 1 == activitiesTotalPages} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/contributor/content(activityPage=${activitiesCurrentPage + 1}, tab='activity')}">
+                                                &raquo;
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -167,35 +197,188 @@
                 }
             });
 
-            $("#searchNews").on("input", function () {
+            const searchConfig = {
+                'searchNews': { endpoint: '/contributor/news/search', type: 'news' },
+                'searchActivity': { endpoint: '/contributor/activities/search', type: 'activity' }
+            };
+
+            $("[id^='search']").on("input", function () {
                 const q = $(this).val().toLowerCase();
-                let matches = 0;
+                const searchId = $(this).attr('id');
+                const list = $(this).data("list");
+                const empty = $(this).data("empty");
+                const tabPane = $(this).closest('.tab-pane');
+                const pagination = tabPane.find('.pagination-info');
 
-                $("#newsList .news-item").each(function () {
-                    const name = $(this).data("name").toLowerCase();
-                    const isMatch = name.includes(q);
+                if (q.length === 0) {
+                    location.reload();
+                    return;
+                }
 
-                    $(this).toggle(isMatch);
-                    if (isMatch) matches++;
-                });
+                const config = searchConfig[searchId];
+                if (!config) {
+                    return;
+                }
 
-                $("#noNews").toggle(matches === 0 && q.length > 0);
+                pagination.addClass('hidden-pagination');
+
+                $.ajax({
+                    url: config.endpoint,
+                    method: 'GET',
+                    data: { query: q },
+                    success: function(data) {
+
+                        $(list).empty();
+
+                        if (data.length === 0) {
+                            $(empty).show();
+                        } else {
+                            $(empty).hide();
+
+                            data.forEach(function(item) {
+                                const html = renderItemFromObject(item, config.type);
+                                $(list).append(html);
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        $(empty).text('Search failed. Please try again.').show();
+                    }
+                })
             })
 
-            $("#searchActivity").on("input", function () {
-                const q = $(this).val().toLowerCase();
-                let matches = 0;
+            function renderItemFromObject(item, type) {
+                switch(type) {
+                    case 'news':
+                        return renderNewsItem(item);
+                    case 'activity':
+                        return renderActivityItem(item);
+                    default:
+                        return '';
+                }
+            }
 
-                $("#activityList .news-item").each(function () {
-                    const name = $(this).data("name").toLowerCase();
-                    const isMatch = name.includes(q);
+            function renderNewsItem(item) {
+                const thumbnail = item.featuredImageUrl
+                    ? `<img src="${item.featuredImageUrl}" class="w-100 h-100 object-fit-cover rounded" alt="Thumbnail">`
+                    : `<i class="bi bi-image text-muted fs-4"></i>`;
 
-                    $(this).toggle(isMatch);
-                    if (isMatch) matches++;
-                });
+                const publishedAt = item.publishedAt
+                    ? `<span class="text-muted small">• ${item.publishedAt}</span>`
+                    : '';
 
-                $("#noActivities").toggle(matches === 0 && q.length > 0);
-            })
+                const statusPill = `
+                    <h6 class="status-pill m-0 ${item.statusClass || ''}">
+                        ${item.statusName || '-'}
+                    </h6>
+                `;
+
+                return `
+                    <div class="news-item" data-name="${item.title}" data-url="/news/${item.id}">
+                        <div class="d-flex align-items-start">
+                            <div class="thumb me-3 d-flex align-items-center justify-content-center bg-light rounded">
+                                ${thumbnail}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-start justify-content-between">
+                                    <h6 class="news-title mb-1">${item.title}</h6>
+                                    <div class="d-flex align-items-center">
+                                        ${statusPill}
+                                        <div class="dropdown">
+                                            <button class="btn btn-link p-1 ellipsis-btn" type="button" data-bs-toggle="dropdown">
+                                                <i class="bi bi-three-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <a class="dropdown-item" href="/contributor/edit-news/${item.id}">
+                                                        <i class="bi bi-pencil me-2"></i> Edit
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <button class="dropdown-item text-danger action-delete" data-id="${item.id}" data-type="news">
+                                                        <i class="bi bi-trash me-2"></i> Delete
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-wrap gap-1 mb-1">
+                                    <span class="badge badge-soft">
+                                        <i class="bi bi-tag"></i>
+                                        <span>${item.category || '-'}</span>
+                                    </span>
+                                    ${publishedAt}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function renderActivityItem(item) {
+                const type = item.type || '-';
+
+                let icon = '';
+                let reward = '';
+
+                const hasReward = item.reward > 0;
+
+                if (type === 'Student Activity Transcript') {
+                    icon = `<i class="bi bi-star-fill me-1" style="color:#f59e0b;"></i>`;
+                    if (hasReward) {
+                        reward = `• ${item.reward} Points`;
+                    }
+                }
+                else if (type === 'Community Service') {
+                    icon = `<i class="bi bi-clock me-1" style="color:#3b82f6;"></i>`;
+                    if (hasReward) {
+                        reward = `• ${item.reward} Hours`;
+                    }
+                }
+
+                const statusPill = `
+                    <h6 class="status-pill m-0 ${item.statusClass || ''}">
+                        ${item.statusName || '-'}
+                    </h6>
+                `;
+
+                return `
+                    <div class="news-item" data-name="${item.title}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-2">${item.title}</h6>
+                                <small class="text-muted d-flex align-items-center gap-1">
+                                    ${icon}
+                                    <span>${type}</span>
+                                    ${reward ? `<span>${reward}</span>` : ''}
+                                </small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                ${statusPill}
+                                <div class="dropdown">
+                                    <button class="btn btn-link p-1 ellipsis-btn" data-bs-toggle="dropdown">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="/contributor/edit-activity/${item.id}">
+                                                <i class="bi bi-pencil me-2"></i> Edit
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item text-danger action-delete"
+                                                    data-id="${item.id}" data-type="activity">
+                                                <i class="bi bi-trash me-2"></i> Delete
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
 
             $(document).on("click", ".action-delete", function () {
                 let ajaxUrl = null;

@@ -14,7 +14,11 @@ import com.binewsian.service.NewsService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +45,29 @@ public class NewsController {
         model.addAttribute("categories", categories);
 
         return "contributor/create-news";
+    }
+
+    @GetMapping("/news/search")
+    @ResponseBody
+    public List<Map<String, Object>> searchNews(@RequestParam String query, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        return newsService.findAllByUserId(user.getId()).stream()
+                .filter(n -> n.getTitle().toLowerCase().contains(query.toLowerCase()))
+                .map(n -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", n.getId());
+                    map.put("title", n.getTitle());
+                    map.put("statusName", n.getStatus() != null ? n.getStatus().getDisplayName() : "-");
+                    map.put("statusClass", n.getStatus() != null ? n.getStatus().getCssClass() : "");
+                    map.put("category", n.getCategory() != null ? n.getCategory().getName() : "-");
+                    map.put("featuredImageUrl", n.getFeaturedImageUrl());
+                    map.put("publishedAt",
+                            n.getPublishedAt() != null
+                                    ? n.getPublishedAt().format(DateTimeFormatter.ofPattern("dd MMMM yyyy"))
+                                    : null);
+                    return map;
+                })
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/edit-news/{id}")

@@ -49,11 +49,15 @@ public class ContributorController {
         model.addAttribute("news", news.getContent());
         model.addAttribute("newsCurrentPage", newsPage);
         model.addAttribute("newsTotalPages", news.getTotalPages());
+        model.addAttribute("newsTotalElements", news.getTotalElements());
+        model.addAttribute("newsPageSize", news.getSize());
 
         // Activity
         model.addAttribute("activities", activities.getContent());
         model.addAttribute("activitiesCurrentPage", activityPage);
         model.addAttribute("activitiesTotalPages", activities.getTotalPages());
+        model.addAttribute("activitiesTotalElements", activities.getTotalElements());
+        model.addAttribute("activitiesPageSize", activities.getSize());
 
         // Active tab
         model.addAttribute("activeTab", tab);

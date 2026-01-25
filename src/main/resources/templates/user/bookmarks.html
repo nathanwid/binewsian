@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/base}">
+<head>
+    <title>Bookmarks</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container pt-4 pb-5 bookmark">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-2">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard}" class="text-decoration-none">Dashboard</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/user/profile}" class="text-decoration-none">Profile</a></li>
+                <li class="breadcrumb-item active">Bookmarks</li>
+            </ol>
+        </nav>
+
+        <div class="mb-4">
+            <div class="card content-card">
+                <div class="card-body">
+                    <ul class="nav nav-tabs mb-3">
+                        <div class="d-flex mb-3">
+                            <li class="nav-item">
+                                <button class="nav-link active"data-bs-toggle="tab" data-bs-target="#panel-all" type="button" role="tab">
+                                    <i class="bi bi-grid me-1"></i> All
+                                    <span class="tab-badge" th:text="${totalCount}">0</span>
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-activity" type="button" role="tab">
+                                    <i class="bi bi-activity me-1"></i> Activity
+                                    <span class="tab-badge" th:text="${activityCount}">0</span>
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-news" type="button" role="tab">
+                                    <i class="bi bi-newspaper me-1"></i> News
+                                    <span class="tab-badge" th:text="${newsCount}">0</span>
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-forum" type="button" role="tab">
+                                    <i class="bi bi-chat-left me-1"></i> Forum
+                                    <span class="tab-badge" th:text="${forumCount}">0</span>
+                                </button>
+                            </li>
+                        </div>
+                    </ul>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content">
+                        <!-- All Tab Panel -->
+                        <div class="tab-pane fade show active" id="panel-all" role="tabpanel">
+                            <!-- Activities in All Tab -->
+                            <div th:if="${activities != null && !activities.isEmpty()}" class="mb-3">
+                                <div class="mb-2">
+                                    <h5 class="section-title">Activities</h5>
+                                </div>
+                                <div class="bookmark-list">
+                                    <div th:each="activity, iterStat : ${activities}" class="bookmark-item">
+                                        <a th:href="@{/activity/{id}(id=${activity.id})}" target="_blank" class="item-content" style="text-decoration: none;">
+                                            <div class="item-main">
+                                                <h6 class="item-title" th:text="${activity.title}">Activity Title</h6>
+                                                <div class="item-meta">
+                                                    <span class="meta-item">
+                                                        <i class="bi bi-calendar-event"></i>
+                                                        <span th:text="${#temporals.format(activity.activityDate, 'MMM dd, yyyy')}"></span>
+                                                    </span>
+                                                    <span class="meta-item">
+                                                        <i class="bi bi-clock"></i>
+                                                        <span th:text="${#temporals.format(activity.timeStart, 'HH:mm')} + ' - ' + ${#temporals.format(activity.timeEnd, 'HH:mm')}"></span>
+                                                    </span>
+                                                    <span class="meta-item" th:if="${activity.location != null}">
+                                                        <i class="bi bi-geo-alt"></i>
+                                                        <span th:text="${activity.location}"></span>
+                                                    </span>
+                                                </div>
+                                                <div class="item-tags">
+                                                    <span class="tag tag-type" th:text="${activity.type.displayName}">Type</span>
+                                                    <span th:if="${#temporals.createNow().isAfter(activity.registrationDeadline)}" class="tag tag-closed">Closed</span>
+                                                    <span th:unless="${#temporals.createNow().isAfter(activity.registrationDeadline)}" class="tag tag-available">Available</span>
+                                                </div>
+                                            </div>
+                                            <div class="item-actions">
+                                                <button class="btn-action btn-remove remove-btn" th:data-id="${activity.id}" th:data-type="'ACTIVITY'">
+                                                    <i class="bi bi-bookmark-fill"></i>
+                                                </button>
+                                            </div>
+                                        </a>
+                                        <div th:if="${!iterStat.last}" class="item-divider"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- News in All Tab -->
+                            <div th:if="${news != null && !news.isEmpty()}" class="mb-3">
+                                <div class="mb-2">
+                                    <h5 class="section-title">News</h5>
+                                </div>
+                                <div class="bookmark-list">
+                                    <div th:each="item, iterStat : ${news}" class="bookmark-item">
+                                        <a th:href="@{/news/{id}(id=${item.id})}" target="_blank" class="item-content" style="text-decoration: none;">
+                                            <img th:if="${item.featuredImageUrl != null}" th:src="${item.featuredImageUrl}" alt="News" class="item-image">
+                                            <div class="item-main">
+                                                <h6 class="item-title" th:text="${item.title}">News Title</h6>
+                                                <p class="item-description" th:text="${item.summary}">Summary</p>
+                                                <div class="item-meta">
+                                                    <span class="meta-item" th:if="${item.category != null}">
+                                                        <i class="bi bi-tag"></i>
+                                                        <span th:text="${item.category.name}"></span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="item-actions">
+                                                <button class="btn-action btn-remove remove-btn" th:data-id="${item.id}" th:data-type="'NEWS'">
+                                                    <i class="bi bi-bookmark-fill"></i>
+                                                </button>
+                                            </div>
+                                        </a>
+                                        <div th:if="${!iterStat.last}" class="item-divider"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Forum in ALl Tab -->
+<!--                            <div th:if="${forums != null && !forums.isEmpty()}" class="mb-3">-->
+<!--                                <div class="mb-2">-->
+<!--                                    <h5 class="section-title">Forum</h5>-->
+<!--                                </div>-->
+<!--                            </div>-->
+
+                            <!-- Empty State for All -->
+                            <div th:if="${totalCount == 0}" class="empty-section">
+                                <i class="bi bi-bookmark"></i>
+                                <p>No saved contents yet</p>
+                            </div>
+                        </div>
+
+                        <!-- Activity Tab Panel -->
+                        <div class="tab-pane fade" id="panel-activity" role="tabpanel">
+                            <div th:if="${activities != null && !activities.isEmpty()}">
+                                <div class="bookmark-list">
+                                    <div th:each="activity, iterStat : ${activities}" class="bookmark-item">
+                                        <a th:href="@{/activity/{id}(id=${activity.id})}" target="_blank" class="item-content" style="text-decoration: none;">
+                                            <div class="item-main">
+                                                <h6 class="item-title" th:text="${activity.title}">Activity Title</h6>
+                                                <div class="item-meta">
+                                                    <span class="meta-item">
+                                                        <i class="bi bi-calendar-event"></i>
+                                                        <span th:text="${#temporals.format(activity.activityDate, 'MMM dd, yyyy')}"></span>
+                                                    </span>
+                                                    <span class="meta-item">
+                                                        <i class="bi bi-clock"></i>
+                                                        <span th:text="${#temporals.format(activity.timeStart, 'HH:mm')} + ' - ' + ${#temporals.format(activity.timeEnd, 'HH:mm')}"></span>
+                                                    </span>
+                                                    <span class="meta-item" th:if="${activity.location != null}">
+                                                        <i class="bi bi-geo-alt"></i>
+                                                        <span th:text="${activity.location}"></span>
+                                                    </span>
+                                                </div>
+                                                <div class="item-tags">
+                                                    <span class="tag tag-type" th:text="${activity.type.displayName}">Type</span>
+                                                    <span th:if="${#temporals.createNow().isAfter(activity.registrationDeadline)}" class="tag tag-closed">Closed</span>
+                                                    <span th:unless="${#temporals.createNow().isAfter(activity.registrationDeadline)}" class="tag tag-available">Available</span>
+                                                </div>
+                                            </div>
+                                            <div class="item-actions">
+                                                <button class="btn-action btn-remove remove-btn" th:data-id="${activity.id}" th:data-type="'ACTIVITY'">
+                                                    <i class="bi bi-bookmark-fill"></i>
+                                                </button>
+                                            </div>
+                                        </a>
+                                        <div th:if="${!iterStat.last}" class="item-divider"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div th:if="${activities == null || activities.isEmpty()}" class="empty-section">
+                                <i class="bi bi-calendar-event"></i>
+                                <p>No activity bookmarks yet</p>
+                            </div>
+                        </div>
+
+                        <!-- News Tab Panel -->
+                        <div class="tab-pane fade" id="panel-news" role="tabpanel">
+                            <div th:if="${news != null && !news.isEmpty()}">
+                                <div class="bookmark-list">
+                                    <div th:each="item, iterStat : ${news}" class="bookmark-item">
+                                        <a th:href="@{/news/{id}(id=${item.id})}" target="_blank" class="item-content" style="text-decoration: none;">
+                                            <img th:if="${item.featuredImageUrl != null}" th:src="${item.featuredImageUrl}" alt="News" class="item-image">
+                                            <div class="item-main">
+                                                <h6 class="item-title" th:text="${item.title}">News Title</h6>
+                                                <p class="item-description" th:text="${item.summary}">Summary</p>
+                                                <div class="item-meta">
+                                                    <span class="meta-item" th:if="${item.category != null}">
+                                                        <i class="bi bi-tag"></i>
+                                                        <span th:text="${item.category.name}"></span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="item-actions">
+                                                <button class="btn-action btn-remove remove-btn" th:data-id="${item.id}" th:data-type="'NEWS'">
+                                                    <i class="bi bi-bookmark-fill"></i>
+                                                </button>
+                                            </div>
+                                        </a>
+                                        <div th:if="${!iterStat.last}" class="item-divider"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div th:if="${news == null || news.isEmpty()}" class="empty-section">
+                                <i class="bi bi-newspaper"></i>
+                                <p>No news bookmarks yet</p>
+                            </div>
+                        </div>
+
+                        <!-- Forum Tab Panel -->
+<!--                        <div class="tab-pane fade" id="panel-forum" role="tabpanel">-->
+<!--                            <div th:if="${forums == null || forums.isEmpty()}" class="empty-section">-->
+<!--                                <i class="bi bi-chat-left"></i>-->
+<!--                                <p>No forum bookmarks yet</p>-->
+<!--                            </div>-->
+<!--                        </div>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="scripts">
+    <script>
+        $('.remove-btn').on('click', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+
+            const $btn = $(this);
+            const contentId = $btn.data('id');
+            const contentType = $btn.data('type');
+
+            $.ajax({
+                url: '/user/bookmarks/toggle',
+                method: 'POST',
+                data: {
+                    contentId: contentId,
+                    type: contentType
+                },
+                success: function() {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Removed',
+                        text: 'Bookmark removed',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => location.reload());
+                },
+                error: function() {
+                    Swal.fire('Error', 'Failed to remove bookmark', 'error');
+                }
+            });
+        });
+    </script>
+</th:block>
+</body>
+</html>

@@ -124,6 +124,11 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
+    public List<News> findAllByUserId(Long userId) {
+        return newsRepository.findByCreatedBy_IdOrderByCreatedAtDesc(userId);
+    }
+
+    @Override
     public List<News> findLatestPublished() {
         return newsRepository.findTop5ByPublishedAtNotNullOrderByPublishedAtDesc();
     }

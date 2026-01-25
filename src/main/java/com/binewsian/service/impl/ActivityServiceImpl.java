@@ -130,6 +130,11 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
+    public List<Activity> findAllByUserId(Long userId) {
+        return activityRepository.findByCreatedBy_IdOrderByCreatedAtDesc(userId);
+    }
+
+    @Override
     public Page<Activity> getFilteredActivities(ActivityFilterDto filterDto, int page, int size) {
         LocalDateTime now = LocalDateTime.now();
 

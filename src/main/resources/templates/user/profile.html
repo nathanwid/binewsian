@@ -32,8 +32,10 @@
                             </div>
                             <hr>
                             <div class="text-start">
-                                <div id="bookmarkBtn">
-                                    <div th:insert="~{fragments/profile-menu-btn :: iconButton('bi-bookmark', 'Bookmark')}"></div>
+                                <div th:if="${user.role.name == 'USER'}">
+                                    <a th:href="@{/user/bookmarks}" style="text-decoration: none;">
+                                        <div th:insert="~{fragments/profile-menu-btn :: iconButton('bi-bookmark', 'Bookmarks')}"></div>
+                                    </a>
                                 </div>
                                 <div data-bs-toggle="modal" data-bs-target="#editProfileModal">
                                     <div th:insert="~{fragments/profile-menu-btn :: iconButton('bi-pencil-square', 'Edit Profile')}"></div>

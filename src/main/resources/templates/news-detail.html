@@ -5,10 +5,15 @@
 </head>
 <body>
     <div layout:fragment="content">
-        <div class="container mb-4">
-            <a th:href="@{/news}" class="back-link">
-                <i class="bi bi-arrow-left"></i>  Back to News
-            </a>
+        <div class="container pt-4 pb-5">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a th:href="@{/dashboard}" class="text-decoration-none">Home</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/news}" class="text-decoration-none">News</a></li>
+                    <li class="breadcrumb-item active">Detail</li>
+                </ol>
+            </nav>
 
             <div class="news-detail" id="news-detail" th:data-news-id="${news.id}" th:data-user-id="${user.id}" th:data-user-role="${user.role}">
                 <div class="news-detail__image">
@@ -197,7 +202,8 @@
 
             // Create reply HTML
             function createReplyHtml(reply, parentId) {
-                const avatar = reply.username.charAt(0).toUpperCase();
+                const avatar = reply.avatarInitials;
+                const avatarColor = reply.avatarColor;
                 const date = formatDate(reply.createdAt);
                 const isEdited = reply.createdAt != reply.updatedAt;
                 const isOwner = reply.userId === userId;
@@ -205,7 +211,9 @@
 
                 return `
                     <div class="reply-item" data-parent-id="${parentId}" data-item-id="${reply.id}" data-item-type="reply">
-                        <div class="reply-avatar">${avatar}</div>
+                        <div class="reply-avatar" style="background-color: ${avatarColor}">
+                            <span class="user-initials-small">${avatar}</span>
+                        </div>
                         <div class="comment-content">
                             <div class="comment-header">
                                 <strong class="comment-author">${reply.username}</strong>
@@ -222,7 +230,8 @@
             function createCommentHtml(comment) {
                 const isDeleted = comment.deleted;
                 const username = isDeleted ? '[Deleted User]' : comment.username;
-                const avatar = isDeleted ? '?' : username.charAt(0).toUpperCase();
+                const avatar = comment.avatarInitials;
+                const avatarColor = comment.avatarColor;
                 const date = formatDate(comment.createdAt);
                 const isEdited = !isDeleted && (comment.createdAt != comment.updatedAt);
                 const isOwner = !isDeleted && (comment.userId === userId);
@@ -230,7 +239,9 @@
 
                 return `
                     <div class="comment" data-item-id="${comment.id}" data-item-type="comment">
-                        <div class="comment-avatar" style="${isDeleted ? 'background: #ccc;' : ''}">${avatar}</div>
+                        <div class="reply-avatar" style="background-color: ${avatarColor}">
+                            <span class="user-initials-small">${avatar}</span>
+                        </div>
                         <div class="comment-content">
                             <div class="comment-header">
                                 <strong class="comment-author">${username}</strong>

@@ -25,7 +25,7 @@
                     <h1 class="news-detail__title" th:text="${news.title}"></h1>
                     <div class="news-detail__meta">
                         <span class="date">
-                            <i class="bi bi-calendar-event"></i> 
+                            <i class="bi bi-calendar"></i>
                             <span th:text="${#temporals.format(news.publishedAt, 'dd MMMM yyyy')}"></span>
                         </span>
                         <span class="author">

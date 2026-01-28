@@ -63,7 +63,7 @@
                                                 <h6 class="item-title" th:text="${activity.title}">Activity Title</h6>
                                                 <div class="item-meta">
                                                     <span class="meta-item">
-                                                        <i class="bi bi-calendar-event"></i>
+                                                        <i class="bi bi-calendar"></i>
                                                         <span th:text="${#temporals.format(activity.activityDate, 'MMM dd, yyyy')}"></span>
                                                     </span>
                                                     <span class="meta-item">
@@ -146,7 +146,7 @@
                                                 <h6 class="item-title" th:text="${activity.title}">Activity Title</h6>
                                                 <div class="item-meta">
                                                     <span class="meta-item">
-                                                        <i class="bi bi-calendar-event"></i>
+                                                        <i class="bi bi-calendar"></i>
                                                         <span th:text="${#temporals.format(activity.activityDate, 'MMM dd, yyyy')}"></span>
                                                     </span>
                                                     <span class="meta-item">
@@ -175,7 +175,7 @@
                                 </div>
                             </div>
                             <div th:if="${activities == null || activities.isEmpty()}" class="empty-section">
-                                <i class="bi bi-calendar-event"></i>
+                                <i class="bi bi-calendar"></i>
                                 <p>No activity bookmarks yet</p>
                             </div>
                         </div>

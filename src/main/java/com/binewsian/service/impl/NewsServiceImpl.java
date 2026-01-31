@@ -4,12 +4,15 @@ import com.binewsian.constant.AppConstant;
 import com.binewsian.dto.NewsFilterDto;
 import com.binewsian.dto.NewsRequest;
 import com.binewsian.enums.NewsStatus;
+import com.binewsian.enums.Role;
 import com.binewsian.exception.BiNewsianException;
 import com.binewsian.model.Category;
 import com.binewsian.model.News;
 import com.binewsian.model.User;
 import com.binewsian.repository.CategoryRepository;
 import com.binewsian.repository.NewsRepository;
+import com.binewsian.repository.UserRepository;
+import com.binewsian.service.EmailService;
 import com.binewsian.service.NewsService;
 import com.binewsian.service.StorageService;
 import jakarta.transaction.Transactional;
@@ -22,7 +25,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -32,10 +37,12 @@ public class NewsServiceImpl implements NewsService {
 
     private final CategoryRepository categoryRepository;
     private final NewsRepository newsRepository;
+    private final UserRepository userRepository;
     private final StorageService storageService;
+    private final EmailService emailService;
 
     @Override
-    public void create(NewsRequest request, MultipartFile featuredImage, User user) throws BiNewsianException {
+    public void create(NewsRequest request, MultipartFile featuredImage, User user, String appUrl) throws BiNewsianException {
         boolean isDraft = request.isDraft();
 
         validateRequest(request);
@@ -58,11 +65,15 @@ public class NewsServiceImpl implements NewsService {
 
         processImage(news, featuredImage, isDraft, request.deleteImage());
 
-        newsRepository.save(news);
+        News savedNews = newsRepository.save(news);
+
+        if (!isDraft) {
+            notifyUsers(savedNews, appUrl);
+        }
     }
 
     @Override
-    public void update(Long id, NewsRequest request, MultipartFile featuredImage, User user) throws BiNewsianException {
+    public void update(Long id, NewsRequest request, MultipartFile featuredImage, User user, String appUrl) throws BiNewsianException {
         boolean isDraft = request.isDraft();
 
         News news = newsRepository.findById(id)
@@ -87,7 +98,11 @@ public class NewsServiceImpl implements NewsService {
 
         processImage(news, featuredImage, isDraft, request.deleteImage());
 
-        newsRepository.save(news);
+        News savedNews = newsRepository.save(news);
+
+        if (!isDraft) {
+            notifyUsers(savedNews, appUrl);
+        }
     }
 
     @Override
@@ -157,6 +172,25 @@ public class NewsServiceImpl implements NewsService {
                 categoryId,
                 pageable
         );
+    }
+
+    private void notifyUsers(News news, String appUrl) throws BiNewsianException {
+        List<User> users = userRepository.findByRoleAndEnabledTrue(Role.USER);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("contentType", "NEWS");
+        data.put("author", news.getCreatedBy().getUsername());
+        data.put("contentTitle", news.getTitle());
+        data.put("contentDescription", news.getSummary());
+        data.put("contentUrl", appUrl + "/news/" + news.getId());
+
+        for (User user : users) {
+            try {
+                emailService.sendContentNotification(user, data);
+            } catch (BiNewsianException e) {
+                throw new BiNewsianException(e.getMessage());
+            }
+        }
     }
 
     private void validateOwnerAndStatus(News news, User user) throws BiNewsianException {

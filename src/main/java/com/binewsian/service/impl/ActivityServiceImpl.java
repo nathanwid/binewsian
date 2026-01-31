@@ -5,11 +5,14 @@ import com.binewsian.dto.ActivityFilterDto;
 import com.binewsian.dto.ActivityRequest;
 import com.binewsian.enums.ActivityStatus;
 import com.binewsian.enums.ActivityType;
+import com.binewsian.enums.Role;
 import com.binewsian.exception.BiNewsianException;
 import com.binewsian.model.Activity;
 import com.binewsian.model.User;
 import com.binewsian.repository.ActivityRepository;
+import com.binewsian.repository.UserRepository;
 import com.binewsian.service.ActivityService;
+import com.binewsian.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,7 +25,9 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -30,9 +35,11 @@ import java.util.List;
 public class ActivityServiceImpl implements ActivityService {
 
     private final ActivityRepository activityRepository;
+    private final UserRepository userRepository;
+    private final EmailService emailService;
 
     @Override
-    public void create(ActivityRequest request, User user) throws BiNewsianException {
+    public void create(ActivityRequest request, User user, String appUrl) throws BiNewsianException {
         boolean isDraft = request.isDraft();
 
         if (isDraft) {
@@ -57,11 +64,15 @@ public class ActivityServiceImpl implements ActivityService {
         activity.setPublishedAt(isDraft ? null : LocalDateTime.now());
         activity.setCreatedBy(user);
 
-        activityRepository.save(activity);
+        Activity savedActivity = activityRepository.save(activity);
+
+        if (!isDraft) {
+            notifyUsers(savedActivity, appUrl);
+        }
     }
 
     @Override
-    public void update(Long id, ActivityRequest request, User user) throws BiNewsianException {
+    public void update(Long id, ActivityRequest request, User user, String appUrl) throws BiNewsianException {
         Activity activity = activityRepository.findById(id)
                 .orElseThrow(() -> new BiNewsianException(AppConstant.ACTIVITY_NOT_FOUND));
 
@@ -95,7 +106,11 @@ public class ActivityServiceImpl implements ActivityService {
         activity.setStatus(isDraft ? ActivityStatus.DRAFT : ActivityStatus.PUBLISHED);
         activity.setPublishedAt(isDraft ? null : LocalDateTime.now());
 
-        activityRepository.save(activity);
+        Activity savedActivity = activityRepository.save(activity);
+
+        if (!isDraft) {
+            notifyUsers(savedActivity, appUrl);
+        }
     }
 
     @Override
@@ -184,6 +199,26 @@ public class ActivityServiceImpl implements ActivityService {
     public Activity getActivityById(Long id) throws BiNewsianException {
         return activityRepository.findByIdAndStatus(id, ActivityStatus.PUBLISHED)
                 .orElseThrow(() -> new BiNewsianException(AppConstant.ACTIVITY_NOT_FOUND));
+    }
+
+    private void notifyUsers(Activity activity, String appUrl) throws BiNewsianException {
+        List<User> users = userRepository.findByRoleAndEnabledTrue(Role.USER);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("contentType", "ACTIVITY");
+        data.put("activityDate", activity.getActivityDate());
+        data.put("author", activity.getCreatedBy().getUsername());
+        data.put("contentTitle", activity.getTitle());
+        data.put("contentDescription", activity.getDetails());
+        data.put("contentUrl", appUrl + "/activity/" + activity.getId());
+
+        for (User user : users) {
+            try {
+                emailService.sendContentNotification(user, data);
+            } catch (BiNewsianException e) {
+                throw new BiNewsianException(e.getMessage());
+            }
+        }
     }
 
     private Sort getSort(String sortBy) {

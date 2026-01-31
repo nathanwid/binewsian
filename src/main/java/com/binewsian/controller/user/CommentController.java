@@ -6,6 +6,7 @@ import com.binewsian.exception.BiNewsianException;
 import com.binewsian.model.Comment;
 import com.binewsian.model.User;
 import com.binewsian.service.CommentService;
+import com.binewsian.util.UserAvatar;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class CommentController {
 
     private final CommentService commentService;
+    private final UserAvatar userAvatar;
 
     @PostMapping("/comments")
     public ResponseEntity<?> createComment(@RequestBody CommentRequest request, HttpSession session) {
@@ -64,6 +66,9 @@ public class CommentController {
                     commentMap.put("updatedAt", c.getUpdatedAt());
                     commentMap.put("createdAt", c.getCreatedAt());
 
+                    commentMap.put("avatarInitials", userAvatar.getUserInitials(c.getUser().getUsername()));
+                    commentMap.put("avatarColor", userAvatar.getAvatarColor(c.getUser().getUsername()));
+
                     return commentMap;
                 })
                 .collect(Collectors.toList());
@@ -102,6 +107,9 @@ public class CommentController {
                     replyMap.put("deletedAt", r.getDeletedAt());
                     replyMap.put("updatedAt", r.getUpdatedAt());
                     replyMap.put("createdAt", r.getCreatedAt());
+
+                    replyMap.put("avatarInitials", userAvatar.getUserInitials(r.getUser().getUsername()));
+                    replyMap.put("avatarColor", userAvatar.getAvatarColor(r.getUser().getUsername()));
 
                     return replyMap;
                 })

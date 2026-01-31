@@ -111,11 +111,17 @@
 
                                 <div class="d-flex justify-content-end gap-2 mt-4">
                                     <button type="submit" th:if="${canEdit}" id="btnSaveDraft" class="btn btn-outline-secondary">
-                                        <i class="bi bi-save me-2"></i> Save as Draft
+                                        <span class="btn-text">
+                                            <i class="bi bi-save me-2"></i> Save as Draft
+                                        </span>
+                                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                                     </button>
 
                                     <button type="submit" th:if="${canEdit}" id="btnPublish" class="btn btn-purple">
-                                        <i class="bi bi-check-circle me-2"></i> Publish
+                                        <span class="btn-text">
+                                            <i class="bi bi-check-circle me-2"></i> Publish
+                                        </span>
+                                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                                     </button>
                                 </div>
                             </form>
@@ -381,15 +387,30 @@
                 }
             });
 
+            let clickedButton = null;
+
+            $("button[type='submit']").on("click", function () {
+                clickedButton = $(this);
+            });
+
             $("form").on("submit", function (e) {
                 e.preventDefault();
                 clearValidation();
 
-                const targetId = e.originalEvent.submitter.id;
-                const isDraft = targetId === "btnSaveDraft";
+                if (!clickedButton) return;
+
+                const button = clickedButton;
+                const spinner = button.find(".spinner-border");
+                const text = button.find(".btn-text");
+
+                const isDraft = button.attr("id") === "btnSaveDraft";
 
                 const isValid = isDraft ? validateDraft() : validatePublish();
                 if (!isValid) return;
+
+                button.prop("disabled", true);
+                spinner.removeClass("d-none");
+                text.text(isDraft ? "Saving..." : "Publishing...");
 
                 const id = $("#id").val();
                 const data = buildPayload(isDraft);
@@ -437,6 +458,19 @@
                             title: isDraft ? "Failed to save draft" : "Failed to publish activity",
                             text: message
                         })
+                    },
+
+                    complete: function () {
+                        button.prop("disabled", false);
+                        spinner.addClass("d-none");
+
+                        if (isDraft) {
+                            text.html('<i class="bi bi-save me-2"></i> Save as Draft');
+                        } else {
+                            text.html('<i class="bi bi-check-circle me-2"></i> Publish');
+                        }
+
+                        clickedButton = null;
                     }
                 })
             })

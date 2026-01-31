@@ -11,8 +11,8 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface ActivityService {
-    void create(ActivityRequest request, User user) throws BiNewsianException;
-    void update(Long id, ActivityRequest request, User user) throws BiNewsianException;
+    void create(ActivityRequest request, User user, String appUrl) throws BiNewsianException;
+    void update(Long id, ActivityRequest request, User user, String appUrl) throws BiNewsianException;
     void delete(Long id) throws BiNewsianException;
     Activity findById(Long id) throws BiNewsianException;
     Page<Activity> findPaginated(int page, int size);

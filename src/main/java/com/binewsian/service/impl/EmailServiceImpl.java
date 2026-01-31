@@ -1,6 +1,7 @@
 package com.binewsian.service.impl;
 
 import com.binewsian.exception.BiNewsianException;
+import com.binewsian.model.User;
 import com.binewsian.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -11,6 +12,9 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+
+import java.time.LocalDate;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -89,6 +93,50 @@ public class EmailServiceImpl implements EmailService {
         } catch (MessagingException e) {
             log.error("Failed to send email to {}", email, e);
             throw new BiNewsianException("Failed to send reset password email");
+        }
+    }
+
+    @Override
+    public void sendContentNotification(User user, Map<String, Object> data) throws BiNewsianException {
+        log.info("Sending content notification email to {}", user.getEmail());
+
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+
+            MimeMessageHelper helper = new MimeMessageHelper(
+                    message,
+                    MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                    "UTF-8"
+            );
+
+            Context context = new Context();
+            context.setVariable("email", user.getEmail());
+            context.setVariable("contentType", data.get("contentType"));
+            context.setVariable("username", user.getUsername());
+            LocalDate activityDate = (LocalDate) data.get("activityDate");
+            if (activityDate != null) {
+                context.setVariable("activityDate", activityDate);
+            }
+            context.setVariable("author", data.get("author"));
+            context.setVariable("contentTitle", data.get("contentTitle"));
+            context.setVariable("contentDescription", data.get("contentDescription"));
+            context.setVariable("contentUrl", data.get("contentUrl"));
+
+            String htmlContent = templateEngine.process(
+                    "email/content-notif",
+                    context
+            );
+
+            helper.setTo(user.getEmail());
+            helper.setSubject("New Content Published!");
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+
+            log.info("Email successfully sent to {}", user.getEmail());
+        } catch (MessagingException e) {
+            log.error("Failed to send email to {}", user.getEmail(), e);
+            throw new BiNewsianException("Failed to send content notification email");
         }
     }
 

@@ -11,6 +11,7 @@ import com.binewsian.model.News;
 import com.binewsian.model.User;
 import com.binewsian.service.CategoryService;
 import com.binewsian.service.NewsService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
@@ -91,13 +92,17 @@ public class NewsController {
 
     @PostMapping(value = "/news", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createNews(
-            @RequestPart("data") NewsRequest request,
+            @RequestPart("data") NewsRequest data,
             @RequestPart(value = "featuredImage", required = false) MultipartFile featuredImage,
-            HttpSession session
+            HttpSession session,
+            HttpServletRequest request
     ) {
+        String appUrl = request.getScheme() + "://" + request.getServerName() +
+                ":" + request.getServerPort() + request.getContextPath();
+
         try {
             User user = (User) session.getAttribute("user");
-            newsService.create(request, featuredImage, user);
+            newsService.create(data, featuredImage, user, appUrl);
             return ResponseEntity.ok().build();
         } catch (BiNewsianException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
@@ -109,13 +114,17 @@ public class NewsController {
     @PutMapping(value = "/news/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateNews(
             @PathVariable Long id,
-            @RequestPart("data") NewsRequest request,
+            @RequestPart("data") NewsRequest data,
             @RequestPart(value = "featuredImage", required = false) MultipartFile featuredImage,
-            HttpSession session
+            HttpSession session,
+            HttpServletRequest request
     ) {
+        String appUrl = request.getScheme() + "://" + request.getServerName() +
+                ":" + request.getServerPort() + request.getContextPath();
+
         try {
             User user = (User) session.getAttribute("user");
-            newsService.update(id, request, featuredImage, user);
+            newsService.update(id, data, featuredImage, user, appUrl);
             return ResponseEntity.ok().build();
         } catch (BiNewsianException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());

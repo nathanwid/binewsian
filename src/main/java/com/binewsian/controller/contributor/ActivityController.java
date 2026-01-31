@@ -10,6 +10,7 @@ import com.binewsian.exception.BiNewsianException;
 import com.binewsian.model.Activity;
 import com.binewsian.model.User;
 import com.binewsian.service.ActivityService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -81,13 +82,15 @@ public class ActivityController {
     }
 
     @PostMapping("/activities")
-    public ResponseEntity<?> createActivity(
-            @RequestBody ActivityRequest request,
-            HttpSession session
-    ) {
+    public ResponseEntity<?> createActivity(@RequestBody ActivityRequest data, HttpSession session,
+                                            HttpServletRequest request) {
+
+        String appUrl = request.getScheme() + "://" + request.getServerName() +
+                ":" + request.getServerPort() + request.getContextPath();
+
         try {
             User user = (User) session.getAttribute("user");
-            activityService.create(request, user);
+            activityService.create(data, user, appUrl);
             return ResponseEntity.ok().build();
         } catch (BiNewsianException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
@@ -97,14 +100,15 @@ public class ActivityController {
     }
 
     @PutMapping("/activities/{id}")
-    public ResponseEntity<?> updateActivity(
-            @PathVariable Long id, 
-            @RequestBody ActivityRequest request,
-            HttpSession session
-    ) {
+    public ResponseEntity<?> updateActivity(@PathVariable Long id, @RequestBody ActivityRequest data,
+                                            HttpSession session, HttpServletRequest request) {
+
+        String appUrl = request.getScheme() + "://" + request.getServerName() +
+                ":" + request.getServerPort() + request.getContextPath();
+
         try {
             User user = (User) session.getAttribute("user");
-            activityService.update(id, request, user);
+            activityService.update(id, data, user, appUrl);
             return ResponseEntity.ok().build();
         } catch (BiNewsianException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());

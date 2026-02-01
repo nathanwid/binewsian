@@ -236,6 +236,11 @@
                     isValid = false;
                 }
 
+                if (summary.length > 200) {
+                    setInvalid("summary", "Summary cannot exceed 200 characters");
+                    isValid = false;
+                }
+
                 const editorText = articleEditor.getText().trim();
                 if (editorText.length === 0) {
                     setInvalidEditor("Content cannot be empty");

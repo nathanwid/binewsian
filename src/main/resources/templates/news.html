@@ -56,7 +56,7 @@
                         <div class="news-content">
                             <h5 class="news-title" th:text="${newsItem.title}"></h5>
                             <p class="news-description"
-                               th:text="${#strings.length(newsItem.summary) > 120 ? #strings.substring(newsItem.summary, 0, 120) + '...' : newsItem.summary}">
+                               th:text="${newsItem.summary}">
                             </p>
 
                             <!-- News Meta -->

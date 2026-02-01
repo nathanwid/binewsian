@@ -672,15 +672,6 @@ body {
     font-weight: 500;
 }
 
-.btn-save {
-    background-color: #007bff;
-    color: white;
-}
-
-.btn-save:hover {
-    background-color: #0056b3;
-}
-
 .btn-cancel {
     background-color: #6c757d;
     color: white;
@@ -690,12 +681,14 @@ body {
     background-color: #545b62;
 }
 
-.btn-reply {
+.btn-reply,
+.btn-save {
     background: var(--primary-gradient);
     color: white;
 }
 
-.btn-reply:hover {
+.btn-reply:hover,
+.btn-save:hover {
     background: var(--primary-gradient-hover);
 }
 
@@ -1755,98 +1748,6 @@ body {
 
 .activity .save-btn i {
     font-size: 1rem;
-}
-
-.activity .comments-section {
-    background: white;
-    border-radius: 8px;
-    padding: 2rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.activity .comments-header {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-    color: #111827;
-}
-
-.activity .comment-item {
-    display: flex;
-    gap: 0.875rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.activity .comment-item:last-of-type {
-    border-bottom: none;
-    padding-bottom: 0;
-}
-
-.activity .comment-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #10b981;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 0.875rem;
-    flex-shrink: 0;
-}
-
-.activity .comment-content {
-    flex: 1;
-}
-
-.activity .comment-author {
-    font-weight: 600;
-    color: #111827;
-    font-size: 0.9375rem;
-    margin-bottom: 0.125rem;
-}
-
-.activity .comment-date {
-    font-size: 0.8125rem;
-    color: #6b7280;
-    margin-bottom: 0.5rem;
-}
-
-.activity .comment-text {
-    font-size: 0.9375rem;
-    color: #374151;
-    line-height: 1.5;
-}
-
-.activity .comment-form {
-    margin-top: 1.5rem;
-}
-
-.activity .comment-form h5 {
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    color: #111827;
-}
-
-.activity .comment-input {
-    width: 100%;
-    padding: 0.875rem;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 0.9375rem;
-    resize: vertical;
-    min-height: 100px;
-    margin-bottom: 1rem;
-}
-
-.activity .comment-input:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .activity .send-btn {

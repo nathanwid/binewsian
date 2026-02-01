@@ -26,7 +26,7 @@
             </p>
         </div>
 
-        <div class="row">
+        <div class="row" id="activity-detail" th:data-activity-id="${activity.id}" th:data-user-id="${user.id}" th:data-user-role="${user.role}">
             <div class="col-12 col-lg-8 left-column">
                 <div class="detail-card">
                     <h4>Activity Details</h4>
@@ -114,32 +114,21 @@
         </div>
 
         <div class="comments-section mt-4">
-            <h3 class="comments-header">2 Comments</h3>
-
-            <div class="comment-item">
-                <div class="comment-avatar">D</div>
-                <div class="comment-content">
-                    <div class="comment-author">Dimas Utama</div>
-                    <div class="comment-date">December 7, 2025 at 10:28 PM</div>
-                    <div class="comment-text">Wow Binus Keren</div>
-                </div>
-            </div>
-
-            <div class="comment-item">
-                <div class="comment-avatar">D</div>
-                <div class="comment-content">
-                    <div class="comment-author">Dimas Utama</div>
-                    <div class="comment-date">December 7, 2025 at 10:28 PM</div>
-                    <div class="comment-text">Wow Binus Keren</div>
-                </div>
-            </div>
-
-            <div class="comment-form">
-                <h5>Write a Comment</h5>
-                <textarea class="comment-input" id="commentInput" placeholder="Share your thoughts on this activity..."></textarea>
-                <button class="send-btn" id="sendCommentBtn">
-                    <i class="bi bi-send-fill"></i> Send
+            <h2>Comments</h2>
+            <div id="comments-container"></div>
+            <div class="text-center mt-4">
+                <button id="load-more-comments" class="btn btn-load-more" onclick="loadComments()" style="display:none;">
+                    Load more comments...
                 </button>
+            </div>
+            <div class="comment-form">
+                <h3>Write a Comment</h3>
+                <form id="comment-form">
+                    <textarea class="comment-input" id="comment-content" name="content" placeholder="Share your thoughts on this activity..." required></textarea>
+                    <button type="submit" class="btn-submit" id="btnComment" disabled>
+                        <i class="bi bi-send-fill me-2"></i> Send
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -147,6 +136,12 @@
 
 <th:block layout:fragment="scripts">
     <script>
+        const $contentDetail = $("#activity-detail");
+        const contentId = $contentDetail.data('activity-id');
+        const contentType = "ACTIVITY";
+        const userId = $contentDetail.data('user-id');
+        const userRole = $contentDetail.data('user-role');
+
         $(document).ready(function () {
             $('#saveActivityBtn').on('click', function () {
                 const $btn = $(this);
@@ -197,20 +192,7 @@
                 })
             })
 
-            $('#sendCommentBtn').on('click', function () {
-                const $commentInput = $('#commentInput');
-                const commentText = $.trim($commentInput.val());
-
-                if (commentText) {
-                    console.log('comment:', commentText);
-
-                    $commentInput.val('');
-
-                    alert('Comment submitted successfully!');
-                } else {
-                    alert('Please write a comment before sending.');
-                }
-            })
+            loadComments();
         })
     </script>
 </th:block>

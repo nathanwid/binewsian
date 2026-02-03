@@ -61,6 +61,7 @@ public class HomeController {
     public String showActivityPage(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "9") int size,
+            @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String location,
             @RequestParam(required = false) String type,
@@ -76,6 +77,10 @@ public class HomeController {
         ActivityFilterDto filterDto = new ActivityFilterDto();
         filterDto.setStatus(status != null ? status : "all");
         filterDto.setSort(sort != null ? sort : "newest");
+
+        if (search != null && !search.trim().isEmpty()) {
+            filterDto.setSearch(search.trim());
+        }
 
         if (location != null && !location.isEmpty()) {
             filterDto.setLocationType(Arrays.asList(location.split(",")));
@@ -99,6 +104,7 @@ public class HomeController {
         model.addAttribute("totalPages", activityPage.getTotalPages());
         model.addAttribute("totalActivities", activityPage.getTotalElements());
 
+        model.addAttribute("search", search);
         model.addAttribute("status", status);
         model.addAttribute("location", location);
         model.addAttribute("type", type);

@@ -106,7 +106,7 @@
                     </div>
                 </div>
 
-                <button class="save-btn" id="saveActivityBtn" th:data-id="${activity.id}" th:data-type="'ACTIVITY'">
+                <button th:if="${user.role.name == 'USER'}" class="save-btn" id="saveActivityBtn" th:data-id="${activity.id}" th:data-type="'ACTIVITY'">
                     <i class="bi" th:classappend="${isBookmarked} ? 'bi-bookmark-fill' : 'bi-bookmark'"></i>
                     <span class="save-text" th:text="${isBookmarked} ? 'Saved' : 'Save Activity'"></span>
                 </button>

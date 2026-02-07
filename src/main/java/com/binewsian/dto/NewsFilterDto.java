@@ -9,4 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class NewsFilterDto {
     private String category;
+    private String search;
 }

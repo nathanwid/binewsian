@@ -18,4 +18,5 @@ public class ActivityFilterDto {
     private LocalDate dateFrom;
     private LocalDate dateTo;
     private String sort;
+    private String search;
 }

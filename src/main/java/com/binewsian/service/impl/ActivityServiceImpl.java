@@ -119,8 +119,7 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     public Activity findById(Long id) throws BiNewsianException {
-        return activityRepository.findById(id)
-                .orElseThrow(() -> new BiNewsianException(AppConstant.ACTIVITY_NOT_FOUND));
+        return activityRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -174,6 +173,11 @@ public class ActivityServiceImpl implements ActivityService {
         boolean hasTypeFilter = filterDto.getType() != null && !filterDto.getType().isEmpty();
         List<ActivityType> types = hasTypeFilter ? filterDto.getType() : List.of(ActivityType.STUDENT_ACTIVITY_TRANSCRIPT);
 
+        String searchTerm = null;
+        if (filterDto.getSearch() != null && !filterDto.getSearch().trim().isEmpty()) {
+            searchTerm = "%" + filterDto.getSearch().trim().toLowerCase() + "%";
+        }
+
         Sort sort = getSort(filterDto.getSort());
         Pageable pageable = PageRequest.of(page, size, sort);
 
@@ -187,14 +191,9 @@ public class ActivityServiceImpl implements ActivityService {
                 types,
                 filterDto.getDateFrom(),
                 filterDto.getDateTo(),
+                searchTerm,  // Add search parameter
                 pageable
         );
-    }
-
-    @Override
-    public Activity getActivityById(Long id) throws BiNewsianException {
-        return activityRepository.findByIdAndStatus(id, ActivityStatus.PUBLISHED)
-                .orElseThrow(() -> new BiNewsianException(AppConstant.ACTIVITY_NOT_FOUND));
     }
 
     private void notifyUsers(Activity activity, String appUrl) throws BiNewsianException {

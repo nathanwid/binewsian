@@ -22,10 +22,15 @@ public interface NewsRepository extends JpaRepository<News, Long> {
 
     @Query("SELECT n FROM News n WHERE " +
             "n.status = :status " +
-            "AND (:categoryId IS NULL OR n.category.id = :categoryId)")
+            "AND (:categoryId IS NULL OR n.category.id = :categoryId) " +
+            "AND (:searchTerm IS NULL OR " +
+            "     LOWER(n.title) LIKE :searchTerm OR " +
+            "     LOWER(n.summary) LIKE :searchTerm OR " +
+            "     LOWER(n.content) LIKE :searchTerm)")
     Page<News> findNewsWithFilters(
             @Param("status") NewsStatus status,
             @Param("categoryId") Long categoryId,
+            @Param("searchTerm") String searchTerm,
             Pageable pageable
     );
   

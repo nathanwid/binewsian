@@ -457,17 +457,6 @@
 
     <th:block layout:fragment="scripts">
         <script th:inline="javascript">
-            $(document).on('click', '.news-item', function (e) {
-                if ($(e.target).closest('a, button, .dropdown, .ellipsis-btn').length) {
-                    return;
-                }
-
-                const url = $(this).data('url');
-                if (url) {
-                    window.location.href = url;
-                }
-            });
-
             const searchConfig = {
                 'searchNews': { endpoint: '/admin/news/search', type: 'news' },
                 'searchCategory': { endpoint: '/admin/categories/search', type: 'category' },

@@ -46,7 +46,7 @@
                     </div>
 
                     <div class="news-detail__action-buttons">
-                        <button class="news-detail__btn-bookmark" id="saveNewsBtn" th:data-id="${news.id}" th:data-type="'NEWS'">
+                        <button th:if="${user.role.name == 'USER'}" class="news-detail__btn-bookmark" id="saveNewsBtn" th:data-id="${news.id}" th:data-type="'NEWS'">
                             <i class="bi" th:classappend="${isBookmarked} ? 'bi-bookmark-fill' : 'bi-bookmark'"></i>
                             <span class="save-text" th:text="${isBookmarked} ? 'Saved' : 'Save News'"></span>
                         </button>
@@ -108,13 +108,13 @@
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'Saved',
-                                    text: 'Activity added to bookmarks',
+                                    text: 'News added to bookmarks',
                                     timer: 1500,
                                     showConfirmButton: false
                                 })
                             } else {
                                 $icon.removeClass('bi-bookmark-fill').addClass('bi-bookmark');
-                                $btn.find('.save-text').text('Save Activity');
+                                $btn.find('.save-text').text('Save News');
 
                                 Swal.fire({
                                     icon: 'info',

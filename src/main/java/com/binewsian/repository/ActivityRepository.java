@@ -33,7 +33,10 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
             "     :includeOnsite = true AND LOWER(a.location) NOT LIKE '%online%') " +
             "AND (:hasTypeFilter = false OR a.type IN :types) " +
             "AND (CAST(:dateFrom AS date) IS NULL OR a.activityDate >= :dateFrom) " +
-            "AND (CAST(:dateTo AS date) IS NULL OR a.activityDate <= :dateTo)")
+            "AND (CAST(:dateTo AS date) IS NULL OR a.activityDate <= :dateTo) " +
+            "AND (:searchTerm IS NULL OR " +
+            "     LOWER(a.title) LIKE :searchTerm OR " +
+            "     LOWER(a.location) LIKE :searchTerm)")
     Page<Activity> findActivitiesWithFilters(
             @Param("status") ActivityStatus status,
             @Param("regDeadlineStart") LocalDateTime regDeadlineStart,
@@ -44,6 +47,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
             @Param("types") List<ActivityType> types,
             @Param("dateFrom") LocalDate dateFrom,
             @Param("dateTo") LocalDate dateTo,
+            @Param("searchTerm") String searchTerm,
             Pageable pageable
     );
 

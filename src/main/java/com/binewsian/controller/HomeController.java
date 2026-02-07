@@ -3,7 +3,9 @@ package com.binewsian.controller;
 import com.binewsian.annotation.RequireRole;
 import com.binewsian.dto.ActivityFilterDto;
 import com.binewsian.dto.NewsFilterDto;
+import com.binewsian.enums.ActivityStatus;
 import com.binewsian.enums.ActivityType;
+import com.binewsian.enums.NewsStatus;
 import com.binewsian.enums.Role;
 import com.binewsian.exception.BiNewsianException;
 import com.binewsian.model.Activity;
@@ -18,11 +20,13 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -61,6 +65,7 @@ public class HomeController {
     public String showActivityPage(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "9") int size,
+            @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String location,
             @RequestParam(required = false) String type,
@@ -76,6 +81,10 @@ public class HomeController {
         ActivityFilterDto filterDto = new ActivityFilterDto();
         filterDto.setStatus(status != null ? status : "all");
         filterDto.setSort(sort != null ? sort : "newest");
+
+        if (search != null && !search.trim().isEmpty()) {
+            filterDto.setSearch(search.trim());
+        }
 
         if (location != null && !location.isEmpty()) {
             filterDto.setLocationType(Arrays.asList(location.split(",")));
@@ -99,6 +108,7 @@ public class HomeController {
         model.addAttribute("totalPages", activityPage.getTotalPages());
         model.addAttribute("totalActivities", activityPage.getTotalElements());
 
+        model.addAttribute("search", search);
         model.addAttribute("status", status);
         model.addAttribute("location", location);
         model.addAttribute("type", type);
@@ -113,20 +123,25 @@ public class HomeController {
     @RequireRole({Role.USER, Role.CONTRIBUTOR, Role.ADMIN})
     public String showActivityDetail(@PathVariable Long id, HttpSession session, Model model) throws BiNewsianException {
         User user = (User) session.getAttribute("user");
-        Activity activity = activityService.getActivityById(id);
+        Activity activity = activityService.findById(id);
+
+        if (activity == null || activity.getStatus() == ActivityStatus.DRAFT && user.getRole() != Role.CONTRIBUTOR) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
 
         model.addAttribute("user", user);
         model.addAttribute("activity", activity);
         model.addAttribute("isBookmarked", bookmarkService.isBookmarked(user, "ACTIVITY", id));
 
         return "activity-detail";
-    }  
+    }
 
     @GetMapping("/news")
     @RequireRole({Role.USER, Role.CONTRIBUTOR, Role.ADMIN})
     public String showNewsPage(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "9") int size,
+            @RequestParam(required = false) String search,
             @RequestParam(required = false) String category,
             HttpSession session,
             Model model
@@ -139,6 +154,10 @@ public class HomeController {
 
         NewsFilterDto filterDto = new NewsFilterDto();
 
+        if (search != null && !search.trim().isEmpty()) {
+            filterDto.setSearch(search.trim());
+        }
+
         if (category != null && !category.isEmpty()) {
             filterDto.setCategory(category);
         }
@@ -150,17 +169,22 @@ public class HomeController {
         model.addAttribute("totalPages", newsPage.getTotalPages());
         model.addAttribute("totalNews", newsPage.getTotalElements());
 
+        model.addAttribute("search", search);
         model.addAttribute("category", category);
 
         return "news";
     }
-      
+
     @GetMapping("/news/{id}")
     @RequireRole({Role.USER, Role.CONTRIBUTOR, Role.ADMIN})
     public String showNewsDetailPage(@PathVariable Long id, HttpSession session, Model model) {
         try {
             User user = (User) session.getAttribute("user");
             News news = newsService.findById(id);
+
+            if (news == null || news.getStatus() == NewsStatus.DRAFT && user.getRole() != Role.CONTRIBUTOR) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
 
             model.addAttribute("user", user);
             model.addAttribute("news",  news);

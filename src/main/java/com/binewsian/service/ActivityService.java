@@ -20,5 +20,4 @@ public interface ActivityService {
     List<Activity> findAllByStatus();
     Page<Activity> getFilteredActivities(ActivityFilterDto filterDto, int page, int size);
     List<Activity> findAllByUserId(Long userId);
-    Activity getActivityById(Long id) throws BiNewsianException;
 }

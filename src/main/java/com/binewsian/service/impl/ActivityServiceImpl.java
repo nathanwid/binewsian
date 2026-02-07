@@ -80,10 +80,6 @@ public class ActivityServiceImpl implements ActivityService {
             throw new BiNewsianException("You are not authorized to edit this activity.");
         }
 
-        if (activity.getStatus() == ActivityStatus.PUBLISHED) {
-            throw new BiNewsianException("Published activity cannot be edited.");
-        }
-
         boolean isDraft = request.isDraft();
 
         if (isDraft) {
@@ -123,8 +119,7 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     public Activity findById(Long id) throws BiNewsianException {
-        return activityRepository.findById(id)
-                .orElseThrow(() -> new BiNewsianException(AppConstant.ACTIVITY_NOT_FOUND));
+        return activityRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -199,12 +194,6 @@ public class ActivityServiceImpl implements ActivityService {
                 searchTerm,  // Add search parameter
                 pageable
         );
-    }
-
-    @Override
-    public Activity getActivityById(Long id) throws BiNewsianException {
-        return activityRepository.findByIdAndStatus(id, ActivityStatus.PUBLISHED)
-                .orElseThrow(() -> new BiNewsianException(AppConstant.ACTIVITY_NOT_FOUND));
     }
 
     private void notifyUsers(Activity activity, String appUrl) throws BiNewsianException {

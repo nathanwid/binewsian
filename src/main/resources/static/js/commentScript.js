@@ -90,7 +90,7 @@ function createReplyHtml(reply, parentId) {
 // Create comment HTML
 function createCommentHtml(comment) {
     const isDeleted = comment.deleted;
-    const username = isDeleted ? '[Deleted User]' : comment.username;
+    const username = comment.username;
     const avatar = comment.avatarInitials;
     const avatarColor = comment.avatarColor;
     const date = formatDate(comment.createdAt);
@@ -229,6 +229,10 @@ function saveItem(id, type) {
         data: JSON.stringify({ content: newContent }),
         success: function(response) {
             const $textEl = $textContainer.find('.comment-text');
+
+            const commentDate = $itemEl.find('.comment-date').text();
+            $itemEl.find('.comment-date').text(`${commentDate} (edited)`);
+
             $textEl.text(newContent).show();
             $editForm.hide();
         },
@@ -292,14 +296,16 @@ function deleteItem(id, type) {
                 if (hasReplies) {
                     $itemEl.find('.comment-text').text('This comment has been deleted.').addClass('text-muted fst-italic');
                     $itemEl.find('.comment-avatar').text('?').css('background', '#ccc');
-                    $itemEl.find('strong').text('[Deleted User]');
 
                     $itemEl.find('.dropdown').remove();
                     $itemEl.find('button[onclick^="toggleReplyForm"]').remove();
-
                 } else {
                     $(`#reply-form-${id}, #replies-container-${id}`).remove();
-                    $itemEl.fadeOut(300, function() { $(this).remove(); });
+                    
+                    $itemEl.fadeOut(300, function() { 
+                        $(this).remove(); 
+                        checkAndShowEmptyState();
+                    });
                 }
             } else {
                 const parentId = $itemEl.data('parent-id');
@@ -314,6 +320,16 @@ function deleteItem(id, type) {
             alert(xhr.responseText || `Failed to delete ${type}`);
         }
     });
+}
+
+function checkAndShowEmptyState() {
+    const $commentsContainer = $('#comments-container');
+    const remainingComments = $commentsContainer.find('.comment[data-item-type="comment"]').length;
+
+    if (remainingComments === 0) {
+        $commentsContainer.html('<p style="text-align:center;padding:40px;color:#a0aec0;">No comments yet. Be the first to comment!</p>');
+        $('#load-more-comments').hide();
+    }
 }
 
 // Toggle reply form

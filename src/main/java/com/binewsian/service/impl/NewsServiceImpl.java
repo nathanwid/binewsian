@@ -79,7 +79,7 @@ public class NewsServiceImpl implements NewsService {
         News news = newsRepository.findById(id)
                 .orElseThrow(() -> new BiNewsianException(AppConstant.NEWS_NOT_FOUND));
 
-        validateOwnerAndStatus(news, user);
+        validateOwner(news, user);
         validateRequest(request);
 
         Category category = null;
@@ -119,8 +119,7 @@ public class NewsServiceImpl implements NewsService {
 
     @Override
     public News findById(Long id) throws BiNewsianException {
-        return newsRepository.findById(id)
-                .orElseThrow(() -> new BiNewsianException(AppConstant.NEWS_NOT_FOUND));
+        return newsRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -199,13 +198,9 @@ public class NewsServiceImpl implements NewsService {
         }
     }
 
-    private void validateOwnerAndStatus(News news, User user) throws BiNewsianException {
+    private void validateOwner(News news, User user) throws BiNewsianException {
         if (!news.getCreatedBy().getId().equals(user.getId())) {
             throw new BiNewsianException("You are not authorized to edit this activity.");
-        }
-
-        if (news.getStatus() == NewsStatus.PUBLISHED) {
-            throw new BiNewsianException("Published activity cannot be edited.");
         }
     }
 

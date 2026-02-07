@@ -3,7 +3,9 @@ package com.binewsian.controller;
 import com.binewsian.annotation.RequireRole;
 import com.binewsian.dto.ActivityFilterDto;
 import com.binewsian.dto.NewsFilterDto;
+import com.binewsian.enums.ActivityStatus;
 import com.binewsian.enums.ActivityType;
+import com.binewsian.enums.NewsStatus;
 import com.binewsian.enums.Role;
 import com.binewsian.exception.BiNewsianException;
 import com.binewsian.model.Activity;
@@ -18,11 +20,13 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -119,7 +123,11 @@ public class HomeController {
     @RequireRole({Role.USER, Role.CONTRIBUTOR, Role.ADMIN})
     public String showActivityDetail(@PathVariable Long id, HttpSession session, Model model) throws BiNewsianException {
         User user = (User) session.getAttribute("user");
-        Activity activity = activityService.getActivityById(id);
+        Activity activity = activityService.findById(id);
+
+        if (activity == null || activity.getStatus() == ActivityStatus.DRAFT && user.getRole() != Role.CONTRIBUTOR) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
 
         model.addAttribute("user", user);
         model.addAttribute("activity", activity);
@@ -166,13 +174,17 @@ public class HomeController {
 
         return "news";
     }
-      
+
     @GetMapping("/news/{id}")
     @RequireRole({Role.USER, Role.CONTRIBUTOR, Role.ADMIN})
     public String showNewsDetailPage(@PathVariable Long id, HttpSession session, Model model) {
         try {
             User user = (User) session.getAttribute("user");
             News news = newsService.findById(id);
+
+            if (news == null || news.getStatus() == NewsStatus.DRAFT && user.getRole() != Role.CONTRIBUTOR) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
 
             model.addAttribute("user", user);
             model.addAttribute("news",  news);

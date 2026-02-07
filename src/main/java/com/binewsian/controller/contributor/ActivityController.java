@@ -68,7 +68,7 @@ public class ActivityController {
             User user = (User) session.getAttribute("user");
             Activity activity = activityService.findById(id);
             ActivityType[] activityTypes = ActivityType.values();
-            boolean canEdit = activity.getStatus() == ActivityStatus.DRAFT && activity.getCreatedBy().getId().equals(user.getId());
+            boolean canEdit = activity.getCreatedBy().getId().equals(user.getId());
 
             model.addAttribute("user", user);
             model.addAttribute("activity", activity);

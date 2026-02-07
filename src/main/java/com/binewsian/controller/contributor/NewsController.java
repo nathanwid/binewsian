@@ -77,7 +77,7 @@ public class NewsController {
             User user = (User) session.getAttribute("user");
             News news = newsService.findById(id);
             List<Category> categories = categoryService.findAll();
-            boolean canEdit = news.getStatus() == NewsStatus.DRAFT && news.getCreatedBy().getId().equals(user.getId());
+            boolean canEdit = news.getCreatedBy().getId().equals(user.getId());
 
             model.addAttribute("user", user);
             model.addAttribute("news", news);

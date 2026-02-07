@@ -151,18 +151,17 @@
                 $previewFileName.text("");
                 $previewFileSize.text("")
                 $previewContainer.addClass("d-none");
+
+                clearInvalid("featuredImage");
             });
             
-            $featuredImage.on("change", function () {
+            $featuredImage.on("change", function (e) {
+                e.stopImmediatePropagation();
+
                 const file = this.files[0];
                 if (file) {
-                    const isValid = validateFile(file);
-                    if (!isValid) {
-                        this.value = "";
-                        return;
-                    }
-
                     clearInvalid("featuredImage");
+                    const isValid = validateFile(file);
 
                     imageUrl = URL.createObjectURL(file);
                     const fileSize = (file.size / (1024 * 1024)).toFixed(2);
@@ -207,7 +206,9 @@
                 if (!file.type.startsWith("image/")) {
                     setInvalid("featuredImage", "Allowed formats: JPG, PNG, WebP");
                     return false;
-                } else if (file.size > MAX_FILE_SIZE) {
+                } 
+                
+                if (file.size > MAX_FILE_SIZE) {
                     setInvalid("featuredImage", "Image size must be less than 5MB");
                     return false;
                 }

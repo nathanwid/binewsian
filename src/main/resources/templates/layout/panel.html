@@ -123,6 +123,18 @@
                 $('.select2-search__field').attr('placeholder', 'Search here');
             })
         })
+
+        $(document).on('click', '.news-item', function (e) {
+            if ($(e.target).closest('a, button, .dropdown, .ellipsis-btn').length) {
+                return;
+            }
+
+            const url = $(this).data('url');
+
+            if (url) {
+                window.open(url, '_blank');
+            }
+        });
     </script>
 
     <!-- Page specific scripts -->

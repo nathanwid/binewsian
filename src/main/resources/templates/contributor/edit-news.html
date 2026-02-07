@@ -47,10 +47,10 @@
                                     <div class="col-md-8 mb-3">
                                         <label for="featuredImage" class="form-label">Featured Image (5MB)<span class="text-danger">*</span></label>
                                         <input class="form-control" type="file" id="featuredImage" accept="image/png,image/jpeg,image/jpg,image/webp">
+                                        <div id="featuredImageError" class="invalid-feedback"></div>
                                         <input type="hidden" th:field="${news.featuredImageKey}" id="existingImageKey">
                                         <input type="hidden" th:field="${news.featuredImageUrl}" id="existingImageUrl">
                                         <input type="hidden" th:field="${news.featuredImageFileName}" id="existingImageName">
-                                        <div id="featuredImageError" class="invalid-feedback"></div>
 
                                         <!-- Image Preview Container -->
                                         <div id="previewContainer" class="upload-preview d-none">
@@ -171,7 +171,9 @@
                 }
             });
 
-            $("#btnRemoveImage").on("click", function () {
+            $("#btnRemoveImage").on("click", function (e) {
+                e.stopImmediatePropagation();
+
                 if (currentImageData.url && !currentImageData.isFromServer) {
                     URL.revokeObjectURL(currentImageData.url);
                 } 
@@ -186,31 +188,31 @@
                 $previewFileName.text("");
                 $previewFileSize.text("");
                 $previewContainer.addClass("d-none");
+
+                clearInvalid("featuredImage");
             });
 
-            $featuredImage.on("change", function () {
+            $featuredImage.on("change", function (e) {
+                e.stopImmediatePropagation();
                 const file = this.files[0];
 
                 if (file) {
-                    const isValid = validateFile(file);
-                    if (!isValid) {
-                        this.value = "";
-                        return;
-                    }
-
                     clearInvalid("featuredImage");
 
-                    if (currentImageData.url && !currentImageData.isFromServer) {
-                        URL.revokeObjectURL(currentImageData.url);
-                    }
-                    
-                    currentImageData.key = file.name; 
-                    currentImageData.url = URL.createObjectURL(file);
-                    currentImageData.shouldDelete = currentImageData.isFromServer;
-
                     const fileSize = (file.size / (1024 * 1024)).toFixed(2);
+                    const imageUrl = URL.createObjectURL(file);
 
-                    $previewThumbnail.attr("src", currentImageData.url);
+                    if (validateFile(file)) {
+                        if (currentImageData.url && !currentImageData.isFromServer) {
+                            URL.revokeObjectURL(currentImageData.url);
+                        }
+                        
+                        currentImageData.key = file.name; 
+                        currentImageData.url = imageUrl;
+                        currentImageData.shouldDelete = currentImageData.isFromServer;
+                    }
+
+                    $previewThumbnail.attr("src", imageUrl);
                     $previewFileName.text(file.name);
                     $previewFileSize.removeClass("d-none").text(`${fileSize}MB`);
                     $previewContainer.removeClass("d-none");
@@ -247,7 +249,9 @@
                 if (!file.type.startsWith("image/")) {
                     setInvalid("featuredImage", "Allowed formats: JPG, PNG, WebP");
                     return false;
-                } else if (file.size > MAX_FILE_SIZE) {
+                }
+
+                if (file.size >= MAX_FILE_SIZE) {
                     setInvalid("featuredImage", "Image size must be less than 5MB");
                     return false;
                 }
@@ -283,12 +287,16 @@
                 }
 
                 const file = $featuredImage.get(0).files[0];
-                if (!file) {
-                    setInvalid("featuredImage", "Featured image is required");
-                    isValid = false;
-                } 
+                if (currentImageData.key !== existingImageKey) {
+                    if (!file) {
+                        setInvalid("featuredImage", "Featured image is required");
+                        isValid = false;
+                    } else {
+                        isValid = validateFile(file);
+                    }
+                }
 
-                return isValid && file && validateFile(file);
+                return isValid;
             }
 
             function validateDraft() {

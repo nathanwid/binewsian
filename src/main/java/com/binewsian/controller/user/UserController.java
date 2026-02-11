@@ -5,6 +5,7 @@ import com.binewsian.constant.AppConstant;
 import com.binewsian.enums.Role;
 import com.binewsian.exception.BiNewsianException;
 import com.binewsian.model.Activity;
+import com.binewsian.model.ForumThread;
 import com.binewsian.model.News;
 import com.binewsian.model.User;
 import com.binewsian.service.BookmarkService;

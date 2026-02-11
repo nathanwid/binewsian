@@ -1,6 +1,7 @@
 package com.binewsian.service;
 
 import com.binewsian.model.Activity;
+import com.binewsian.model.ForumThread;
 import com.binewsian.model.News;
 import com.binewsian.model.User;
 

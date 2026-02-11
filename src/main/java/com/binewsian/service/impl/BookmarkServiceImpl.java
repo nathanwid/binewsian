@@ -7,6 +7,7 @@ import com.binewsian.model.ForumThread;
 import com.binewsian.model.User;
 import com.binewsian.repository.ActivityRepository;
 import com.binewsian.repository.BookmarkRepository;
+import com.binewsian.repository.ForumThreadRepository;
 import com.binewsian.repository.NewsRepository;
 import com.binewsian.service.BookmarkService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final BookmarkRepository bookmarkRepository;
     private final ActivityRepository activityRepository;
     private final NewsRepository newsRepository;
+    private final ForumThreadRepository forumThreadRepository;
 
     @Override
     @Transactional

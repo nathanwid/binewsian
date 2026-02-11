@@ -1,6 +1,7 @@
 package com.binewsian.service;
 
 import com.binewsian.model.Activity;
+import com.binewsian.model.ForumThread;
 import com.binewsian.model.News;
 import com.binewsian.model.User;
 
@@ -11,5 +12,6 @@ public interface BookmarkService {
     boolean isBookmarked(User user, String type, Long contentId);
     List<Activity> getBookmarkedActivities(User user);
     List<News> getBookmarkedNews(User user);
+    List<ForumThread> getBookmarkedThreads(User user);
     int countByUserAndType(User user, String type);
 }

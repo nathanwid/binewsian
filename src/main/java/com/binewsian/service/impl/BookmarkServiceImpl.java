@@ -1,11 +1,9 @@
 package com.binewsian.service.impl;
 
-import com.binewsian.model.Activity;
-import com.binewsian.model.Bookmark;
-import com.binewsian.model.News;
-import com.binewsian.model.User;
+import com.binewsian.model.*;
 import com.binewsian.repository.ActivityRepository;
 import com.binewsian.repository.BookmarkRepository;
+import com.binewsian.repository.ForumThreadRepository;
 import com.binewsian.repository.NewsRepository;
 import com.binewsian.service.BookmarkService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +20,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final BookmarkRepository bookmarkRepository;
     private final ActivityRepository activityRepository;
     private final NewsRepository newsRepository;
+    private final ForumThreadRepository forumThreadRepository;
 
     @Override
     @Transactional
@@ -49,28 +48,29 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     public List<Activity> getBookmarkedActivities(User user) {
-        List<Long> activityIds = bookmarkRepository
-                .findByUserAndContentTypeOrderByCreatedAtDesc(user, "ACTIVITY")
-                .stream()
-                .map(Bookmark::getContentId)
-                .collect(Collectors.toList());
-
-        return activityRepository.findAllById(activityIds);
+        return activityRepository.findAllById(getContentIds(user, "ACTIVITY"));
     }
 
     @Override
     public List<News> getBookmarkedNews(User user) {
-        List<Long> newsIds = bookmarkRepository
-                .findByUserAndContentTypeOrderByCreatedAtDesc(user, "NEWS")
-                .stream()
-                .map(Bookmark::getContentId)
-                .collect(Collectors.toList());
+        return newsRepository.findAllById(getContentIds(user, "NEWS"));
+    }
 
-        return newsRepository.findAllById(newsIds);
+    @Override
+    public List<ForumThread> getBookmarkedThreads(User user) {
+        return forumThreadRepository.findAllById(getContentIds(user, "THREAD"));
     }
 
     @Override
     public int countByUserAndType(User user, String type) {
         return bookmarkRepository.countByUserAndContentType(user, type);
+    }
+
+    private List<Long> getContentIds(User user, String type) {
+        return bookmarkRepository
+                .findByUserAndContentTypeOrderByCreatedAtDesc(user, type)
+                .stream()
+                .map(Bookmark::getContentId)
+                .collect(Collectors.toList());
     }
 }

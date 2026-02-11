@@ -1931,9 +1931,7 @@ body {
 
 .bookmark .btn-action:hover,
 .bookmark .btn-remove:hover {
-    background: #5a67d8;
-    border-color: #4c51bf;
-    color: #ffffff;
+    background: rgba(13, 110, 253, 0.1);
 }
 
 .bookmark .item-divider {

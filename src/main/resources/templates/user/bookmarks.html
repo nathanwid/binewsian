@@ -78,11 +78,19 @@
                             </div>
 
                             <!-- Forum in ALl Tab -->
-<!--                            <div th:if="${forums != null && !forums.isEmpty()}" class="mb-3">-->
-<!--                                <div class="mb-2">-->
-<!--                                    <h5 class="section-title">Forum</h5>-->
-<!--                                </div>-->
-<!--                            </div>-->
+                            <div th:if="${forums != null && !forums.isEmpty()}" class="mb-3">
+                                <div class="mb-3">
+                                    <div class="mb-2">
+                                        <h5 class="section-title">Forum</h5>
+                                    </div>
+                                    <div class="bookmark-list">
+                                        <div th:each="item, iterStat : ${forums}" class="bookmark-item">
+                                            <div th:replace="fragments/bookmark-forum-item :: forumItem"></div>
+                                            <div th:if="${!iterStat.last}" class="item-divider"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
                             <!-- Empty State for All -->
                             <div th:if="${totalCount == 0}" class="empty-section">
@@ -124,12 +132,20 @@
                         </div>
 
                         <!-- Forum Tab Panel -->
-<!--                        <div class="tab-pane fade" id="panel-forum" role="tabpanel">-->
-<!--                            <div th:if="${forums == null || forums.isEmpty()}" class="empty-section">-->
-<!--                                <i class="bi bi-chat-left"></i>-->
-<!--                                <p>No forum bookmarks yet</p>-->
-<!--                            </div>-->
-<!--                        </div>-->
+                        <div class="tab-pane fade" id="panel-forum" role="tabpanel">
+                            <div th:if="${forums != null && !forums.isEmpty()}">
+                                <div class="bookmark-list">
+                                    <div th:each="item, iterStat : ${forums}" class="bookmark-item">
+                                        <div th:replace="fragments/bookmark-forum-item :: forumItem"></div>
+                                        <div th:if="${!iterStat.last}" class="item-divider"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div th:if="${forums == null || forums.isEmpty()}" class="empty-section">
+                                <i class="bi bi-chat-left"></i>
+                                <p>No forum bookmarks yet</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

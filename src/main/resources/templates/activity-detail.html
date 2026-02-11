@@ -91,7 +91,7 @@
                         </div>
                     </div>
 
-                    <div class="info-row">
+                    <div class="info-row" th:unless="${#temporals.createNow().isAfter(activity.registrationDeadline)}">
                         <i class="bi bi-link-45deg info-icon"></i>
                         <div class="info-content">
                             <div class="info-label">Registration Link</div>

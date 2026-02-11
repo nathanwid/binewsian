@@ -100,10 +100,7 @@
             <!-- Page content goes here -->
         </div>
 
-        <!-- Button Create Thread -->
-        <button th:if="${user.role.name() == 'USER'}" type="button" class="fixed-button rounded-circle create-forum-btn" id="openCreateThreadBtn" data-bs-toggle="tooltip" data-bs-title="Create forum">
-            <i class="bi bi-plus-lg"></i>
-        </button>
+        <div layout:fragment="forumSpecificElement"></div>
 
         <!-- Panel Access Button -->
         <a th:if="${user.role.name() == 'CONTRIBUTOR'}" th:href="@{/contributor/content}" class="fixed-button rounded-circle contributor-panel-btn" data-bs-toggle="tooltip" data-bs-title="Contributor Panel">

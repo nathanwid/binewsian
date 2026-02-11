@@ -116,7 +116,7 @@ public class HomeController {
         model.addAttribute("to", to);
         model.addAttribute("sort", sort);
 
-        return "activity";
+        return "user/activity/list";
     }
 
     @GetMapping("/activity/{id}")
@@ -133,7 +133,7 @@ public class HomeController {
         model.addAttribute("activity", activity);
         model.addAttribute("isBookmarked", bookmarkService.isBookmarked(user, "ACTIVITY", id));
 
-        return "activity-detail";
+        return "user/activity/detail";
     }
 
     @GetMapping("/news")
@@ -172,7 +172,7 @@ public class HomeController {
         model.addAttribute("search", search);
         model.addAttribute("category", category);
 
-        return "news";
+        return "user/news/list";
     }
 
     @GetMapping("/news/{id}")
@@ -190,7 +190,7 @@ public class HomeController {
             model.addAttribute("news",  news);
             model.addAttribute("isBookmarked", bookmarkService.isBookmarked(user, "NEWS", id));
 
-            return "news-detail";
+            return "user/news/detail";
         } catch (BiNewsianException e) {
             return "redirect:/dashboard";
         }

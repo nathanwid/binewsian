@@ -56,7 +56,7 @@ public class ForumController {
         model.addAttribute("totalThreads", threadPage.getTotalElements());
         model.addAttribute("pageSize", size);
         model.addAttribute("user", user);
-        return "user/forum";
+        return "user/forum/list";
     }
 
     @PostMapping
@@ -89,7 +89,7 @@ public class ForumController {
             model.addAttribute("userVote", forumService.getUserVote(threadId, user));
             model.addAttribute("isSaved", bookmarkService.isBookmarked(user, "THREAD", threadId));
             model.addAttribute("user", user);
-            return "user/forum-thread";
+            return "user/forum/detail";
         } catch (BiNewsianException ex) {
             return "redirect:/forum?error=" + ex.getMessage();
         }

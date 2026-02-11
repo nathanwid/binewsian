@@ -145,6 +145,13 @@
     </div>
 </div>
 
+<div layout:fragment="forumSpecificElement">
+    <!-- Button Create Thread -->
+    <button th:if="${user.role.name() == 'USER'}" type="button" class="fixed-button rounded-circle create-forum-btn" id="openCreateThreadBtn" data-bs-toggle="tooltip" data-bs-title="Create forum">
+        <i class="bi bi-plus-lg"></i>
+    </button>
+</div>
+
 <th:block layout:fragment="scripts">
     <script>
         function openCreateThreadModal() {

@@ -79,13 +79,15 @@
 
                             <!-- Forum in ALl Tab -->
                             <div th:if="${forums != null && !forums.isEmpty()}" class="mb-3">
-                                <div class="mb-2">
-                                    <h5 class="section-title">Forum</h5>
-                                </div>
-                                <div class="bookmark-list">
-                                    <div th:each="item, iterStat : ${forums}" class="bookmark-item">
-                                        <div th:replace="fragments/bookmark-forum-item :: forumItem"></div>
-                                        <div th:if="${!iterStat.last}" class="item-divider"></div>
+                                <div class="mb-3">
+                                    <div class="mb-2">
+                                        <h5 class="section-title">Forum</h5>
+                                    </div>
+                                    <div class="bookmark-list">
+                                        <div th:each="item, iterStat : ${forums}" class="bookmark-item">
+                                            <div th:replace="fragments/bookmark-forum-item :: forumItem"></div>
+                                            <div th:if="${!iterStat.last}" class="item-divider"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

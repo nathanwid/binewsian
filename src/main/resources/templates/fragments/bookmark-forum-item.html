@@ -1,5 +1,5 @@
 <div th:fragment="forumItem">
-    <a th:href="@{/forum/{id}(id=${item.id})}" class="item-content" style="text-decoration: none;">
+    <a th:href="@{/forum/{id}(id=${item.id})}" target="_blank" class="item-content" style="text-decoration: none;">
         <div class="item-main">
             <h6 class="item-title" th:text="${item.title}">Forum Title</h6>
             <p class="item-description" th:text="${item.content}">Forum content</p>

@@ -12,7 +12,7 @@ public interface BookmarkService {
     boolean isBookmarked(User user, String type, Long contentId);
     List<Activity> getBookmarkedActivities(User user);
     List<News> getBookmarkedNews(User user);
-    List<ForumThread> getBookmarkedForumThreads(User user);
+    List<ForumThread> getBookmarkedThreads(User user);
     List<Long> getBookmarkedForumThreadIds(User user);
     int countByUserAndType(User user, String type);
 }

@@ -20,4 +20,5 @@ public class AppConstant {
     public final static String INVALID_ERROR_PASSWORD_RESET_LINK = "Invalid or expired password reset link.";
 
     public final static String UNEXPECTED_SERVER_ERROR = "Unexpected server error.";
+    public static final String UNAUTHORIZED_ACCESS = "Access denied.";
 }

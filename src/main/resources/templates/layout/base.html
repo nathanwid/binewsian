@@ -100,13 +100,36 @@
             <!-- Page content goes here -->
         </div>
 
-        <!-- Panel Access Button -->
-        <a th:if="${user.role.name() == 'CONTRIBUTOR'}" th:href="@{/contributor/content}" class="fixed-button rounded-circle contributor-panel-btn" data-bs-toggle="tooltip" data-bs-title="Contributor Panel">
-            <i class="bi bi-pencil-square"></i>
-        </a>
-        <a th:if="${user.role.name() == 'ADMIN'}" th:href="@{/admin/panel}" class="fixed-button rounded-circle admin-panel-btn" data-bs-toggle="tooltip" data-bs-title="Administrator Panel">
-            <i class="bi bi-shield-lock"></i>
-        </a>
+        <!-- Floating Buttons Stack -->
+        <div class="fab-stack">
+            <!-- Page specific FAB (contoh: Create forum) -->
+            <th:block layout:fragment="fab"></th:block>
+
+            <!-- Contributor / Admin Buttons -->
+            <a th:if="${session.user != null and session.user.role.name() == 'CONTRIBUTOR'}"
+               th:href="@{/contributor/content}"
+               class="fixed-button rounded-circle contributor-panel-btn"
+               data-bs-toggle="tooltip"
+               data-bs-title="Contributor Panel">
+                <i class="bi bi-pencil-square"></i>
+            </a>
+
+            <a th:if="${session.user != null and session.user.role.name() == 'ADMIN'}"
+               th:href="@{/admin/panel}"
+               class="fixed-button rounded-circle admin-panel-btn"
+               data-bs-toggle="tooltip"
+               data-bs-title="Administrator Panel">
+                <i class="bi bi-shield-lock"></i>
+            </a>
+        </div>
+
+
+        <!--        <a th:if="${user.role.name() == 'CONTRIBUTOR'}" th:href="@{/contributor/content}" class="fixed-button rounded-circle contributor-panel-btn" data-bs-toggle="tooltip" data-bs-title="Contributor Panel">-->
+<!--            <i class="bi bi-pencil-square"></i>-->
+<!--        </a>-->
+<!--        <a th:if="${user.role.name() == 'ADMIN'}" th:href="@{/admin/panel}" class="fixed-button rounded-circle admin-panel-btn" data-bs-toggle="tooltip" data-bs-title="Administrator Panel">-->
+<!--            <i class="bi bi-shield-lock"></i>-->
+<!--        </a>-->
     </main>
 
     <!-- Footer -->
@@ -146,32 +169,63 @@
         })
 
         document.addEventListener('DOMContentLoaded', function() {
-            const button = document.querySelector('.fixed-button');
-            const footer = document.querySelector('.footer');
-            const main = document.querySelector('main');
+    const stack = document.querySelector('.fab-stack');
+    const footer = document.querySelector('.footer');
+    const main = document.querySelector('main');
 
-            if (button && footer && main) {
-                function adjustButtonPosition() {
-                    const footerRect = footer.getBoundingClientRect();
-                    const buttonRect = button.getBoundingClientRect();
-                    const windowHeight = window.innerHeight;
+    if (!stack || !footer || !main) return;
 
-                    if (footerRect.top < windowHeight - 20) {
-                        button.classList.add('absolute-position');
-                        const mainRect = main.getBoundingClientRect();
-                        const buttonTop = footerRect.top - mainRect.top - buttonRect.height - 20;
-                        button.style.top = buttonTop + 'px';
-                    } else {
-                        button.classList.remove('absolute-position');
-                        button.style.top = '';
-                    }
-                }
+    function adjustStackPosition() {
+        const footerRect = footer.getBoundingClientRect();
+        const stackRect = stack.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
 
-                window.addEventListener('scroll', adjustButtonPosition);
-                window.addEventListener('resize', adjustButtonPosition);
-                adjustButtonPosition();
-            }
-        })
+        // kalau footer mulai masuk viewport bawah
+        if (footerRect.top < windowHeight - 20) {
+            stack.classList.add('absolute-position');
+
+            const mainRect = main.getBoundingClientRect();
+            const top = footerRect.top - mainRect.top - stackRect.height - 20;
+            stack.style.top = top + 'px';
+        } else {
+            stack.classList.remove('absolute-position');
+            stack.style.top = '';
+        }
+    }
+
+    window.addEventListener('scroll', adjustStackPosition);
+    window.addEventListener('resize', adjustStackPosition);
+    adjustStackPosition();
+});
+
+
+<!--        document.addEventListener('DOMContentLoaded', function() {-->
+<!--            const button = document.querySelector('.fixed-button');-->
+<!--            const footer = document.querySelector('.footer');-->
+<!--            const main = document.querySelector('main');-->
+
+<!--            if (button && footer && main) {-->
+<!--                function adjustButtonPosition() {-->
+<!--                    const footerRect = footer.getBoundingClientRect();-->
+<!--                    const buttonRect = button.getBoundingClientRect();-->
+<!--                    const windowHeight = window.innerHeight;-->
+
+<!--                    if (footerRect.top < windowHeight - 20) {-->
+<!--                        button.classList.add('absolute-position');-->
+<!--                        const mainRect = main.getBoundingClientRect();-->
+<!--                        const buttonTop = footerRect.top - mainRect.top - buttonRect.height - 20;-->
+<!--                        button.style.top = buttonTop + 'px';-->
+<!--                    } else {-->
+<!--                        button.classList.remove('absolute-position');-->
+<!--                        button.style.top = '';-->
+<!--                    }-->
+<!--                }-->
+
+<!--                window.addEventListener('scroll', adjustButtonPosition);-->
+<!--                window.addEventListener('resize', adjustButtonPosition);-->
+<!--                adjustButtonPosition();-->
+<!--            }-->
+<!--        })-->
     </script>
 
     <!-- Page specific scripts -->

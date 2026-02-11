@@ -1903,7 +1903,7 @@ body {
 }
 
 .bookmark .tag-closed {
-    background: ##6b7280;
+    background: #6b7280;
     color: white;
 }
 
@@ -2235,3 +2235,301 @@ body {
         -webkit-line-clamp: 4;
     }
 }
+/* =========================
+   FORUM
+   ======================================== */
+
+.forum .forum-thread-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px 18px;
+    box-shadow: 0 6px 20px rgba(18, 38, 63, .10);
+    margin-bottom: 12px;
+
+    transition: transform .18s ease, box-shadow .18s ease;
+    cursor: pointer;
+}
+
+
+.forum .forum-thread-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 35px rgba(18, 38, 63, .16);
+}
+
+.forum .forum-thread-card:active {
+    transform: translateY(-1px);
+}
+
+.forum .forum-thread-card .thread-actions {
+    position: relative;
+    z-index: 2;
+}
+
+.forum .forum-thread-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 6px;
+}
+
+.forum .thread-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.forum .thread-action-btn {
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    padding: 4px 6px;
+    font-size: 0.85rem;
+    color: #6b7280;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.forum .thread-action-btn:hover {
+    color: #111827;
+    transform: translateY(-1px);
+}
+
+.forum .thread-action-btn.active {
+    color: #16a34a;
+}
+
+.forum .btn-downvote.active {
+    color: #ef4444;
+}
+
+.forum .thread-action-btn i {
+    font-size: 0.95rem;
+}
+
+.forum .forum-thread-meta .meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.forum .pagination .page-link {
+    color: #374151;
+    border: 1px solid #d1d5db;
+    padding: 0.5rem 0.875rem;
+}
+
+.forum .pagination .page-item.active .page-link {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+    color: white;
+}
+
+.forum .pagination .page-link:hover {
+    background-color: #f3f4f6;
+    border-color: #d1d5db;
+    color: #374151;
+}
+
+.forum .pagination .page-item.disabled .page-link {
+    color: #9ca3af;
+}
+
+.btn-send {
+    background: var(--primary-gradient);
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 22px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-send:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(102, 126, 234, 0.4);
+}
+
+.btn-send:disabled {
+    opacity: 0.6;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+
+/* =========================
+   FAB STACK (Forum + Panel)
+   ========================= */
+.fab-stack{
+    position: fixed;
+    right: 26px;
+    bottom: 26px;
+    z-index: 1200;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: flex-end;
+}
+
+.fab-stack.absolute-position{
+    position: absolute;
+    bottom: auto;
+}
+
+.fab-stack > a.fixed-button,
+.fab-stack > button.forum-fab{
+    position: static !important;
+}
+
+.fab-stack > a.fixed-button{
+    width: 54px;
+    height: 54px;
+    padding: 0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.20);
+}
+
+.fab-stack > button.forum-fab{
+    width: 54px;
+    height: 54px;
+    border-radius: 999px;
+    border: none;
+    background: #16a34a;
+    color: #ffffff;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.20);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.fab-stack > button.forum-fab:hover{
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+}
+
+.fab-stack > button.forum-fab:active{
+    transform: translateY(-1px);
+}
+
+.forum-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    z-index: 1250;
+}
+
+.forum-modal-backdrop.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.forum-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.98);
+    width: min(760px, 92vw);
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+    z-index: 1300;
+}
+
+.forum-modal.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.forum-modal-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.forum-modal-close {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #6b7280;
+}
+
+.forum-modal-body {
+    padding: 18px;
+}
+
+/* =========================
+   REPLY COMMENTS SECTION
+   ========================= */
+
+.comment, .reply-item {
+  display: flex;
+  gap: 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.comment-avatar, .reply-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color: #fff;
+  flex: 0 0 44px;
+}
+
+.replies-wrapper {
+  margin-left: 58px;
+  padding-left: 16px;
+  border-left: 3px solid rgba(0,0,0,0.08);
+}
+
+.reply-form {
+  margin-left: 58px;
+  display: none;
+}
+
+.reply-form.active {
+  display: block;
+}
+
+.comment-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.comment-action-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: #4a5568;
+  cursor: pointer;
+}
+.comment-action-btn:hover { text-decoration: underline; }

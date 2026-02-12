@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     Page<Comment> findByContentIdAndContentTypeAndParentNull(Long contentId, String contentType, Pageable pageable);
     Page<Comment> findByParentId(Long parentId, Pageable pageable);
+    long deleteByContentIdAndContentType(Long contentId, String contentType);
 }

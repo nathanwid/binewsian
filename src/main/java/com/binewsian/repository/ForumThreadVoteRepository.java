@@ -32,4 +32,6 @@ public interface ForumThreadVoteRepository extends JpaRepository<ForumThreadVote
     """)
     List<Object[]> findUserVotesByThreadIds(@Param("threadIds") List<Long> threadIds,
                                             @Param("user") User user);
+
+    void deleteByThread(ForumThread thread);
 }

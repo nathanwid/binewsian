@@ -112,4 +112,15 @@ public class ForumController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
+
+    @PostMapping("/{id}/delete")
+    public String deleteThread(@PathVariable("id") Long threadId, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        try {
+            forumService.deleteThread(threadId, user);
+            return "redirect:/forum";
+        } catch (BiNewsianException ex) {
+            return "redirect:/forum?error=" + ex.getMessage();
+        }
+    }
 }

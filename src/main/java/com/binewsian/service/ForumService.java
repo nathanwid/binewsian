@@ -19,6 +19,8 @@ public interface ForumService {
 
     ForumThread createThread(String title, String content, User user) throws BiNewsianException;
 
+    void deleteThread(Long threadId, User user) throws BiNewsianException;
+
     ForumVoteResponse voteThread(Long threadId, User user, VoteType type) throws BiNewsianException;
 
     long countVotes(Long threadId, VoteType type) throws BiNewsianException;

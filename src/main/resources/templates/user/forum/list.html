@@ -27,6 +27,21 @@
 
             <div th:if="${threads != null and !threads.isEmpty()}">
                 <div class="forum-thread-card position-relative" th:each="thread : ${threads}">
+                    <div class="dropdown thread-menu position-absolute top-0 end-0 m-2"
+                         th:if="${thread.createdBy != null and thread.createdBy.id == user.id}">
+                        <button class="btn btn-link p-1 ellipsis-btn" type="button" data-bs-toggle="dropdown" aria-label="More options">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <form th:action="@{'/forum/' + ${thread.id} + '/delete'}" method="post">
+                                    <button type="submit" class="dropdown-item text-danger btn-delete">
+                                        <i class="bi bi-trash me-2"></i>Delete
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
                     <div class="d-flex flex-column gap-2">
                         <div>
                             <h5 class="mb-1" style="color:#111827;" th:text="${thread.title}">Title</h5>
@@ -183,7 +198,15 @@
         }
 
         $('.thread-actions').on('click', '.thread-action-btn', function (e) {
+            if ($(this).hasClass('btn-delete')) {
+                e.stopPropagation();
+                return;
+            }
             e.preventDefault();
+            e.stopPropagation();
+        });
+
+        $('.forum-thread-card').on('click', '.dropdown, .ellipsis-btn, .dropdown-menu, .dropdown-item', function (e) {
             e.stopPropagation();
         });
 
@@ -238,6 +261,26 @@
                 .fail(function () {
                     Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to save thread.' });
                 });
+        });
+
+        $('.forum-thread-card').on('click', '.btn-delete', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const $form = $(this).closest('form');
+
+            Swal.fire({
+                title: 'Delete thread?',
+                text: 'This action cannot be undone.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $form.trigger('submit');
+                }
+            });
         });
     </script>
 </th:block>

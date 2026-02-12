@@ -7,6 +7,7 @@ import com.binewsian.exception.BiNewsianException;
 import com.binewsian.model.ForumThread;
 import com.binewsian.model.ForumThreadVote;
 import com.binewsian.model.User;
+import com.binewsian.repository.CommentRepository;
 import com.binewsian.repository.ForumThreadRepository;
 import com.binewsian.repository.ForumThreadVoteRepository;
 import com.binewsian.service.ForumService;
@@ -30,6 +31,7 @@ public class ForumServiceImpl implements ForumService {
 
     private final ForumThreadRepository forumThreadRepository;
     private final ForumThreadVoteRepository forumThreadVoteRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     public List<ForumThread> findAllNewestFirst() {
@@ -60,6 +62,21 @@ public class ForumServiceImpl implements ForumService {
         thread.setUpdatedAt(LocalDateTime.now());
 
         return forumThreadRepository.save(thread);
+    }
+
+    @Override
+    public void deleteThread(Long threadId, User user) throws BiNewsianException {
+        validateUser(user);
+
+        ForumThread thread = getThreadById(threadId);
+
+        if (!thread.getCreatedBy().getId().equals(user.getId())) {
+            throw new BiNewsianException(AppConstant.UNAUTHORIZED_ACCESS);
+        }
+
+        forumThreadVoteRepository.deleteByThread(thread);
+        commentRepository.deleteByContentIdAndContentType(threadId, "THREAD");
+        forumThreadRepository.delete(thread);
     }
 
     @Override

@@ -2265,6 +2265,10 @@ body {
     z-index: 2;
 }
 
+.forum .thread-menu {
+    z-index: 3;
+}
+
 .forum .forum-thread-footer {
     display: flex;
     align-items: center;

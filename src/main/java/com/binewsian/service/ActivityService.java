@@ -15,6 +15,7 @@ public interface ActivityService {
     void update(Long id, ActivityRequest request, User user, String appUrl) throws BiNewsianException;
     void delete(Long id) throws BiNewsianException;
     Activity findById(Long id) throws BiNewsianException;
+    Activity findClosestBookmarkedActivity(Long userId);
     Page<Activity> findPaginated(int page, int size);
     Page<Activity> findPaginatedByUserId(int page, int size, Long userId);
     List<Activity> findAllByStatus();

@@ -6,6 +6,7 @@ import com.binewsian.model.Activity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -22,7 +23,6 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
     Page<Activity> findByStatus(ActivityStatus status, Pageable pageable);
     Page<Activity> findByCreatedBy_Id(Long userId, Pageable pageable);
     List<Activity> findByStatusOrderByPublishedAtDesc(ActivityStatus status);
-    Optional<Activity> findByIdAndStatus(Long id, ActivityStatus status);
 
     @Query("SELECT a FROM Activity a WHERE " +
             "a.status = :status " +
@@ -52,4 +52,14 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
     );
 
     List<Activity> findByCreatedBy_IdOrderByCreatedAtDesc(Long userId);
+
+    @NativeQuery("SELECT a.* FROM bookmarks b " +
+            "JOIN activities a ON a.id = b.content_id " +
+            "WHERE b.user_id = :userId " +
+            "AND b.content_type = 'ACTIVITY' " +
+            "AND a.activity_date >= CURRENT_DATE " +
+            "AND a.status = 'PUBLISHED' " +
+            "ORDER BY a.activity_date ASC, a.time_start ASC " +
+            "FETCH FIRST 1 ROW ONLY")
+    Optional<Activity> findClosestBookmarkedActivity(@Param("userId") Long userId);
 }

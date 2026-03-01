@@ -52,8 +52,11 @@ public class HomeController {
     @RequireRole({Role.USER, Role.CONTRIBUTOR, Role.ADMIN})
     public String dashboard(HttpSession session, Model model) {
         User user = (User) session.getAttribute("user");
+
+        Activity activity = activityService.findClosestBookmarkedActivity(user.getId());
         List<News> news = newsService.findLatestPublished();
 
+        model.addAttribute("activity", activity);
         model.addAttribute("user", user);
         model.addAttribute("news",  news);
 

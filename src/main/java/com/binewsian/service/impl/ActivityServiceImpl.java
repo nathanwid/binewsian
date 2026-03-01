@@ -14,6 +14,7 @@ import com.binewsian.repository.UserRepository;
 import com.binewsian.service.ActivityService;
 import com.binewsian.service.EmailService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +33,7 @@ import java.util.Map;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class ActivityServiceImpl implements ActivityService {
 
     private final ActivityRepository activityRepository;
@@ -120,6 +122,11 @@ public class ActivityServiceImpl implements ActivityService {
     @Override
     public Activity findById(Long id) throws BiNewsianException {
         return activityRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public Activity findClosestBookmarkedActivity(Long userId) {
+        return activityRepository.findClosestBookmarkedActivity(userId).orElse(null);
     }
 
     @Override

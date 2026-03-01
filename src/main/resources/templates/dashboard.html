@@ -17,6 +17,62 @@
                 </a>
             </div>
 
+            <!-- Up Next Section -->
+            <div class="animate-fade-in mb-5" th:if="${user.role.name == 'USER'}">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 style="font-size: 1.75rem; font-weight: 700; color: #1f2937; margin-bottom: 0.5rem;">Up Next</h2>
+                        <p style="color: #6b7280; font-size: 0.95rem;">The closest upcoming activity from your saved activities</p>
+                    </div>
+
+                    <a th:href="@{/user/bookmarks}" class="see-all">
+                        View All <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+
+                <div class="upcoming-card" th:if="${activity != null}">
+                    <div class="event-left">
+                        <div class="event-date-box">
+                            <span class="day" th:text="${#temporals.format(activity.activityDate,'dd')}">-</span>
+                            <span class="month" th:text="${#temporals.format(activity.activityDate,'MMM').toUpperCase()}">-</span>
+                        </div>
+                    </div>
+
+                    <div class="event-content">
+                        <h5 class="event-title" th:text="${activity.title}">-</h5>
+                        <div class="event-meta">
+                            <span>
+                                <i class="bi bi-clock"></i>
+                                <span th:text="${#temporals.format(activity.timeStart,'HH:mm')} + ' - ' + ${#temporals.format(activity.timeEnd,'HH:mm')}">-</span>
+                            </span>
+
+                            <span>
+                                <i class="bi bi-geo-alt"></i>
+                                <span th:text="${activity.location}">-</span>
+                            </span>
+                        </div>
+
+                        <div class="event-tags bookmark">
+                            <span class="tag tag-type" th:text="${activity.type.displayName}">Type</span>
+                            <span th:if="${#temporals.createNow().isAfter(activity.registrationDeadline)}" class="tag tag-closed">Closed</span>
+                            <span th:unless="${#temporals.createNow().isAfter(activity.registrationDeadline)}" class="tag tag-available">Available</span>
+                        </div>
+                    </div>
+
+                    <!-- Action -->
+                    <div class="event-action">
+                        <a th:href="@{/activity/{id}(id=${activity.id})}" class="btn-primary-outline">
+                            Details
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div th:if="${activity == null}" class="empty-box">
+                    You don't have any saved activity yet.
+                </div>
+            </div>
+
             <!-- Feature Cards -->
             <div class="feature-cards">
                 <a th:href="@{/news}" class="feature-card animate-fade-in" style="animation-delay: 0.1s;">
@@ -31,24 +87,24 @@
                     </span>
                 </a>
 
-                <a th:href="@{/forum}" class="feature-card animate-fade-in" style="animation-delay: 0.2s;">
-                    <div class="feature-icon">
-                        <i class="bi bi-chat-square-text"></i>
-                    </div>
-                    <h5>Forum</h5>
-                    <p>Discuss and share experiences with other students</p>
-                    <span class="feature-link">
-                        Open
-                        <i class="bi bi-arrow-right"></i>
-                    </span>
-                </a>
-
                 <a th:href="@{/activity}" class="feature-card animate-fade-in" style="animation-delay: 0.3s;">
                     <div class="feature-icon">
                         <i class="bi bi-activity"></i>
                     </div>
                     <h5>Activity</h5>
                     <p>Find activities to earn SAT points & Community Service hours</p>
+                    <span class="feature-link">
+                        Open
+                        <i class="bi bi-arrow-right"></i>
+                    </span>
+                </a>
+
+                <a th:href="@{/forum}" class="feature-card animate-fade-in" style="animation-delay: 0.2s;">
+                    <div class="feature-icon">
+                        <i class="bi bi-chat-left-fill"></i>
+                    </div>
+                    <h5>Forum</h5>
+                    <p>Discuss and share experiences with other students</p>
                     <span class="feature-link">
                         Open
                         <i class="bi bi-arrow-right"></i>

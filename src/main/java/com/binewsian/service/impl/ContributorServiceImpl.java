@@ -44,11 +44,7 @@ public class ContributorServiceImpl implements ContributorService {
         user.setRole(Role.CONTRIBUTOR);
 
         // Send credentials to user
-        try {
-            emailService.sendCredentials(email, username, rawPassword);
-        } catch (BiNewsianException e) {
-            throw new BiNewsianException(e.getMessage());
-        }
+        emailService.sendCredentials(email, username, rawPassword);
 
         userRepository.save(user);
     }

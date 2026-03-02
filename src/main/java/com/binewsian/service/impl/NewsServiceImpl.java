@@ -179,7 +179,7 @@ public class NewsServiceImpl implements NewsService {
         );
     }
 
-    private void notifyUsers(News news, String appUrl) throws BiNewsianException {
+    private void notifyUsers(News news, String appUrl) {
         List<User> users = userRepository.findByRoleAndEnabledTrue(Role.USER);
 
         Map<String, Object> data = new HashMap<>();
@@ -189,13 +189,7 @@ public class NewsServiceImpl implements NewsService {
         data.put("contentDescription", news.getSummary());
         data.put("contentUrl", appUrl + "/news/" + news.getId());
 
-        for (User user : users) {
-            try {
-                emailService.sendContentNotification(user, data);
-            } catch (BiNewsianException e) {
-                throw new BiNewsianException(e.getMessage());
-            }
-        }
+        users.forEach(user -> emailService.sendContentNotification(user, data));
     }
 
     private void validateOwner(News news, User user) throws BiNewsianException {

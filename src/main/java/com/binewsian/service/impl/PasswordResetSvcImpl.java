@@ -40,11 +40,7 @@ public class PasswordResetSvcImpl implements PasswordResetService {
         tokenRepository.save(resetToken);
 
         // Send reset password email
-        try {
-            emailService.sendResetPassword(user.getEmail(), token, appUrl);
-        } catch (BiNewsianException e) {
-            throw new BiNewsianException(e.getMessage());
-        }
+        emailService.sendResetPassword(user.getEmail(), token, appUrl);
     }
 
     @Override

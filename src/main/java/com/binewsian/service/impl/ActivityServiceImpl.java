@@ -203,7 +203,7 @@ public class ActivityServiceImpl implements ActivityService {
         );
     }
 
-    private void notifyUsers(Activity activity, String appUrl) throws BiNewsianException {
+    private void notifyUsers(Activity activity, String appUrl) {
         List<User> users = userRepository.findByRoleAndEnabledTrue(Role.USER);
 
         Map<String, Object> data = new HashMap<>();
@@ -214,13 +214,7 @@ public class ActivityServiceImpl implements ActivityService {
         data.put("contentDescription", activity.getDetails());
         data.put("contentUrl", appUrl + "/activity/" + activity.getId());
 
-        for (User user : users) {
-            try {
-                emailService.sendContentNotification(user, data);
-            } catch (BiNewsianException e) {
-                throw new BiNewsianException(e.getMessage());
-            }
-        }
+        users.forEach(user -> emailService.sendContentNotification(user, data));
     }
 
     private Sort getSort(String sortBy) {

@@ -18,17 +18,37 @@
         <h3>Forum Discussion</h3>
         <p style="color:#6b7280;">Share experiences and ask questions about campus activities.</p>
 
-        <!-- Thread List -->
-        <div class="mt-4">
-            <div th:if="${threads == null or threads.isEmpty()}" class="no-forums">
-                <i class="bi bi-inbox" style="font-size: 3rem; color: #d1d5db;"></i>
-                <p class="mt-3 mb-0">No threads yet</p>
+        <!-- Search -->
+        <form id="searchForm" th:action="@{/forum}" method="get" class="d-flex gap-2 mb-3 mt-4">
+            <div class="search-wrapper flex-grow-1">
+                <i class="bi bi-search"></i>
+                <input type="text" id="searchInput" name="search" class="form-control"
+                       placeholder="Search threads..." th:value="${search}">
             </div>
+        </form>
 
-            <div th:if="${threads != null and !threads.isEmpty()}">
-                <div class="forum-thread-card position-relative" th:each="thread : ${threads}">
+        <!-- Search Indicator -->
+        <div th:if="${search != null and !search.isEmpty()}" class="alert alert-info d-flex align-items-center justify-content-between mb-3">
+            <span>
+                Found <strong th:text="${totalThreads}">0</strong> results
+            </span>
+            <a th:href="@{/forum}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-x-lg"></i> Clear search
+            </a>
+        </div>
+
+        <div class="row g-4 mt-2">
+            <!-- Thread List -->
+            <div class="col-12 col-lg-8">
+                <div th:if="${threads == null or threads.isEmpty()}" class="no-forums">
+                    <i class="bi bi-inbox" style="font-size: 3rem; color: #d1d5db;"></i>
+                    <p class="mt-3 mb-0" th:text="${search != null and !search.isEmpty()} ? 'No threads match your search' : 'No threads yet'">No threads yet</p>
+                </div>
+
+                <div th:if="${threads != null and !threads.isEmpty()}">
+                    <div class="forum-thread-card position-relative" th:each="thread : ${threads}">
                     <div class="dropdown thread-menu position-absolute top-0 end-0 m-2"
-                         th:if="${thread.createdBy != null and thread.createdBy.id == user.id}">
+                         th:if="${(thread.createdBy != null and thread.createdBy.id == user.id) or user.role.name() == 'ADMIN'}">
                         <button class="btn btn-link p-1 ellipsis-btn" type="button" data-bs-toggle="dropdown" aria-label="More options">
                             <i class="bi bi-three-dots-vertical"></i>
                         </button>
@@ -63,6 +83,10 @@
                                     <i class="bi bi-chat-left-text"></i>
                                     <span th:text="${replyCounts[thread.id] != null ? replyCounts[thread.id] : 0}">0</span> Replies
                                 </span>
+                                <span class="meta-item" th:if="${reportCounts[thread.id] != null and reportCounts[thread.id] > 0}">
+                                    <i class="bi bi-flag"></i>
+                                    <span th:text="${reportCounts[thread.id]}">0</span> Reports
+                                </span>
                             </div>
 
                             <div class="thread-actions">
@@ -95,6 +119,65 @@
                        aria-label="Open thread"></a>
                 </div>
             </div>
+            </div>
+
+            <!-- Popular Threads -->
+            <div class="col-12 col-lg-4">
+                <div class="popular-card mb-3" th:if="${popularThreads != null and !popularThreads.isEmpty()}">
+                    <div class="popular-header">
+                        <i class="bi bi-fire me-2"></i> Popular Threads
+                    </div>
+                    <div class="popular-list">
+                        <div class="popular-item" th:each="p : ${popularThreads}">
+                            <a class="popular-title" th:href="@{'/forum/' + ${p.thread.id}}" th:text="${#strings.abbreviate(p.thread.title, 80)}">Thread</a>
+                            <div class="popular-meta">
+                                <span>
+                                    <i class="bi bi-chat-left-text"></i>
+                                    <span th:text="${p.commentCount}">0</span>
+                                </span>
+                                <span>
+                                    <i class="bi bi-hand-thumbs-up"></i>
+                                    <span th:text="${p.upvoteCount}">0</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="popular-card mb-3" th:if="${mostCommentedThreads != null and !mostCommentedThreads.isEmpty()}">
+                    <div class="popular-header">
+                        <i class="bi bi-chat-left-text me-2"></i> Most Commented
+                    </div>
+                    <div class="popular-list">
+                        <div class="popular-item" th:each="p : ${mostCommentedThreads}">
+                            <a class="popular-title" th:href="@{'/forum/' + ${p.thread.id}}" th:text="${#strings.abbreviate(p.thread.title, 80)}">Thread</a>
+                            <div class="popular-meta">
+                                <span>
+                                    <i class="bi bi-chat-left-text"></i>
+                                    <span th:text="${p.commentCount}">0</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="popular-card" th:if="${mostLikedThreads != null and !mostLikedThreads.isEmpty()}">
+                    <div class="popular-header">
+                        <i class="bi bi-hand-thumbs-up me-2"></i> Most Liked
+                    </div>
+                    <div class="popular-list">
+                        <div class="popular-item" th:each="p : ${mostLikedThreads}">
+                            <a class="popular-title" th:href="@{'/forum/' + ${p.thread.id}}" th:text="${#strings.abbreviate(p.thread.title, 80)}">Thread</a>
+                            <div class="popular-meta">
+                                <span>
+                                    <i class="bi bi-hand-thumbs-up"></i>
+                                    <span th:text="${p.upvoteCount}">0</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Pagination -->
@@ -108,14 +191,14 @@
             <nav aria-label="Forum pagination" th:if="${totalPages > 1}">
                 <ul class="pagination mb-0">
                     <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                        <a class="page-link" th:href="@{/forum(page=${currentPage - 1}, size=${pageSize})}" tabindex="-1">&laquo;</a>
+                        <a class="page-link" th:href="@{/forum(page=${currentPage - 1}, size=${pageSize}, search=${search})}" tabindex="-1">&laquo;</a>
                     </li>
 
                     <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
                         <li class="page-item"
                             th:if="${i == 0 or i == totalPages - 1 or (i >= currentPage - 1 and i <= currentPage + 1)}"
                             th:classappend="${i == currentPage} ? 'active'">
-                            <a class="page-link" th:href="@{/forum(page=${i}, size=${pageSize})}" th:text="${i + 1}"></a>
+                            <a class="page-link" th:href="@{/forum(page=${i}, size=${pageSize}, search=${search})}" th:text="${i + 1}"></a>
                         </li>
                         <li class="page-item disabled"
                             th:if="${(i == 1 and currentPage > 2) or (i == totalPages - 2 and currentPage < totalPages - 3)}">
@@ -124,7 +207,7 @@
                     </th:block>
 
                     <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                        <a class="page-link" th:href="@{/forum(page=${currentPage + 1}, size=${pageSize})}">&raquo;</a>
+                        <a class="page-link" th:href="@{/forum(page=${currentPage + 1}, size=${pageSize}, search=${search})}">&raquo;</a>
                     </li>
                 </ul>
             </nav>

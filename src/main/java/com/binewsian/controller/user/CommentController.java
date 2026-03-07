@@ -46,9 +46,14 @@ public class CommentController {
             @RequestParam String contentType,
             @RequestParam Long contentId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size
+            @RequestParam(defaultValue = "5") int size,
+            HttpSession session
     ) {
         Page<Comment> comments = commentService.findPaginated(page, size, contentId, contentType);
+        User user = (User) session.getAttribute("user");
+        List<Long> commentIds = comments.getContent().stream().map(Comment::getId).toList();
+        Map<Long, Long> reportCounts = commentService.countReportsByCommentIds(commentIds);
+        List<Long> reportedIds = commentService.getUserReportedCommentIds(user, commentIds);
 
         List<Map<String, Object>> mappedComments = comments.getContent().stream()
                 .map(c -> {
@@ -65,6 +70,8 @@ public class CommentController {
                     commentMap.put("deletedAt", c.getDeletedAt());
                     commentMap.put("updatedAt", c.getUpdatedAt());
                     commentMap.put("createdAt", c.getCreatedAt());
+                    commentMap.put("reportCount", reportCounts.getOrDefault(c.getId(), 0L));
+                    commentMap.put("hasReported", reportedIds.contains(c.getId()));
 
                     commentMap.put("avatarInitials", userAvatar.getUserInitials(c.getUser().getUsername()));
                     commentMap.put("avatarColor", userAvatar.getAvatarColor(c.getUser().getUsername()));
@@ -87,9 +94,14 @@ public class CommentController {
     public ResponseEntity<?> getReplies(
             @PathVariable Long id,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size
+            @RequestParam(defaultValue = "5") int size,
+            HttpSession session
     ) {
         Page<Comment> replies = commentService.findReplies(page, size, id);
+        User user = (User) session.getAttribute("user");
+        List<Long> replyIds = replies.getContent().stream().map(Comment::getId).toList();
+        Map<Long, Long> reportCounts = commentService.countReportsByCommentIds(replyIds);
+        List<Long> reportedIds = commentService.getUserReportedCommentIds(user, replyIds);
 
         List<Map<String, Object>> mappedReplies = replies.getContent().stream()
                 .map(r -> {
@@ -107,6 +119,8 @@ public class CommentController {
                     replyMap.put("deletedAt", r.getDeletedAt());
                     replyMap.put("updatedAt", r.getUpdatedAt());
                     replyMap.put("createdAt", r.getCreatedAt());
+                    replyMap.put("reportCount", reportCounts.getOrDefault(r.getId(), 0L));
+                    replyMap.put("hasReported", reportedIds.contains(r.getId()));
 
                     replyMap.put("avatarInitials", userAvatar.getUserInitials(r.getUser().getUsername()));
                     replyMap.put("avatarColor", userAvatar.getAvatarColor(r.getUser().getUsername()));
@@ -147,6 +161,22 @@ public class CommentController {
             User user = (User) session.getAttribute("user");
             commentService.delete(id, user);
             return ResponseEntity.ok().build();
+        } catch (BiNewsianException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body(AppConstant.UNEXPECTED_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/comments/{id}/report")
+    public ResponseEntity<?> reportComment(@PathVariable Long id,
+                                           @RequestParam(required = false) String reason,
+                                           HttpSession session) {
+        try {
+            User user = (User) session.getAttribute("user");
+            commentService.report(id, user, reason);
+            long reportCount = commentService.countReports(id);
+            return ResponseEntity.ok(Map.of("reportCount", reportCount));
         } catch (BiNewsianException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         } catch (Exception ex) {

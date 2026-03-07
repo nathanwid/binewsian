@@ -27,6 +27,8 @@ public class AdminController {
     private final NewsService newsService;
     private final ActivityService activityService;
     private final ContributorService contributorService;
+    private final ForumService forumService;
+    private final CommentService commentService;
 
     @GetMapping("/panel")
     public String showAdminDashboardPage(
@@ -34,6 +36,10 @@ public class AdminController {
             @RequestParam(defaultValue = "0") int categoryPage,
             @RequestParam(defaultValue = "0") int activityPage,
             @RequestParam(defaultValue = "0") int contributorPage,
+            @RequestParam(defaultValue = "0") int forumPage,
+            @RequestParam(defaultValue = "0") int newsCommentPage,
+            @RequestParam(defaultValue = "0") int activityCommentPage,
+            @RequestParam(defaultValue = "0") int forumCommentPage,
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "news") String tab,
             HttpSession session,
@@ -45,6 +51,10 @@ public class AdminController {
         Page<Category> categories = categoryService.findPaginated(categoryPage, size);
         Page<Activity> activities = activityService.findPaginated(activityPage, size);
         Page<User> contributors = contributorService.findContributorPaginated(contributorPage, size);
+        var forumReports = forumService.findReportedThreads(forumPage, size);
+        var forumCommentReports = commentService.findReportedCommentsByType("THREAD", forumCommentPage, size);
+        var newsCommentReports = commentService.findReportedCommentsByType("NEWS", newsCommentPage, size);
+        var activityCommentReports = commentService.findReportedCommentsByType("ACTIVITY", activityCommentPage, size);
 
         model.addAttribute("summary", homeService.getAdminSummary());
         model.addAttribute("user", user);
@@ -76,6 +86,31 @@ public class AdminController {
         model.addAttribute("contributorTotalPages", contributors.getTotalPages());
         model.addAttribute("contributorTotalElements", contributors.getTotalElements());
         model.addAttribute("contributorPageSize", contributors.getSize());
+
+        // Forum Reports
+        model.addAttribute("forumReports", forumReports.getContent());
+        model.addAttribute("forumCurrentPage", forumReports.getNumber());
+        model.addAttribute("forumTotalPages", forumReports.getTotalPages());
+        model.addAttribute("forumTotalElements", forumReports.getTotalElements());
+        model.addAttribute("forumPageSize", forumReports.getSize());
+
+        model.addAttribute("forumCommentReports", forumCommentReports.getContent());
+        model.addAttribute("forumCommentCurrentPage", forumCommentReports.getNumber());
+        model.addAttribute("forumCommentTotalPages", forumCommentReports.getTotalPages());
+        model.addAttribute("forumCommentTotalElements", forumCommentReports.getTotalElements());
+        model.addAttribute("forumCommentPageSize", forumCommentReports.getSize());
+
+        model.addAttribute("newsCommentReports", newsCommentReports.getContent());
+        model.addAttribute("newsCommentCurrentPage", newsCommentReports.getNumber());
+        model.addAttribute("newsCommentTotalPages", newsCommentReports.getTotalPages());
+        model.addAttribute("newsCommentTotalElements", newsCommentReports.getTotalElements());
+        model.addAttribute("newsCommentPageSize", newsCommentReports.getSize());
+
+        model.addAttribute("activityCommentReports", activityCommentReports.getContent());
+        model.addAttribute("activityCommentCurrentPage", activityCommentReports.getNumber());
+        model.addAttribute("activityCommentTotalPages", activityCommentReports.getTotalPages());
+        model.addAttribute("activityCommentTotalElements", activityCommentReports.getTotalElements());
+        model.addAttribute("activityCommentPageSize", activityCommentReports.getSize());
 
         // Active tab
         model.addAttribute("activeTab", tab);

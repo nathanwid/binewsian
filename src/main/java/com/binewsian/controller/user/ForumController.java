@@ -30,11 +30,12 @@ public class ForumController {
     @GetMapping
     public String forumPage(@RequestParam(defaultValue = "0") int page,
                             @RequestParam(defaultValue = "6") int size,
+                            @RequestParam(required = false) String search,
                             Model model,
                             HttpSession session) {
         User user = (User) session.getAttribute("user");
 
-        var threadPage = forumService.findPaginated(page, size);
+        var threadPage = forumService.findPaginated(page, size, search);
         List<ForumThread> threads = threadPage.getContent();
         List<Long> threadIds = threads.stream().map(ForumThread::getId).toList();
 
@@ -42,6 +43,7 @@ public class ForumController {
         Map<Long, Long> upvoteCounts = forumService.countVotesByThreadIds(threadIds, VoteType.UP);
         Map<Long, Long> downvoteCounts = forumService.countVotesByThreadIds(threadIds, VoteType.DOWN);
         Map<Long, VoteType> userVotes = forumService.getUserVotesByThreadIds(user, threadIds);
+        Map<Long, Long> reportCounts = forumService.countReportsByThreadIds(threadIds);
 
         Set<Long> savedThreadIds = new HashSet<>(bookmarkService.getContentIds(user, "THREAD"));
 
@@ -50,12 +52,17 @@ public class ForumController {
         model.addAttribute("upvoteCounts", upvoteCounts);
         model.addAttribute("downvoteCounts", downvoteCounts);
         model.addAttribute("userVotes", userVotes);
+        model.addAttribute("reportCounts", reportCounts);
         model.addAttribute("savedThreadIds", savedThreadIds);
         model.addAttribute("currentPage", threadPage.getNumber());
         model.addAttribute("totalPages", threadPage.getTotalPages());
         model.addAttribute("totalThreads", threadPage.getTotalElements());
         model.addAttribute("pageSize", size);
         model.addAttribute("user", user);
+        model.addAttribute("search", search);
+        model.addAttribute("popularThreads", forumService.getPopularThreads(3));
+        model.addAttribute("mostCommentedThreads", forumService.getMostCommentedThreads(3));
+        model.addAttribute("mostLikedThreads", forumService.getMostLikedThreads(3));
         return "user/forum/list";
     }
 
@@ -88,6 +95,8 @@ public class ForumController {
             model.addAttribute("downvoteCount", forumService.countVotes(threadId, VoteType.DOWN));
             model.addAttribute("userVote", forumService.getUserVote(threadId, user));
             model.addAttribute("isSaved", bookmarkService.isBookmarked(user, "THREAD", threadId));
+            model.addAttribute("reportCount", forumService.countReports(threadId));
+            model.addAttribute("hasReported", forumService.hasReported(threadId, user));
             model.addAttribute("user", user);
             return "user/forum/detail";
         } catch (BiNewsianException ex) {
@@ -121,6 +130,23 @@ public class ForumController {
             return "redirect:/forum";
         } catch (BiNewsianException ex) {
             return "redirect:/forum?error=" + ex.getMessage();
+        }
+    }
+
+    @PostMapping("/{id}/report")
+    @ResponseBody
+    public ResponseEntity<?> reportThread(@PathVariable("id") Long threadId,
+                                          @RequestParam(required = false) String reason,
+                                          HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        try {
+            forumService.reportThread(threadId, user, reason);
+            long reportCount = forumService.countReports(threadId);
+            return ResponseEntity.ok(Map.of("reportCount", reportCount));
+        } catch (BiNewsianException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body("Unexpected server error.");
         }
     }
 }

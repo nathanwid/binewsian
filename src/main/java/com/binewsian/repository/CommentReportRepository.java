@@ -2,6 +2,8 @@ package com.binewsian.repository;
 
 import com.binewsian.model.CommentReport;
 import com.binewsian.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -34,7 +36,6 @@ public interface CommentReportRepository extends JpaRepository<CommentReport, Lo
         value = """
             select r.comment.id, count(r), max(r.createdAt)
             from CommentReport r
-            where r.comment.contentType = :contentType
             group by r.comment.id
             order by count(r) desc, max(r.createdAt) desc
         """,
@@ -44,8 +45,7 @@ public interface CommentReportRepository extends JpaRepository<CommentReport, Lo
             where r.comment.contentType = :contentType
         """
     )
-    org.springframework.data.domain.Page<Object[]> findReportedCommentsByType(@Param("contentType") String contentType,
-                                                                             org.springframework.data.domain.Pageable pageable);
+    Page<Object[]> findReportedComments(Pageable pageable);
 
     @Query("""
         select r.comment.id, r.reason

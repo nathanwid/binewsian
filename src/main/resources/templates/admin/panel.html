@@ -383,7 +383,7 @@
 
                         <!-- Manage Forum -->
                         <div class="tab-pane fade" id="panel-forum" role="tabpanel" aria-labelledby="tab-forum">
-                            <div class="mb-3">
+                            <div>
                                 <h6 class="fw-semibold mb-2">Reported Threads</h6>
                                 <div th:if="${#lists.isEmpty(forumReports)}" class="text-muted text-center">
                                     No reported threads.
@@ -469,18 +469,17 @@
                                     </nav>
                                 </div>
                             </div>
-
                         </div>
 
                         <!-- Manage Comments -->
                         <div class="tab-pane fade" id="panel-comments" role="tabpanel" aria-labelledby="tab-comments">
-                            <div class="mb-4">
-                                <h6 class="fw-semibold mb-2">Reported Comments - News</h6>
-                                <div th:if="${#lists.isEmpty(newsCommentReports)}" class="text-muted text-center">
-                                    No reported news comments.
+                            <div class="mb-3">
+                                <h6 class="fw-semibold mb-2">Reported Comments</h6>
+                                <div th:if="${#lists.isEmpty(commentReports)}" class="text-muted text-center">
+                                    No reported comments.
                                 </div>
-                                <div th:if="${!#lists.isEmpty(newsCommentReports)}">
-                                    <div class="news-item" th:each="report : ${newsCommentReports}">
+                                <div th:if="${!#lists.isEmpty(commentReports)}">
+                                    <div class="news-item" th:each="report : ${commentReports}">
                                         <div class="d-flex align-items-start justify-content-between">
                                             <div>
                                                 <h6 class="mb-1">
@@ -530,216 +529,34 @@
                                 </div>
                             </div>
 
-                            <div th:if="${!#lists.isEmpty(newsCommentReports)}" class="pagination-info d-flex justify-content-between align-items-center mt-3 mb-4">
+                            <div th:if="${!#lists.isEmpty(commentReports)}" class="pagination-info d-flex justify-content-between align-items-center mt-3">
                                 <div class="text-muted">
-                                    <span th:with="startItem=${newsCommentCurrentPage * newsCommentPageSize + 1},
-                                                   endItem=${(newsCommentCurrentPage + 1) * newsCommentPageSize > newsCommentTotalElements ? newsCommentTotalElements : (newsCommentCurrentPage + 1) * newsCommentPageSize}">
+                                    <span th:with="startItem=${commentCurrentPage * commentPageSize + 1},
+                                                   endItem=${(commentCurrentPage + 1) * commentPageSize > commentTotalElements ? commentTotalElements : (commentCurrentPage + 1) * commentPageSize}">
                                         Showing
                                         <span th:text="${startItem}">-</span>
                                         to
                                         <span th:text="${endItem}">-</span>
                                         of
-                                        <span th:text="${newsCommentTotalElements}">-</span>
+                                        <span th:text="${commentTotalElements}">-</span>
                                         reported comments
                                     </span>
                                 </div>
 
                                 <nav>
                                     <ul class="pagination mb-0">
-                                        <li class="page-item" th:classappend="${newsCommentCurrentPage == 0} ? 'disabled'">
-                                            <a class="page-link" th:href="@{/admin/panel(newsCommentPage=${newsCommentCurrentPage - 1}, tab='comments')}">
+                                        <li class="page-item" th:classappend="${commentCurrentPage == 0} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/admin/panel(newsCommentPage=${commentCurrentPage - 1}, tab='comments')}">
                                                 &laquo;
                                             </a>
                                         </li>
 
-                                        <li class="page-item" th:each="i : ${#numbers.sequence(0, newsCommentTotalPages - 1)}" th:classappend="${i == newsCommentCurrentPage} ? 'active'">
+                                        <li class="page-item" th:each="i : ${#numbers.sequence(0, commentTotalPages - 1)}" th:classappend="${i == commentCurrentPage} ? 'active'">
                                             <a class="page-link" th:text="${i + 1}" th:href="@{/admin/panel(newsCommentPage=${i}, tab='comments')}"></a>
                                         </li>
 
-                                        <li class="page-item" th:classappend="${newsCommentCurrentPage + 1 == newsCommentTotalPages} ? 'disabled'">
-                                            <a class="page-link" th:href="@{/admin/panel(newsCommentPage=${newsCommentCurrentPage + 1}, tab='comments')}">
-                                                &raquo;
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </div>
-
-                            <div class="mb-4">
-                                <h6 class="fw-semibold mb-2">Reported Comments - Activity</h6>
-                                <div th:if="${#lists.isEmpty(activityCommentReports)}" class="text-muted text-center">
-                                    No reported activity comments.
-                                </div>
-                                <div th:if="${!#lists.isEmpty(activityCommentReports)}">
-                                    <div class="news-item" th:each="report : ${activityCommentReports}">
-                                        <div class="d-flex align-items-start justify-content-between">
-                                            <div>
-                                                <h6 class="mb-1">
-                                                    <span th:text="${report.comment.parent != null ? 'Reply' : 'Comment'}">Comment</span>
-                                                    <span th:text="'#' + ${report.comment.id}">#0</span>
-                                                    <span class="text-muted" th:text="${report.comment.parent != null ? '(Parent #' + report.comment.parent.id + ')' : ''}"></span>
-                                                </h6>
-                                                <small class="text-muted d-flex align-items-center gap-2">
-                                                    <span>
-                                                        <i class="bi bi-person"></i>
-                                                        <span th:text="${report.comment.user != null ? report.comment.user.username : 'User'}">User</span>
-                                                    </span>
-                                                    <span>&bull;</span>
-                                                    <span>
-                                                        <i class="bi bi-flag"></i>
-                                                        <span th:text="${report.reportCount}">0</span> Reports
-                                                    </span>
-                                                    <span th:if="${report.latestReportedAt != null}">&bull;</span>
-                                                    <span th:if="${report.latestReportedAt != null}" th:text="${#temporals.format(report.latestReportedAt, 'd MMM yyyy HH:mm')}">time</span>
-                                                </small>
-                                                <div class="text-muted small mt-1">
-                                                    Content: <span th:text="${#strings.abbreviate(report.comment.content, 120)}">-</span>
-                                                </div>
-                                                <div class="text-muted small mt-1" th:if="${report.latestReason != null and !report.latestReason.isEmpty()}">
-                                                    Reason: <span th:text="${#strings.abbreviate(report.latestReason, 120)}">-</span>
-                                                </div>
-                                            </div>
-                                            <div class="dropdown">
-                                                <button class="btn btn-link p-1 ellipsis-btn" data-bs-toggle="dropdown">
-                                                    <i class="bi bi-three-dots-vertical"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li>
-                                                        <a class="dropdown-item" th:href="@{'/activity/' + ${report.comment.contentId}}">
-                                                            <i class="bi bi-eye me-2"></i> View
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <button class="dropdown-item text-danger action-delete" th:data-id="${report.comment.id}" data-type="comment">
-                                                            <i class="bi bi-trash me-2"></i> Delete
-                                                        </button>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div th:if="${!#lists.isEmpty(activityCommentReports)}" class="pagination-info d-flex justify-content-between align-items-center mt-3 mb-4">
-                                <div class="text-muted">
-                                    <span th:with="startItem=${activityCommentCurrentPage * activityCommentPageSize + 1},
-                                                   endItem=${(activityCommentCurrentPage + 1) * activityCommentPageSize > activityCommentTotalElements ? activityCommentTotalElements : (activityCommentCurrentPage + 1) * activityCommentPageSize}">
-                                        Showing
-                                        <span th:text="${startItem}">-</span>
-                                        to
-                                        <span th:text="${endItem}">-</span>
-                                        of
-                                        <span th:text="${activityCommentTotalElements}">-</span>
-                                        reported comments
-                                    </span>
-                                </div>
-
-                                <nav>
-                                    <ul class="pagination mb-0">
-                                        <li class="page-item" th:classappend="${activityCommentCurrentPage == 0} ? 'disabled'">
-                                            <a class="page-link" th:href="@{/admin/panel(activityCommentPage=${activityCommentCurrentPage - 1}, tab='comments')}">
-                                                &laquo;
-                                            </a>
-                                        </li>
-
-                                        <li class="page-item" th:each="i : ${#numbers.sequence(0, activityCommentTotalPages - 1)}" th:classappend="${i == activityCommentCurrentPage} ? 'active'">
-                                            <a class="page-link" th:text="${i + 1}" th:href="@{/admin/panel(activityCommentPage=${i}, tab='comments')}"></a>
-                                        </li>
-
-                                        <li class="page-item" th:classappend="${activityCommentCurrentPage + 1 == activityCommentTotalPages} ? 'disabled'">
-                                            <a class="page-link" th:href="@{/admin/panel(activityCommentPage=${activityCommentCurrentPage + 1}, tab='comments')}">
-                                                &raquo;
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </div>
-
-                            <div>
-                                <h6 class="fw-semibold mb-2">Reported Comments - Forum</h6>
-                                <div th:if="${#lists.isEmpty(forumCommentReports)}" class="text-muted text-center">
-                                    No reported forum comments.
-                                </div>
-                                <div th:if="${!#lists.isEmpty(forumCommentReports)}">
-                                    <div class="news-item" th:each="report : ${forumCommentReports}">
-                                        <div class="d-flex align-items-start justify-content-between">
-                                            <div>
-                                                <h6 class="mb-1">
-                                                    <span th:text="${report.comment.parent != null ? 'Reply' : 'Comment'}">Comment</span>
-                                                    <span th:text="'#' + ${report.comment.id}">#0</span>
-                                                    <span class="text-muted" th:text="${report.comment.parent != null ? '(Parent #' + report.comment.parent.id + ')' : ''}"></span>
-                                                </h6>
-                                                <small class="text-muted d-flex align-items-center gap-2">
-                                                    <span>
-                                                        <i class="bi bi-person"></i>
-                                                        <span th:text="${report.comment.user != null ? report.comment.user.username : 'User'}">User</span>
-                                                    </span>
-                                                    <span>&bull;</span>
-                                                    <span>
-                                                        <i class="bi bi-flag"></i>
-                                                        <span th:text="${report.reportCount}">0</span> Reports
-                                                    </span>
-                                                    <span th:if="${report.latestReportedAt != null}">&bull;</span>
-                                                    <span th:if="${report.latestReportedAt != null}" th:text="${#temporals.format(report.latestReportedAt, 'd MMM yyyy HH:mm')}">time</span>
-                                                </small>
-                                                <div class="text-muted small mt-1">
-                                                    Content: <span th:text="${#strings.abbreviate(report.comment.content, 120)}">-</span>
-                                                </div>
-                                                <div class="text-muted small mt-1" th:if="${report.latestReason != null and !report.latestReason.isEmpty()}">
-                                                    Reason: <span th:text="${#strings.abbreviate(report.latestReason, 120)}">-</span>
-                                                </div>
-                                            </div>
-                                            <div class="dropdown">
-                                                <button class="btn btn-link p-1 ellipsis-btn" data-bs-toggle="dropdown">
-                                                    <i class="bi bi-three-dots-vertical"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li>
-                                                        <a class="dropdown-item" th:href="@{'/forum/' + ${report.comment.contentId}}">
-                                                            <i class="bi bi-eye me-2"></i> View
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <button class="dropdown-item text-danger action-delete" th:data-id="${report.comment.id}" data-type="comment">
-                                                            <i class="bi bi-trash me-2"></i> Delete
-                                                        </button>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div th:if="${!#lists.isEmpty(forumCommentReports)}" class="pagination-info d-flex justify-content-between align-items-center mt-3">
-                                <div class="text-muted">
-                                    <span th:with="startItem=${forumCommentCurrentPage * forumCommentPageSize + 1},
-                                                   endItem=${(forumCommentCurrentPage + 1) * forumCommentPageSize > forumCommentTotalElements ? forumCommentTotalElements : (forumCommentCurrentPage + 1) * forumCommentPageSize}">
-                                        Showing
-                                        <span th:text="${startItem}">-</span>
-                                        to
-                                        <span th:text="${endItem}">-</span>
-                                        of
-                                        <span th:text="${forumCommentTotalElements}">-</span>
-                                        reported comments
-                                    </span>
-                                </div>
-
-                                <nav>
-                                    <ul class="pagination mb-0">
-                                        <li class="page-item" th:classappend="${forumCommentCurrentPage == 0} ? 'disabled'">
-                                            <a class="page-link" th:href="@{/admin/panel(forumCommentPage=${forumCommentCurrentPage - 1}, tab='comments')}">
-                                                &laquo;
-                                            </a>
-                                        </li>
-
-                                        <li class="page-item" th:each="i : ${#numbers.sequence(0, forumCommentTotalPages - 1)}" th:classappend="${i == forumCommentCurrentPage} ? 'active'">
-                                            <a class="page-link" th:text="${i + 1}" th:href="@{/admin/panel(forumCommentPage=${i}, tab='comments')}"></a>
-                                        </li>
-
-                                        <li class="page-item" th:classappend="${forumCommentCurrentPage + 1 == forumCommentTotalPages} ? 'disabled'">
-                                            <a class="page-link" th:href="@{/admin/panel(forumCommentPage=${forumCommentCurrentPage + 1}, tab='comments')}">
+                                        <li class="page-item" th:classappend="${commentCurrentPage + 1 == commentTotalPages} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/admin/panel(newsCommentPage=${commentCurrentPage + 1}, tab='comments')}">
                                                 &raquo;
                                             </a>
                                         </li>

@@ -208,9 +208,9 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Page<CommentReportSummaryDto> findReportedCommentsByType(String contentType, int page, int size) {
+    public Page<CommentReportSummaryDto> findReportedComments(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Object[]> rows = commentReportRepository.findReportedCommentsByType(contentType, pageable);
+        Page<Object[]> rows = commentReportRepository.findReportedComments(pageable);
 
         List<Long> commentIds = rows.getContent().stream()
                 .map(row -> ((Number) row[0]).longValue())

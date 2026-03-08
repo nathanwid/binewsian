@@ -69,6 +69,9 @@ function createReplyHtml(reply, parentId) {
     const isEdited = reply.createdAt != reply.updatedAt;
     const isOwner = reply.userId === userId;
     const isAdmin = userRole === 'ADMIN';
+    const canReport = userRole === 'USER' && !isOwner && !reply.deleted;
+    const hasReported = !!reply.hasReported;
+    const reportCount = reply.reportCount || 0;
 
     return `
         <div class="reply-item" data-parent-id="${parentId}" data-item-id="${reply.id}" data-item-type="reply">
@@ -79,7 +82,8 @@ function createReplyHtml(reply, parentId) {
                 <div class="comment-header">
                     <strong class="comment-author">${reply.username}</strong>
                     <span class="comment-date">${date} ${isEdited ? '(edited)' : ''}</span>
-                    ${isOwner || isAdmin ? createDropdownMenu(reply.id, 'reply', isOwner, isAdmin) : ''}
+                    ${isAdmin && reportCount > 0 ? `<span class="comment-report-count"><i class="bi bi-flag"></i> ${reportCount}</span>` : ''}
+                    ${isOwner || isAdmin || canReport ? createDropdownMenu(reply.id, 'reply', isOwner, isAdmin, canReport, hasReported) : ''}
                 </div>
                 ${createEditableContent(reply.content, reply.id, 'reply')}
             </div>
@@ -97,6 +101,9 @@ function createCommentHtml(comment) {
     const isEdited = !isDeleted && (comment.createdAt != comment.updatedAt);
     const isOwner = !isDeleted && (comment.userId === userId);
     const isAdmin = userRole === 'ADMIN';
+    const canReport = userRole === 'USER' && !isOwner && !isDeleted;
+    const hasReported = !!comment.hasReported;
+    const reportCount = comment.reportCount || 0;
 
     return `
         <div class="comment" data-item-id="${comment.id}" data-item-type="comment">
@@ -107,7 +114,8 @@ function createCommentHtml(comment) {
                 <div class="comment-header">
                     <strong class="comment-author">${username}</strong>
                     <span class="comment-date">${date} ${isEdited ? '(edited)' : ''}</span>
-                    ${isOwner || isAdmin ? createDropdownMenu(comment.id, 'comment', isOwner, isAdmin) : ''}
+                    ${isAdmin && reportCount > 0 ? `<span class="comment-report-count"><i class="bi bi-flag"></i> ${reportCount}</span>` : ''}
+                    ${isOwner || isAdmin || canReport ? createDropdownMenu(comment.id, 'comment', isOwner, isAdmin, canReport, hasReported) : ''}
                 </div>
                 ${createEditableContent(comment.content, comment.id, 'comment', isDeleted)}
                 <div class="comment-actions">
@@ -143,7 +151,7 @@ function createCommentHtml(comment) {
 }
 
 // Helper function untuk membuat dropdown menu
-function createDropdownMenu(id, type, isOwner, isAdmin) {
+function createDropdownMenu(id, type, isOwner, isAdmin, canReport = false, hasReported = false) {
     return `
         <div class="dropdown ms-auto">
             <button class="btn btn-link p-1 ellipsis-btn" data-bs-toggle="dropdown">
@@ -161,6 +169,13 @@ function createDropdownMenu(id, type, isOwner, isAdmin) {
                     <li>
                         <button class="dropdown-item text-danger" onclick="deleteItem(${id}, '${type}')">
                             <i class="bi bi-trash me-2"></i> Delete
+                        </button>
+                    </li>
+                ` : ''}
+                ${canReport ? `
+                    <li>
+                        <button class="dropdown-item action-report" data-id="${id}" data-type="${type}" ${hasReported ? 'disabled' : ''}>
+                            <i class="bi bi-flag me-2"></i> ${hasReported ? 'Reported' : 'Report'}
                         </button>
                     </li>
                 ` : ''}
@@ -321,6 +336,46 @@ function deleteItem(id, type) {
         }
     });
 }
+
+$(document).on('click', '.action-report', function (e) {
+    e.preventDefault();
+    const $btn = $(this);
+    const id = $btn.data('id');
+
+    if ($btn.prop('disabled')) return;
+
+    Swal.fire({
+        title: 'Report this comment?',
+        input: 'textarea',
+        inputLabel: 'Reason (optional)',
+        inputPlaceholder: 'Tell us why you are reporting this comment...',
+        showCancelButton: true,
+        confirmButtonText: 'Report',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (!result.isConfirmed) return;
+
+        $.post(`/comments/${id}/report`, { reason: result.value || '' })
+            .done(function () {
+                $btn.prop('disabled', true);
+                $btn.html('<i class="bi bi-flag me-2"></i> Reported');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Reported',
+                    text: 'Thanks for your report.',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            })
+            .fail(function (xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: xhr.responseText || 'Failed to report comment.'
+                });
+            });
+    });
+});
 
 function checkAndShowEmptyState() {
     const $commentsContainer = $('#comments-container');

@@ -65,6 +65,16 @@
                                     <i class="bi bi-file-earmark me-1"></i> Manage Contributor
                                 </button>
                             </li>
+                            <li class="nav-item">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-forum" type="button" role="tab">
+                                    <i class="bi bi-flag me-1"></i> Manage Forum
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-comments" type="button" role="tab">
+                                    <i class="bi bi-chat-left-text me-1"></i> Manage Comments
+                                </button>
+                            </li>
                         </div>
                     </ul>
 
@@ -363,6 +373,190 @@
 
                                         <li class="page-item" th:classappend="${contributorCurrentPage + 1 == contributorTotalPages} ? 'disabled'">
                                             <a class="page-link" th:href="@{/admin/panel(contributorPage=${contributorCurrentPage + 1}, tab='contributor')}">
+                                                &raquo;
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Manage Forum -->
+                        <div class="tab-pane fade" id="panel-forum" role="tabpanel" aria-labelledby="tab-forum">
+                            <div>
+                                <h6 class="fw-semibold mb-2">Reported Threads</h6>
+                                <div th:if="${#lists.isEmpty(forumReports)}" class="text-muted text-center">
+                                    No reported threads.
+                                </div>
+
+                                <div id="forumReportList" th:if="${!#lists.isEmpty(forumReports)}">
+                                    <div class="news-item" th:each="report : ${forumReports}" th:attr="data-name=${report.thread.title}, data-url=@{/forum/{id}(id=${report.thread.id})}">
+                                        <div class="d-flex align-items-start justify-content-between">
+                                            <div>
+                                                <h6 class="mb-1" th:text="${report.thread.title}"></h6>
+                                                <small class="text-muted d-flex align-items-center gap-2">
+                                                    <span>
+                                                        <i class="bi bi-person"></i>
+                                                        <span th:text="${report.thread.createdBy != null ? report.thread.createdBy.username : 'User'}">User</span>
+                                                    </span>
+                                                    <span>&bull;</span>
+                                                    <span>
+                                                        <i class="bi bi-flag"></i>
+                                                        <span th:text="${report.reportCount}">0</span> Reports
+                                                    </span>
+                                                    <span th:if="${report.latestReportedAt != null}">&bull;</span>
+                                                    <span th:if="${report.latestReportedAt != null}" th:text="${#temporals.format(report.latestReportedAt, 'd MMM yyyy HH:mm')}">time</span>
+                                                </small>
+                                                <div class="text-muted small mt-1" th:if="${report.latestReason != null and !report.latestReason.isEmpty()}">
+                                                    Reason: <span th:text="${#strings.abbreviate(report.latestReason, 120)}">-</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="dropdown">
+                                                <button class="btn btn-link p-1 ellipsis-btn" data-bs-toggle="dropdown">
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li>
+                                                        <a class="dropdown-item" th:href="@{'/forum/' + ${report.thread.id}}">
+                                                            <i class="bi bi-eye me-2"></i> View
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <button class="dropdown-item text-danger action-delete" th:data-id="${report.thread.id}" data-type="forum">
+                                                            <i class="bi bi-trash me-2"></i> Delete
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Pagination -->
+                                <div th:if="${!#lists.isEmpty(forumReports)}" class="pagination-info d-flex justify-content-between align-items-center mt-3">
+                                    <div class="text-muted">
+                                        <span th:with="startItem=${forumCurrentPage * forumPageSize + 1},
+                                                       endItem=${(forumCurrentPage + 1) * forumPageSize > forumTotalElements ? forumTotalElements : (forumCurrentPage + 1) * forumPageSize}">
+                                            Showing
+                                            <span th:text="${startItem}">-</span>
+                                            to
+                                            <span th:text="${endItem}">-</span>
+                                            of
+                                            <span th:text="${forumTotalElements}">-</span>
+                                            reported threads
+                                        </span>
+                                    </div>
+
+                                    <nav>
+                                        <ul class="pagination mb-0">
+                                            <li class="page-item" th:classappend="${forumCurrentPage == 0} ? 'disabled'">
+                                                <a class="page-link" th:href="@{/admin/panel(forumPage=${forumCurrentPage - 1}, tab='forum')}">
+                                                    &laquo;
+                                                </a>
+                                            </li>
+
+                                            <li class="page-item" th:each="i : ${#numbers.sequence(0, forumTotalPages - 1)}" th:classappend="${i == forumCurrentPage} ? 'active'">
+                                                <a class="page-link" th:text="${i + 1}" th:href="@{/admin/panel(forumPage=${i}, tab='forum')}"></a>
+                                            </li>
+
+                                            <li class="page-item" th:classappend="${forumCurrentPage + 1 == forumTotalPages} ? 'disabled'">
+                                                <a class="page-link" th:href="@{/admin/panel(forumPage=${forumCurrentPage + 1}, tab='forum')}">
+                                                    &raquo;
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Manage Comments -->
+                        <div class="tab-pane fade" id="panel-comments" role="tabpanel" aria-labelledby="tab-comments">
+                            <div class="mb-3">
+                                <h6 class="fw-semibold mb-2">Reported Comments</h6>
+                                <div th:if="${#lists.isEmpty(commentReports)}" class="text-muted text-center">
+                                    No reported comments.
+                                </div>
+                                <div th:if="${!#lists.isEmpty(commentReports)}">
+                                    <div class="news-item" th:each="report : ${commentReports}">
+                                        <div class="d-flex align-items-start justify-content-between">
+                                            <div>
+                                                <h6 class="mb-1">
+                                                    <span th:text="${report.comment.parent != null ? 'Reply' : 'Comment'}">Comment</span>
+                                                    <span th:text="'#' + ${report.comment.id}">#0</span>
+                                                    <span class="text-muted" th:text="${report.comment.parent != null ? '(Parent #' + report.comment.parent.id + ')' : ''}"></span>
+                                                </h6>
+                                                <small class="text-muted d-flex align-items-center gap-2">
+                                                    <span>
+                                                        <i class="bi bi-person"></i>
+                                                        <span th:text="${report.comment.user != null ? report.comment.user.username : 'User'}">User</span>
+                                                    </span>
+                                                    <span>&bull;</span>
+                                                    <span>
+                                                        <i class="bi bi-flag"></i>
+                                                        <span th:text="${report.reportCount}">0</span> Reports
+                                                    </span>
+                                                    <span th:if="${report.latestReportedAt != null}">&bull;</span>
+                                                    <span th:if="${report.latestReportedAt != null}" th:text="${#temporals.format(report.latestReportedAt, 'd MMM yyyy HH:mm')}">time</span>
+                                                </small>
+                                                <div class="text-muted small mt-1">
+                                                    Content: <span th:text="${#strings.abbreviate(report.comment.content, 120)}">-</span>
+                                                </div>
+                                                <div class="text-muted small mt-1" th:if="${report.latestReason != null and !report.latestReason.isEmpty()}">
+                                                    Reason: <span th:text="${#strings.abbreviate(report.latestReason, 120)}">-</span>
+                                                </div>
+                                            </div>
+                                            <div class="dropdown">
+                                                <button class="btn btn-link p-1 ellipsis-btn" data-bs-toggle="dropdown">
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li>
+                                                        <a class="dropdown-item" th:href="@{'/news/' + ${report.comment.contentId}}">
+                                                            <i class="bi bi-eye me-2"></i> View
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <button class="dropdown-item text-danger action-delete" th:data-id="${report.comment.id}" data-type="comment">
+                                                            <i class="bi bi-trash me-2"></i> Delete
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div th:if="${!#lists.isEmpty(commentReports)}" class="pagination-info d-flex justify-content-between align-items-center mt-3">
+                                <div class="text-muted">
+                                    <span th:with="startItem=${commentCurrentPage * commentPageSize + 1},
+                                                   endItem=${(commentCurrentPage + 1) * commentPageSize > commentTotalElements ? commentTotalElements : (commentCurrentPage + 1) * commentPageSize}">
+                                        Showing
+                                        <span th:text="${startItem}">-</span>
+                                        to
+                                        <span th:text="${endItem}">-</span>
+                                        of
+                                        <span th:text="${commentTotalElements}">-</span>
+                                        reported comments
+                                    </span>
+                                </div>
+
+                                <nav>
+                                    <ul class="pagination mb-0">
+                                        <li class="page-item" th:classappend="${commentCurrentPage == 0} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/admin/panel(newsCommentPage=${commentCurrentPage - 1}, tab='comments')}">
+                                                &laquo;
+                                            </a>
+                                        </li>
+
+                                        <li class="page-item" th:each="i : ${#numbers.sequence(0, commentTotalPages - 1)}" th:classappend="${i == commentCurrentPage} ? 'active'">
+                                            <a class="page-link" th:text="${i + 1}" th:href="@{/admin/panel(newsCommentPage=${i}, tab='comments')}"></a>
+                                        </li>
+
+                                        <li class="page-item" th:classappend="${commentCurrentPage + 1 == commentTotalPages} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/admin/panel(newsCommentPage=${commentCurrentPage + 1}, tab='comments')}">
                                                 &raquo;
                                             </a>
                                         </li>
@@ -904,6 +1098,8 @@
                 if (type === "category") ajaxUrl = "/admin/categories/delete";
                 if (type === "news") ajaxUrl = "/admin/news/delete";
                 if (type === "activity") ajaxUrl = "/admin/activities/delete";
+                if (type === "forum") ajaxUrl = "/admin/forum/delete";
+                if (type === "comment") ajaxUrl = "/admin/comments/delete";
 
                 Swal.fire({
                     title: "Are you sure?",

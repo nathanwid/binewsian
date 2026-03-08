@@ -1,14 +1,13 @@
 package com.binewsian.service.impl;
 
-import com.binewsian.exception.BiNewsianException;
 import com.binewsian.model.User;
 import com.binewsian.service.EmailService;
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -24,8 +23,9 @@ public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine templateEngine;
 
+    @Async
     @Override
-    public void sendCredentials(String email, String username, String rawPassword) throws BiNewsianException {
+    public void sendCredentials(String email, String username, String rawPassword) {
         log.info("Sending credentials email to {}", email);
 
         try {
@@ -53,14 +53,14 @@ public class EmailServiceImpl implements EmailService {
             mailSender.send(message);
 
             log.info("Email successfully sent to {}", email);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             log.error("Failed to send email to {}", email, e);
-            throw new BiNewsianException("Failed to send credentials email");
         }
     }
 
+    @Async
     @Override
-    public void sendResetPassword(String email, String token, String appUrl) throws BiNewsianException {
+    public void sendResetPassword(String email, String token, String appUrl) {
         log.info("Sending reset password email to {}", email);
 
         try {
@@ -90,14 +90,14 @@ public class EmailServiceImpl implements EmailService {
             mailSender.send(message);
 
             log.info("Email successfully sent to {}", email);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             log.error("Failed to send email to {}", email, e);
-            throw new BiNewsianException("Failed to send reset password email");
         }
     }
 
+    @Async
     @Override
-    public void sendContentNotification(User user, Map<String, Object> data) throws BiNewsianException {
+    public void sendContentNotification(User user, Map<String, Object> data) {
         log.info("Sending content notification email to {}", user.getEmail());
 
         try {
@@ -134,9 +134,8 @@ public class EmailServiceImpl implements EmailService {
             mailSender.send(message);
 
             log.info("Email successfully sent to {}", user.getEmail());
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             log.error("Failed to send email to {}", user.getEmail(), e);
-            throw new BiNewsianException("Failed to send content notification email");
         }
     }
 

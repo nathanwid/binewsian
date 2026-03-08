@@ -14,6 +14,7 @@ import com.binewsian.repository.UserRepository;
 import com.binewsian.service.ActivityService;
 import com.binewsian.service.EmailService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +33,7 @@ import java.util.Map;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class ActivityServiceImpl implements ActivityService {
 
     private final ActivityRepository activityRepository;
@@ -123,6 +125,11 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
+    public Activity findClosestBookmarkedActivity(Long userId) {
+        return activityRepository.findClosestBookmarkedActivity(userId).orElse(null);
+    }
+
+    @Override
     public Page<Activity> findPaginated(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         return activityRepository.findByStatus(ActivityStatus.PUBLISHED, pageable);
@@ -196,7 +203,7 @@ public class ActivityServiceImpl implements ActivityService {
         );
     }
 
-    private void notifyUsers(Activity activity, String appUrl) throws BiNewsianException {
+    private void notifyUsers(Activity activity, String appUrl) {
         List<User> users = userRepository.findByRoleAndEnabledTrue(Role.USER);
 
         Map<String, Object> data = new HashMap<>();
@@ -207,13 +214,7 @@ public class ActivityServiceImpl implements ActivityService {
         data.put("contentDescription", activity.getDetails());
         data.put("contentUrl", appUrl + "/activity/" + activity.getId());
 
-        for (User user : users) {
-            try {
-                emailService.sendContentNotification(user, data);
-            } catch (BiNewsianException e) {
-                throw new BiNewsianException(e.getMessage());
-            }
-        }
+        users.forEach(user -> emailService.sendContentNotification(user, data));
     }
 
     private Sort getSort(String sortBy) {

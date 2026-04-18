@@ -214,7 +214,7 @@ public class ActivityServiceImpl implements ActivityService {
         data.put("contentDescription", activity.getDetails());
         data.put("contentUrl", appUrl + "/activity/" + activity.getId());
 
-        users.forEach(user -> emailService.sendContentNotification(user, data));
+        emailService.sendContentNotification(users, data);
     }
 
     private Sort getSort(String sortBy) {

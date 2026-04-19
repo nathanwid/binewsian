@@ -16,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
 @Controller
@@ -113,7 +114,8 @@ public class AuthController {
 
     @PostMapping("/register")
     public String register(@RequestParam String username, @RequestParam String password,
-                           @RequestParam String confirmPassword, @RequestParam String email, Model model) {
+                           @RequestParam String confirmPassword, @RequestParam String email,
+                           RedirectAttributes redirectAttributes, Model model) {
 
         if (!password.equals(confirmPassword)) {
             model.addAttribute("error", "Password does not match!");
@@ -124,7 +126,7 @@ public class AuthController {
 
         try {
             authService.register(username, password, email);
-            model.addAttribute("success", "Registration successful!");
+            redirectAttributes.addFlashAttribute("success", "Registration successful!");
             return "redirect:/login";
         } catch (BiNewsianException e) {
             model.addAttribute("error", e.getMessage());

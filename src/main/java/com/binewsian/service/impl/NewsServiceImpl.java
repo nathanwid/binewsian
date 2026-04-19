@@ -189,7 +189,7 @@ public class NewsServiceImpl implements NewsService {
         data.put("contentDescription", news.getSummary());
         data.put("contentUrl", appUrl + "/news/" + news.getId());
 
-        users.forEach(user -> emailService.sendContentNotification(user, data));
+        emailService.sendContentNotification(users, data);
     }
 
     private void validateOwner(News news, User user) throws BiNewsianException {

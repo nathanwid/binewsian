@@ -14,10 +14,6 @@ supabase.s3.access-key=YOUR_SUPABASE_ACCESS_KEY
 supabase.s3.secret-key=YOUR_SUPABASE_SECRET_KEY
 supabase.s3.bucket-name=YOUR_SUPABASE_BUCKET_NAME
 
-# Email Configuration
-spring.mail.username=YOUR_USERNAME
-spring.mail.password=YOUR_APP_PASSWORD
-
 # Resend API Configuration
 resend.api.key=RESEND_API_KEY
 resend.from.email=RESEND_FROM_EMAIL
